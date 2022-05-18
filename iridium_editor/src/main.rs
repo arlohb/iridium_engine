@@ -14,8 +14,8 @@ fn main() {
             ]),
         ]),
         vec![
-            Box::new(VelocitySystem { activated: true }),
-            Box::new(PositionLoggerSystem { activated: true }),
+            Box::new(VelocitySystem::new(true)),
+            Box::new(PositionLoggerSystem::new(true)),
         ]
     );
 

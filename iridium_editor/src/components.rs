@@ -1,21 +1,13 @@
-use iridium_ecs::Component;
+use iridium_ecs_macros::Component;
 
-#[derive(Default, Debug)]
+#[derive(Component, Default, Debug)]
 pub struct Position {
     pub x: f64,
     pub y: f64,
 }
 
-impl Component for Position {
-    fn get_type(&self) -> &'static str { "Position" }
-}
-
-#[derive(Default, Debug)]
+#[derive(Component, Default, Debug)]
 pub struct Velocity {
     pub x: f64,
     pub y: f64,
-}
-
-impl Component for Velocity {
-    fn get_type(&self) -> &'static str { "Velocity" }
 }
