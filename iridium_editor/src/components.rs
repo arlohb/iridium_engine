@@ -1,4 +1,4 @@
-use super::Component;
+use iridium_ecs::Component;
 
 #[derive(Default, Debug)]
 pub struct Position {

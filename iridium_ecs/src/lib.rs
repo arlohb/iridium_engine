@@ -1,12 +1,10 @@
 mod component;
 pub use component::*;
-mod components;
-pub use components::*;
 mod entity;
 pub use entity::*;
 mod entities;
 pub use entities::*;
 mod system;
 pub use system::*;
-mod systems;
-pub use systems::*;
+mod world;
+pub use world::*;

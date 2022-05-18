@@ -1,4 +1,5 @@
-use super::*;
+use iridium_ecs::*;
+use crate::components::*;
 
 pub struct VelocitySystem {
     pub activated: bool,

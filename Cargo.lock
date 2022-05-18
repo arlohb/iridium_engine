@@ -3,5 +3,12 @@
 version = 3
 
 [[package]]
-name = "iridium_engine"
+name = "iridium_ecs"
 version = "0.1.0"
+
+[[package]]
+name = "iridium_editor"
+version = "0.1.0"
+dependencies = [
+ "iridium_ecs",
+]
