@@ -1,33 +1,13 @@
 mod ecs;
 use ecs::*;
 
-struct System {
-    pub name: &'static str,
-    pub activated: bool,
-    system: fn(&mut Entities) -> (),
-}
-
-impl System {
-    pub fn new(name: &'static str, activated: bool, system: fn(&mut Entities) -> ()) -> System {
-        System {
-            name,
-            activated,
-            system,
-        }
-    }
-
-    pub fn run(&self, entities: &mut Entities) {
-        (self.system)(entities);
-    }
-}
-
 struct World {
     entities: Entities,
-    systems: Vec<System>,
+    systems: Vec<Box<dyn System>>,
 }
 
 impl World {
-    pub fn new(entities: Entities, systems: Vec<System>) -> World {
+    pub fn new(entities: Entities, systems: Vec<Box<dyn System>>) -> World {
         World {
             entities,
             systems,
@@ -36,7 +16,7 @@ impl World {
 
     pub fn run_systems(&mut self) {
         for system in &self.systems {
-            if system.activated {
+            if system.get_activated() {
                 system.run(&mut self.entities);
             }
         }
@@ -60,27 +40,8 @@ fn main() {
             ]),
         ]),
         vec![
-            System::new(
-                "Move",
-                true,
-                |entities| {
-                    entities.query_2::<Position, Velocity>().iter().for_each(|e| {
-                        let pos = e.get_component::<Position>().unwrap();
-                        let vel = e.get_component::<Velocity>().unwrap();
-                        pos.x += vel.x;
-                        pos.y += vel.y;
-                    });
-                }
-            ),
-            System::new(
-                "Position logger",
-                true,
-                |entities| {
-                    entities.query_1::<Position>().iter().for_each(|e| {
-                        println!("{:?}", e.get_component::<Position>().unwrap());
-                    });
-                }
-            ),
+            Box::new(VelocitySystem { activated: true }),
+            Box::new(PositionLoggerSystem { activated: true }),
         ]
     );
 
