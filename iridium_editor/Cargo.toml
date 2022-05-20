@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 iridium_ecs = { path = "../iridium_ecs" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }
-rodio = "0.15.0"
