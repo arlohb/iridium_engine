@@ -19,10 +19,10 @@ impl Entity {
     }
 
     pub fn get_component<T>(&self) -> Option<&mut T>
-        where T: Component + Default + 'static
+        where T: Component
     {
         self.components.iter().find_map(|comp_box| {
-            if comp_box.get_type() == T::default().get_type() {
+            if comp_box.dyn_get_type() == T::get_type() {
                 Some({
                     let c_value = &**comp_box;
                     // get the raw pointer to the component

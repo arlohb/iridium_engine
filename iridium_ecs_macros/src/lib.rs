@@ -9,9 +9,8 @@ pub fn derive_component(tokens: TokenStream) -> TokenStream {
 
     quote! {
         impl iridium_ecs::Component for #struct_name {
-            fn get_type(&self) -> &'static str {
-                stringify!(#struct_name)
-            }
+            fn get_type() -> &'static str { stringify!(#struct_name) }
+            fn dyn_get_type(&self) -> &'static str { stringify!(#struct_name) }
         }
     }.to_string()
         .parse()
