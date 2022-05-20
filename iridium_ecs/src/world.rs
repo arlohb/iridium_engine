@@ -14,7 +14,7 @@ impl World {
     }
 
     pub fn run_systems(&mut self) {
-        for system in &self.systems {
+        for system in self.systems.iter_mut() {
             if system.get_activated() {
                 system.run_system(&mut self.entities);
             }

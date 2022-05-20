@@ -8,7 +8,7 @@ pub struct VelocitySystem {
 }
 
 impl VelocitySystem {
-    fn run(&self, entities: &mut Entities) {
+    fn run(&mut self, entities: &mut Entities) {
         for entity in entities.query_2::<Position, Velocity>().iter() {
             let position = entity.get_component::<Position>().unwrap();
             let velocity = entity.get_component::<Velocity>().unwrap();
@@ -25,7 +25,7 @@ pub struct PositionLoggerSystem {
 }
 
 impl PositionLoggerSystem {
-    fn run(&self, entities: &mut Entities) {
+    fn run(&mut self, entities: &mut Entities) {
         for entity in entities.query_1::<Position>().iter() {
             println!("{:?}", entity.get_component::<Position>().unwrap());
         }

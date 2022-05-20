@@ -1,5 +1,5 @@
 [package]
-name = "iridium_editor"
+name = "iridium_graphics"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 iridium_ecs = { path = "../iridium_ecs" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }
-winit = "0.26.1"

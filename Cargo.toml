@@ -3,5 +3,6 @@
 members = [
     "iridium_ecs",
     "iridium_ecs_macros",
-    "iridium_editor"
+    "iridium_editor",
+    "iridium_graphics"
 ]
