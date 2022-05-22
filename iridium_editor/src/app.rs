@@ -1,6 +1,6 @@
 use winit::{
     window::Window,
-    event::WindowEvent,
+    event::*,
 };
 
 pub struct App {
@@ -56,8 +56,20 @@ impl App {
         }
     }
 
-    pub fn input(&mut self, _event: &WindowEvent) -> bool {
-        false
+    pub fn input(&mut self, event: &WindowEvent) -> bool {
+        match event {
+            WindowEvent::KeyboardInput {
+                input: KeyboardInput {
+                    state: ElementState::Pressed,
+                    virtual_keycode: Some(key),
+                    ..
+                },
+                ..
+            } => {
+                *key != VirtualKeyCode::Escape
+            },
+            _ => false,
+        }
     }
 
     pub fn update(&mut self) {}
