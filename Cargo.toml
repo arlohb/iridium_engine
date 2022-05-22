@@ -1,8 +1,15 @@
 [workspace]
 
+# This is usually implied by edition = "2021",
+# but this doesn't seem to work in a workspace
+resolver = "2"
+
 members = [
     "iridium_ecs",
     "iridium_ecs_macros",
     "iridium_editor",
     "iridium_graphics"
 ]
+
+[profile.dev]
+opt-level = 2
