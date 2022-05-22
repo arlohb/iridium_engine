@@ -1,17 +1,19 @@
-use iridium_ecs_macros::Component;
+use std::sync::Arc;
 
-#[derive(Component, Debug)]
-pub struct Position {
-    pub x: f64,
-    pub y: f64,
-    /// If 3D, this is the z-axis.
-    /// If 2D, this is the sorting layer.
-    pub z: f64,
-}
+use hashbrown::HashMap;
+use iridium_ecs::{ComponentType, fast_map, create_component_types};
 
-#[derive(Component, Debug)]
-pub struct Velocity {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+pub fn component_types() -> HashMap<String, Arc<ComponentType>> {
+    create_component_types! {
+        "Position" => fast_map! {
+            "x" => "f64",
+            "y" => "f64",
+            "z" => "f64"
+        },
+        "Velocity" => fast_map! {
+            "x" => "f64",
+            "y" => "f64",
+            "z" => "f64"
+        }
+    }
 }

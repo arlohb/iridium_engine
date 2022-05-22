@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 iridium_ecs = { path = "../iridium_ecs" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }
+hashbrown = "0.12.1"

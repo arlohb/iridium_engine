@@ -1,6 +1,5 @@
 use iridium_ecs::*;
 use iridium_ecs_macros::System;
-use crate::components::*;
 
 #[derive(System)]
 pub struct VelocitySystem {
@@ -9,13 +8,16 @@ pub struct VelocitySystem {
 
 impl VelocitySystem {
     fn run(&mut self, entities: &mut Entities, _delta_time: f64) {
-        for entity in entities.query_2::<Position, Velocity>().iter() {
-            let position = entity.get_component::<Position>().unwrap();
-            let velocity = entity.get_component::<Velocity>().unwrap();
+        for entity in entities.query(vec!["Position", "Velocity"]).iter_mut() {
+            let velocity = entity.get_component("Velocity").unwrap();
+            let x = *velocity.get::<f64>("x").unwrap();
+            let y = *velocity.get::<f64>("y").unwrap();
+            let z = *velocity.get::<f64>("z").unwrap();
+            let position = entity.get_component_mut("Position").unwrap();
 
-            position.x += velocity.x;
-            position.y += velocity.y;
-            position.z += velocity.z;
+            *position.get_mut::<f64>("x").unwrap() += x;
+            *position.get_mut::<f64>("y").unwrap() += y;
+            *position.get_mut::<f64>("z").unwrap() += z;
         }
     }
 }
@@ -27,8 +29,8 @@ pub struct PositionLoggerSystem {
 
 impl PositionLoggerSystem {
     fn run(&mut self, entities: &mut Entities, _delta_time: f64) {
-        for entity in entities.query_1::<Position>().iter() {
-            println!("{:?}", entity.get_component::<Position>().unwrap());
+        for entity in entities.query(vec!["Position"]).iter() {
+            println!("{:?}", entity.get_component("Position").unwrap());
         }
     }
 }

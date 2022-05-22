@@ -1,6 +1,12 @@
-use iridium_ecs_macros::*;
+use iridium_ecs::*;
 
-#[derive(Component)]
-pub struct CustomComponent {
-    pub value: u32,
+pub fn component_types() -> Vec<ComponentType> {
+    vec![
+        ComponentType {
+            name: "Custom".to_string(),
+            values: fast_map! {
+                "test" => "f64"
+            },
+        },
+    ]
 }

@@ -1,5 +1,4 @@
 mod components;
-use components::*;
 mod systems;
 use systems::*;
 mod app;
@@ -24,12 +23,22 @@ async fn main() {
     
     let mut app = App::new(&window).await;
 
+    let types = components::component_types();
+
     let mut world = World::new(
         Entities::new(vec![
-            Entity::new(vec![
-                Box::new(Position { x: 0., y: 0., z: 0. }),
-                Box::new(Velocity { x: 1., y: 1., z: 1. }),
-            ]),
+            Entity::new(create_components! {
+                "Position" => &types["Position"] => fast_map_any! {
+                    "x" => 0.0,
+                    "y" => 0.0,
+                    "z" => 0.0
+                },
+                "Velocity" => &types["Velocity"] => fast_map_any! {
+                    "x" => 1.0,
+                    "y" => 1.0,
+                    "z" => 1.0
+                }
+            }),
         ]),
         vec![
             Box::new(VelocitySystem::new(true)),
