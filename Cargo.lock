@@ -529,6 +529,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "iridium_example_project"
+version = "0.1.0"
+dependencies = [
+ "iridium_ecs",
+ "iridium_ecs_macros",
+]
+
+[[package]]
 name = "iridium_graphics"
 version = "0.1.0"
 dependencies = [

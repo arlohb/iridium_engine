@@ -8,7 +8,8 @@ members = [
     "iridium_ecs",
     "iridium_ecs_macros",
     "iridium_editor",
-    "iridium_graphics"
+    "iridium_graphics",
+    "iridium_example_project"
 ]
 
 [profile.dev]
