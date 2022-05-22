@@ -13,10 +13,10 @@ impl World {
         }
     }
 
-    pub fn run_systems(&mut self) {
+    pub fn run_systems(&mut self, delta_time: f64) {
         for system in self.systems.iter_mut() {
             if system.get_activated() {
-                system.run_system(&mut self.entities);
+                system.run_system(&mut self.entities, delta_time);
             }
         }
     }

@@ -34,8 +34,11 @@ async fn main() {
         vec![
             Box::new(VelocitySystem::new(true)),
             Box::new(PositionLoggerSystem::new(true)),
+            Box::new(DeltaTimeLoggerSystem::new(true)),
         ]
     );
+
+    let mut last_time = std::time::Instant::now();
 
     event_loop.run(move |event, _, control_flow| match event {
         Event::WindowEvent {
@@ -62,7 +65,12 @@ async fn main() {
             _ => {}
         }},
         Event::RedrawRequested(window_id) if window_id == window.id() => {
+            let delta_time = last_time.elapsed().as_nanos() as f64 / 1_000_000.;
+            last_time = std::time::Instant::now();
+
+            world.run_systems(delta_time);
             app.update();
+
             match app.render() {
                 Ok(_) => {},
                 Err(wgpu::SurfaceError::Lost) => app.resize(app.surface_size),

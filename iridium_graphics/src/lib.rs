@@ -5,18 +5,18 @@ use iridium_ecs_macros::*;
 pub struct Renderer2DSystem {
     activated: bool,
 
-    data: f64,
+    _data: f64,
 }
 
 impl Renderer2DSystem {
     pub fn new(activated: bool) -> Self {
         Self {
             activated,
-            data: 1.,
+            _data: 1.,
         }
     }
 
-    fn run(&mut self, entities: &mut Entities) {
+    fn run(&mut self, _entities: &mut Entities, _delta_time: f64) {
         
     }
 }
