@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 hashbrown = "0.12.1"
+uuid = { version = "1.0.0", features = ["fast-rng", "v4"] }

@@ -1,4 +1,7 @@
-use std::{any::Any, sync::Arc};
+use std::{
+    any::Any,
+    fmt::Write,
+};
 
 use hashbrown::HashMap;
 
@@ -9,41 +12,39 @@ pub struct ComponentType {
 
 pub struct Component {
     pub name: String,
-    pub schema: Arc<ComponentType>,
     values: HashMap<String, Box<dyn Any>>,
-}
-
-impl std::fmt::Debug for Component {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {{ ", self.name)?;
-        for (key, value_type) in &self.schema.values {
-            let value = self.values.get(key).unwrap();
-            match value_type.as_str() {
-                "f32" => write!(f, "{}: {:?}, ", key, value.downcast_ref::<f32>().unwrap())?,
-                "f64" => write!(f, "{}: {:?}, ", key, value.downcast_ref::<f64>().unwrap())?,
-                "i32" => write!(f, "{}: {:?}, ", key, value.downcast_ref::<i32>().unwrap())?,
-                "i64" => write!(f, "{}: {:?}, ", key, value.downcast_ref::<i64>().unwrap())?,
-                "u32" => write!(f, "{}: {:?}, ", key, value.downcast_ref::<u32>().unwrap())?,
-                "u64" => write!(f, "{}: {:?}, ", key, value.downcast_ref::<u64>().unwrap())?,
-                "bool" => write!(f, "{}: {:?}, ", key, value.downcast_ref::<bool>().unwrap())?,
-                _ => write!(f, "{}: {:?}, ", key, value_type)?,
-            }
-        }
-        write!(f, "}}")
-    }
 }
 
 impl Component {
     pub fn new(
         name: &str,
-        schema: Arc<ComponentType>,
         values: HashMap<String, Box<dyn Any>>,
     ) -> Component {
         Component {
             name: name.to_owned(),
-            schema,
             values,
         }
+    }
+
+    pub fn display(&self, component_type: &ComponentType) -> String {
+        let mut result = String::new();
+        write!(result, "{} {{ ", self.name).unwrap();
+        for (key, value_type) in &component_type.values {
+            let value = self.values.get(key).unwrap();
+            match value_type.as_str() {
+                "f32" => write!(result, "{}: {:?}, ", key, value.downcast_ref::<f32>().unwrap()).unwrap(),
+                "f64" => write!(result, "{}: {:?}, ", key, value.downcast_ref::<f64>().unwrap()).unwrap(),
+                "i32" => write!(result, "{}: {:?}, ", key, value.downcast_ref::<i32>().unwrap()).unwrap(),
+                "i64" => write!(result, "{}: {:?}, ", key, value.downcast_ref::<i64>().unwrap()).unwrap(),
+                "u32" => write!(result, "{}: {:?}, ", key, value.downcast_ref::<u32>().unwrap()).unwrap(),
+                "u64" => write!(result, "{}: {:?}, ", key, value.downcast_ref::<u64>().unwrap()).unwrap(),
+                "bool" => write!(result, "{}: {:?}, ", key, value.downcast_ref::<bool>().unwrap()).unwrap(),
+                "String" => write!(result, "{}: {:?}, ", key, value.downcast_ref::<String>().unwrap()).unwrap(),
+                _ => write!(result, "{}: {:?}, ", key, value_type).unwrap(),
+            }
+        }
+        write!(result, "}}").unwrap();
+        result
     }
 
     pub fn get<T>(&self, key: &str) -> Option<&T>
@@ -92,13 +93,12 @@ macro_rules! fast_map_any {
 
 #[macro_export]
 macro_rules! create_components {
-    ($($key:expr => $schema:expr => $value:expr),*) => {
+    ($($key:expr => $value:expr),*) => {
         {
-            let mut components = Vec::new();
+            let mut components = Vec::<Component>::new();
             $(
                 components.push(Component::new(
                     $key,
-                    $schema.clone(),
                     $value
                 ));
             )*
@@ -111,14 +111,14 @@ macro_rules! create_components {
 macro_rules! create_component_types {
     ($($key:expr => $value:expr),*) => {
         {
-            let mut components = hashbrown::HashMap::<String, std::sync::Arc<ComponentType>>::new();
+            let mut components = hashbrown::HashMap::<String, ComponentType>::new();
             $(
                 components.insert(
                     $key.to_string(),
-                    std::sync::Arc::new(ComponentType {
+                    ComponentType {
                         name: $key.to_string(),
                         values: $value
-                    })
+                    }
                 );
             )*
             components

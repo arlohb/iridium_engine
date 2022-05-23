@@ -23,23 +23,30 @@ async fn main() {
     
     let mut app = App::new(&window).await;
 
-    let types = components::component_types();
-
     let mut world = World::new(
-        Entities::new(vec![
-            Entity::new(create_components! {
-                "Position" => &types["Position"] => fast_map_any! {
-                    "x" => 0.0,
-                    "y" => 0.0,
-                    "z" => 0.0
+        {
+            let mut entities = Entities::new(components::component_types());
+
+            let new_entity = entities.new_entity("Entity 0");
+
+            entities.add_components(
+                new_entity,
+                create_components! {
+                    "Position" => fast_map_any! {
+                        "x" => 0.0,
+                        "y" => 0.0,
+                        "z" => 0.0
+                    },
+                    "Velocity" => fast_map_any! {
+                        "x" => 1.0,
+                        "y" => 1.0,
+                        "z" => 1.0
+                    }
                 },
-                "Velocity" => &types["Velocity"] => fast_map_any! {
-                    "x" => 1.0,
-                    "y" => 1.0,
-                    "z" => 1.0
-                }
-            }),
-        ]),
+            );
+
+            entities
+        },
         vec![
             Box::new(VelocitySystem::new(true)),
             Box::new(PositionLoggerSystem::new(true)),

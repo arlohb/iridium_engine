@@ -1,7 +1,5 @@
 mod component;
 pub use component::*;
-mod entity;
-pub use entity::*;
 mod entities;
 pub use entities::*;
 mod system;
