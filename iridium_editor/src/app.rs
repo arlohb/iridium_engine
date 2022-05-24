@@ -103,7 +103,6 @@ impl App {
         }
         
         self.queue.submit(std::iter::once(encoder.finish()));
-        // self.queue.submit([encoder.finish()]);
         output.present();
 
         Ok(())
