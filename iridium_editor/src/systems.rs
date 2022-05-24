@@ -42,6 +42,6 @@ pub struct DeltaTimeLoggerSystem {
 
 impl DeltaTimeLoggerSystem {
     fn run(&mut self, _entities: &mut Entities, delta_time: f64) {
-        println!("Delta Time: {}", delta_time);
+        println!("Delta Time: {:<10} Fps: {:<8.1}", delta_time, 1000. / delta_time);
     }
 }
