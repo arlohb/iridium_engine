@@ -1,5 +1,5 @@
 use super::*;
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard};
 use hashbrown::HashMap;
 
 pub struct Entities {
@@ -50,7 +50,7 @@ impl Entities {
 
     pub fn query<const N: usize>(
         &self, component_types: [&str; N]
-    ) -> std::vec::IntoIter<[&Mutex<component::Component>; N]> {
+    ) -> std::vec::IntoIter<[MutexGuard<component::Component>; N]> {
         component_types
             .iter()
             // for each component_type, get a list of entities that have that component
@@ -74,12 +74,14 @@ impl Entities {
 
                 into_array(component_types
                     .iter()
-                    .map(|name| &self.components
+                    .map(|name| self.components
                         [*name]
-                        [id])
+                        [id]
+                    .lock()
+                    .unwrap())
                     .collect::<Vec<_>>())
                 })
-            .collect::<Vec<[&Mutex<Component>; N]>>()
+            .collect::<Vec<[_; N]>>()
             .into_iter()
     }
 }

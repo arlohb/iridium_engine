@@ -49,8 +49,8 @@ async fn main() {
         },
         vec![
             Box::new(VelocitySystem::new(true)),
-            Box::new(PositionLoggerSystem::new(false)),
-            Box::new(DeltaTimeLoggerSystem::new(true)),
+            Box::new(PositionLoggerSystem::new(true)),
+            Box::new(DeltaTimeLoggerSystem::new(false)),
         ]
     );
 

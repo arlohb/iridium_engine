@@ -47,16 +47,16 @@ impl Component {
         result
     }
 
-    pub fn get<T>(&self, key: &str) -> Option<&T>
+    pub fn get<T>(&self, key: &str) -> &T
         where T: 'static {
-        let value = self.values.get(&key.to_owned())?;
-        value.downcast_ref::<T>()
+        let value = self.values.get(&key.to_owned()).unwrap();
+        value.downcast_ref::<T>().unwrap()
     }
 
-    pub fn get_mut<T>(&mut self, key: &str) -> Option<&mut T>
+    pub fn get_mut<T>(&mut self, key: &str) -> &mut T
         where T: 'static {
-        let value = self.values.get_mut(&key.to_owned())?;
-        value.downcast_mut::<T>()
+        let value = self.values.get_mut(&key.to_owned()).unwrap();
+        value.downcast_mut::<T>().unwrap()
     }
 
     pub fn add<T>(&mut self, key: &str, value: T)
