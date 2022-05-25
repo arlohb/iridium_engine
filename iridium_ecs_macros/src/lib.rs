@@ -28,7 +28,7 @@ pub fn derive_system(tokens: TokenStream) -> TokenStream {
         }.to_string(),
         _ => "".to_string()
     }) + &quote! {
-        impl iridium_ecs::System for #struct_name {
+        impl iridium_ecs::systems::System for #struct_name {
             fn name(&self) -> &'static str {
                 stringify!(#struct_name)
             }

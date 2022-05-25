@@ -1,4 +1,4 @@
-use super::*;
+use crate::*;
 
 pub trait System {
     fn name(&self) -> &'static str;

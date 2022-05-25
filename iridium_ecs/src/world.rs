@@ -1,12 +1,13 @@
-use super::*;
+use crate::*;
+use systems::*;
 
 pub struct World {
     entities: Entities,
-    systems: Vec<Box<dyn System>>,
+    systems: Systems,
 }
 
 impl World {
-    pub fn new(entities: Entities, systems: Vec<Box<dyn System>>) -> World {
+    pub fn new(entities: Entities, systems: Systems) -> World {
         World {
             entities,
             systems,
@@ -14,10 +15,6 @@ impl World {
     }
 
     pub fn run_systems(&mut self, delta_time: f64) {
-        for system in self.systems.iter_mut() {
-            if system.get_activated() {
-                system.run_system(&mut self.entities, delta_time);
-            }
-        }
+        self.systems.run_systems(&mut self.entities, delta_time);
     }
 }

@@ -5,6 +5,7 @@ mod app;
 use app::*;
 
 use iridium_ecs::*;
+use iridium_ecs::systems::*;
 
 use winit::{
     event::*,
@@ -47,11 +48,15 @@ async fn main() {
 
             entities
         },
-        vec![
-            Box::new(VelocitySystem::new(true)),
-            Box::new(PositionLoggerSystem::new(true)),
-            Box::new(DeltaTimeLoggerSystem::new(false)),
-        ]
+        Systems::new(vec![
+            SystemsStage::new(vec![
+                Box::new(VelocitySystem::new(true)),
+            ]),
+            SystemsStage::new(vec![
+                Box::new(PositionLoggerSystem::new(true)),
+                Box::new(DeltaTimeLoggerSystem::new(true)),
+            ]),
+        ]),
     );
 
     let mut last_time = std::time::Instant::now();
