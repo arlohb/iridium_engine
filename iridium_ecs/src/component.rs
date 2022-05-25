@@ -15,6 +15,9 @@ pub struct Component {
     values: HashMap<String, Box<dyn Any>>,
 }
 
+unsafe impl Send for Component {}
+unsafe impl Sync for Component {}
+
 impl Component {
     pub fn new(
         name: &str,

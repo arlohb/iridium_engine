@@ -7,7 +7,7 @@ pub struct CustomSystem {
 }
 
 impl CustomSystem {
-    fn run(&mut self, entities: &mut Entities, _delta_time: f64) {
+    fn run(&mut self, entities: &Entities, _delta_time: f64) {
         for [custom_component] in entities.query(["CustomComponent"]) {
             println!("Custom component value: {}", custom_component.get::<f64>("test"));
         }

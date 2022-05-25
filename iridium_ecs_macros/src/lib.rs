@@ -41,7 +41,7 @@ pub fn derive_system(tokens: TokenStream) -> TokenStream {
                 self.activated = activated;
             }
 
-            fn run_system(&mut self, entities: &mut iridium_ecs::Entities, delta_time: f64) {
+            fn run_system(&mut self, entities: &iridium_ecs::Entities, delta_time: f64) {
                 self.run(entities, delta_time);
             }
         }

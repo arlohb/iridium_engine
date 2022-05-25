@@ -12,7 +12,7 @@ impl Systems {
         }
     }
 
-    pub fn run_systems(&mut self, entities: &mut Entities, delta_time: f64) {
+    pub fn run_systems(&mut self, entities: &Entities, delta_time: f64) {
         for systems_stage in self.systems.iter_mut() {
             systems_stage.run_systems(entities, delta_time);
         }

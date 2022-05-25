@@ -1,3 +1,5 @@
+use rayon::prelude::*;
+
 use crate::Entities;
 use super::*;
 
@@ -12,11 +14,11 @@ impl SystemsStage {
         }
     }
 
-    pub fn run_systems(&mut self, entities: &mut Entities, delta_time: f64) {
-        for system in self.systems.iter_mut() {
+    pub fn run_systems(&mut self, entities: &Entities, delta_time: f64) {
+        self.systems.par_iter_mut().for_each(|system| {
             if system.get_activated() {
                 system.run_system(entities, delta_time);
             }
-        }
+        });
     }
 }

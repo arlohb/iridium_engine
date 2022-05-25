@@ -7,7 +7,7 @@ pub struct VelocitySystem {
 }
 
 impl VelocitySystem {
-    fn run(&mut self, entities: &mut Entities, _delta_time: f64) {
+    fn run(&mut self, entities: &Entities, _delta_time: f64) {
         for [mut position, velocity]
         in entities.query(["Position", "Velocity"]) {
             *position.get_mut::<f64>("x") += velocity.get::<f64>("x");
@@ -23,7 +23,7 @@ pub struct PositionLoggerSystem {
 }
 
 impl PositionLoggerSystem {
-    fn run(&mut self, entities: &mut Entities, _delta_time: f64) {
+    fn run(&mut self, entities: &Entities, _delta_time: f64) {
         for [position]
         in entities.query(["Position"]) {
             println!("{}", position.display(&entities.component_types["Position"]));
@@ -37,7 +37,7 @@ pub struct DeltaTimeLoggerSystem {
 }
 
 impl DeltaTimeLoggerSystem {
-    fn run(&mut self, _entities: &mut Entities, delta_time: f64) {
+    fn run(&mut self, _entities: &Entities, delta_time: f64) {
         println!("Delta Time: {:<10} Fps: {:>8.1}", delta_time, 1000. / delta_time);
     }
 }

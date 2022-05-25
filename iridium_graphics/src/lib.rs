@@ -16,7 +16,7 @@ impl Renderer2DSystem {
         }
     }
 
-    fn run(&mut self, _entities: &mut Entities, _delta_time: f64) {
+    fn run(&mut self, _entities: &Entities, _delta_time: f64) {
         
     }
 }
