@@ -53,8 +53,8 @@ async fn main() {
                 Box::new(VelocitySystem::new(true)),
             ]),
             SystemsStage::new(vec![
-                Box::new(PositionLoggerSystem::new(true)),
-                Box::new(DeltaTimeLoggerSystem::new(true)),
+                Box::new(PositionLoggerSystem::new(false)),
+                Box::new(FrameHistorySystem::new(true, 400)),
             ]),
         ]),
     );

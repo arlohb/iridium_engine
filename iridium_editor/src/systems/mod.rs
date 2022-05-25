@@ -1,4 +1,7 @@
-use iridium_ecs::*;
+mod frame_history;
+pub use frame_history::*;
+
+use iridium_ecs::Entities;
 use iridium_ecs_macros::System;
 
 #[derive(System)]
@@ -28,16 +31,5 @@ impl PositionLoggerSystem {
         in entities.query(["Position"]) {
             println!("{}", position.display(&entities.component_types["Position"]));
         }
-    }
-}
-
-#[derive(System)]
-pub struct DeltaTimeLoggerSystem {
-    activated: bool,
-}
-
-impl DeltaTimeLoggerSystem {
-    fn run(&mut self, _entities: &Entities, delta_time: f64) {
-        println!("Delta Time: {:<10} Fps: {:>8.1}", delta_time, 1000. / delta_time);
     }
 }
