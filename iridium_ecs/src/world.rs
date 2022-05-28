@@ -15,6 +15,6 @@ impl World {
     }
 
     pub fn run_systems(&mut self, delta_time: f64) {
-        self.systems.run_systems(&mut self.entities, delta_time);
+        self.systems.run_systems(&self.entities, delta_time);
     }
 }
