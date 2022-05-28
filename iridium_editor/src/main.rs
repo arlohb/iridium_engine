@@ -54,7 +54,7 @@ async fn main() {
             ]),
             SystemsStage::new(vec![
                 Box::new(PositionLoggerSystem::new(false)),
-                Box::new(FrameHistorySystem::new(true, 400)),
+                Box::new(FrameHistorySystem::new(true, 500_000, 5000.)),
             ]),
         ]),
     );

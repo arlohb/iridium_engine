@@ -1,34 +1,57 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, time::SystemTime};
 
 use iridium_ecs::Entities;
 use iridium_ecs_macros::System;
+
+pub struct Frame {
+    pub time: SystemTime,
+    pub delta_time: f64,
+}
 
 #[derive(System)]
 pub struct FrameHistorySystem {
     activated: bool,
 
-    delta_times: VecDeque<f64>,
+    frames: VecDeque<Frame>,
     max_frames: usize,
+    max_age: f64,
 }
 
 impl FrameHistorySystem {
-    pub fn new(activated: bool, max_frames: usize) -> Self {
+    pub fn new(activated: bool, max_frames: usize, max_age: f64) -> Self {
         Self {
             activated,
-            delta_times: VecDeque::with_capacity(max_frames),
+            frames: VecDeque::with_capacity(max_frames),
             max_frames,
+            max_age,
         }
     }
 
+    fn average_delta_time(&self) -> f64 {
+        self.frames
+            .iter()
+            .map(|frame| frame.delta_time)
+            .sum::<f64>()
+            / self.frames.len() as f64
+    }
+
     fn run(&mut self, _entities: &Entities, delta_time: f64) {
-        self.delta_times.push_back(delta_time);
-        if self.delta_times.len() > self.max_frames {
-            self.delta_times.pop_front();
+        self.frames.push_back(Frame {
+            time: std::time::SystemTime::now(),
+            delta_time,
+        });
+        if self.frames.len() > self.max_frames {
+            self.frames.pop_front();
         }
 
-        let total = self.delta_times.iter().sum::<f64>();
-        let average = total / self.delta_times.len() as f64;
+        while let Some(frame) = self.frames.front() {
+            if frame.time.elapsed().unwrap().as_millis() > self.max_age as u128 {
+                self.frames.pop_front();
+            } else {
+                break;
+            }
+        }
 
-        println!("Fps average: {:.1}", 1000. / average);
+        println!("Fps average: {:.1}", 1000. / self.average_delta_time());
     }
 }
