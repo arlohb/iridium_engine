@@ -3,6 +3,7 @@ mod systems;
 use systems::*;
 mod app;
 use app::*;
+mod shaders;
 
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
