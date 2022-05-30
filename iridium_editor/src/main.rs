@@ -7,7 +7,7 @@ use app::*;
 
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
-use iridium_graphics::{create_renderable_2d, Shader, ShaderType};
+use iridium_graphics::*;
 
 use std::sync::Arc;
 use inline_spirv::include_spirv;
@@ -33,7 +33,13 @@ async fn main() {
             &app.device,
             ShaderType::Vertex,
             include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
-            vec![],
+            vec![
+                // wgpu::BindingType::Buffer {
+                //     ty: wgpu::BufferBindingType::Uniform,
+                //     has_dynamic_offset: false,
+                //     min_binding_size: None,
+                // },
+            ],
         )),
         Arc::new(Shader::new(
             &app.device,
@@ -66,9 +72,17 @@ async fn main() {
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
-                    app.surface_config.format,
-                    shaders[0].clone(),
-                    shaders[1].clone(),
+                    MaterialInstance::new(
+                        &app.device,
+                        Arc::new(Material::new(
+                            &app.device,
+                            app.surface_config.format,
+                            shaders[0].clone(),
+                            shaders[1].clone(),
+                        )),
+                        vec![],
+                        vec![],
+                    ),
                     &[
                         [-1.0, -1.0, 0.0],
                         [-1.0,  0.0, 0.0],
@@ -95,9 +109,17 @@ async fn main() {
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
-                    app.surface_config.format,
-                    shaders[0].clone(),
-                    shaders[2].clone(),
+                    MaterialInstance::new(
+                        &app.device,
+                        Arc::new(Material::new(
+                            &app.device,
+                            app.surface_config.format,
+                            shaders[0].clone(),
+                            shaders[2].clone(),
+                        )),
+                        vec![],
+                        vec![],
+                    ),
                     &[
                         [-0.5, -0.5, 0.0],
                         [-0.5,  0.5, 0.0],

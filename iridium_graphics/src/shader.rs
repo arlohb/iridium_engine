@@ -15,7 +15,6 @@ impl From<ShaderType> for wgpu::ShaderStages {
 
 pub struct Shader {
     pub bind_group_layout: wgpu::BindGroupLayout,
-    pub bind_group: wgpu::BindGroup,
     pub shader: wgpu::ShaderModule,
 }
 
@@ -24,28 +23,16 @@ impl Shader {
         device: &wgpu::Device,
         shader_type: ShaderType,
         spirv: &[u32],
-        inputs: Vec<(wgpu::BindingType, wgpu::BindingResource)>,
+        inputs: Vec<wgpu::BindingType>,
     ) -> Shader {
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: {
                 let binding_index = 0;
-                &inputs.iter().map(|(binding_type, _)| wgpu::BindGroupLayoutEntry {
+                &inputs.iter().map(|binding_type| wgpu::BindGroupLayoutEntry {
                     binding: binding_index,
                     visibility: shader_type.into(),
                     ty: *binding_type,
                     count: None,
-                }).collect::<Vec<_>>()
-            },
-            label: None,
-        });
-
-        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &bind_group_layout,
-            entries: {
-                let binding_index = 0;
-                &inputs.into_iter().map(|(_, binding_resource)| wgpu::BindGroupEntry {
-                    binding: binding_index,
-                    resource: binding_resource,
                 }).collect::<Vec<_>>()
             },
             label: None,
@@ -58,7 +45,6 @@ impl Shader {
 
         Shader {
             bind_group_layout,
-            bind_group,
             shader,
         }
     }

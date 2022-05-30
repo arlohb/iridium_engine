@@ -1,16 +1,14 @@
-use std::sync::Arc;
-
 use wgpu::util::DeviceExt;
 use hashbrown::HashMap;
 
 use iridium_ecs::*;
 
-use crate::{Material, Shader};
+use crate::*;
 
 pub fn component_types() -> HashMap<String, ComponentType> {
     create_component_types! {
         "Renderable2D" => fast_map! {
-            "material" => "Material",
+            "material" => "MaterialInstance",
             "vertex_buffer" => "wgpu::Buffer",
             "index_buffer" => "wgpu::Buffer",
             "index_count" => "u32"
@@ -20,9 +18,7 @@ pub fn component_types() -> HashMap<String, ComponentType> {
 
 pub fn create_renderable_2d(
     device: &wgpu::Device,
-    surface_format: wgpu::TextureFormat,
-    vertex_shader: Arc<Shader>,
-    fragment_shader: Arc<Shader>,
+    material_instance: MaterialInstance,
     vertices: &[[f32; 3]],
     indices: &[u16],
 ) -> HashMap<String, Box<dyn std::any::Any>> {
@@ -51,15 +47,8 @@ pub fn create_renderable_2d(
 
     let index_count = indices.len() as u32;
 
-    let material = Material::new(
-        device,
-        surface_format,
-        vertex_shader,
-        fragment_shader,
-    );
-
     fast_map_any! {
-        "material" => material,
+        "material" => material_instance,
         "vertex_buffer" => vertex_buffer,
         "index_buffer" => index_buffer,
         "index_count" => index_count

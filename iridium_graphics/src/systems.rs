@@ -1,6 +1,6 @@
 use iridium_ecs::*;
 
-use crate::Material;
+use crate::*;
 
 pub struct Renderer2DSystem {}
 
@@ -12,9 +12,9 @@ impl Renderer2DSystem {
                 &*ptr
             };
 
-            let material = renderable_2d.get::<Material>("material");
+            let material = renderable_2d.get::<MaterialInstance>("material");
 
-            render_pass.set_pipeline(&material.render_pipeline);
+            render_pass.set_pipeline(&material.material.render_pipeline);
             render_pass.set_vertex_buffer(0, renderable_2d.get::<wgpu::Buffer>("vertex_buffer").slice(..));
             render_pass.set_index_buffer(renderable_2d.get::<wgpu::Buffer>("index_buffer").slice(..), wgpu::IndexFormat::Uint16);
             render_pass.draw_indexed(0..*renderable_2d.get::<u32>("index_count"), 0, 0..1);
