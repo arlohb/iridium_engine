@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 iridium_ecs = { path = "../iridium_ecs" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }
+iridium_graphics = { path = "../iridium_graphics" }
 winit = "0.26.1"
 env_logger = "0.9.0"
 wgpu = { version = "0.12.0", features = ["spirv"] }

@@ -2,7 +2,7 @@ use crate::*;
 use systems::*;
 
 pub struct World {
-    entities: Entities,
+    pub entities: Entities,
     systems: Systems,
 }
 

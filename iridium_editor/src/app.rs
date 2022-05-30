@@ -1,21 +1,18 @@
-use std::borrow::Cow;
-
-use inline_spirv::include_spirv;
+use iridium_ecs::Entities;
+use iridium_graphics::Renderer2DSystem;
 use winit::{
     window::Window,
     event::*,
 };
 
-use crate::object::Object;
-
 pub struct App {
     surface: wgpu::Surface,
-    device: wgpu::Device,
+    pub device: wgpu::Device,
     queue: wgpu::Queue,
-    surface_config: wgpu::SurfaceConfiguration,
+    pub surface_config: wgpu::SurfaceConfiguration,
     pub surface_size: winit::dpi::PhysicalSize<u32>,
 
-    objects: Vec<Object>,
+    renderer_2d_system: Renderer2DSystem,
 }
 
 impl App {
@@ -45,51 +42,13 @@ impl App {
         };
         surface.configure(&device, &surface_config);
 
-        let objects = vec![
-            Object::new(
-                &device,
-                surface_config.format,
-                &crate::shaders::vert_shader(&device),
-                &crate::shaders::frag_shader(&device),
-                &[
-                    [-1.0, -1.0, 0.0],
-                    [-1.0,  0.0, 0.0],
-                    [ 0.0,  0.0, 0.0],
-                    [ 0.0, -1.0, 0.0],
-                ],
-                &[
-                    0, 3, 2,
-                    0, 2, 1,
-                ],
-            ),
-            Object::new(
-                &device,
-                surface_config.format,
-                &crate::shaders::vert_shader(&device),
-                &device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-                    label: None,
-                    source: wgpu::ShaderSource::SpirV(Cow::Borrowed(
-                        include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main")
-                    )),
-                }),
-                &[
-                    [-0.4, -1., 0.0],
-                    [0.6, -1., 0.0],
-                    [0.1, 0., 0.0],
-                ],
-                &[
-                    0, 1, 2,
-                ],
-            ),
-        ];
-
         Self {
             surface,
             device,
             queue,
             surface_config,
             surface_size,
-            objects,
+            renderer_2d_system: Renderer2DSystem {},
         }
     }
 
@@ -120,7 +79,7 @@ impl App {
 
     pub fn update(&mut self) {}
 
-    pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+    pub fn render(&mut self, entities: &Entities) -> Result<(), wgpu::SurfaceError> {
         let output = self.surface.get_current_texture()?;
         let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
@@ -147,12 +106,7 @@ impl App {
                 depth_stencil_attachment: None,
             });
 
-            for object in &mut self.objects {
-                render_pass.set_pipeline(&object.render_pipeline);
-                render_pass.set_vertex_buffer(0, object.vertex_buffer.slice(..));
-                render_pass.set_index_buffer(object.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-                render_pass.draw_indexed(0..object.index_count, 0, 0..1);
-            }
+            self.renderer_2d_system.run(entities, 0., &mut render_pass);
         }
         
         self.queue.submit(std::iter::once(encoder.finish()));

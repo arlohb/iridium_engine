@@ -34,7 +34,7 @@ impl Entities {
         })
     }
 
-    pub fn new_entity(&mut self, name: &str) -> u128 {
+    pub fn new_entity(&mut self, name: &str, components: Vec<Component>) -> u128 {
         let id = uuid::Uuid::new_v4().as_u128();
 
         self.entities.push(id);
@@ -44,6 +44,8 @@ impl Entities {
                 "name" => name.to_owned()
             }
         });
+
+        self.add_components(id, components);
 
         id
     }
@@ -55,10 +57,15 @@ impl Entities {
             .iter()
             // for each component_type, get a list of entities that have that component
             .map(|component_type| self.components
-                [*component_type]
-                .keys()
-                .copied()
-                .collect::<Vec<u128>>())
+                // [*component_type]
+                .get(*component_type)
+                .and_then(|pairs| Some(pairs
+                    .keys()
+                    .copied()
+                    .collect::<Vec<u128>>()
+                ))
+                .or_else(|| Some(vec![]))
+                .unwrap())
             // reduce the lists to the intersection of all these lists
             .reduce(|result, current| result
                 .iter()

@@ -1,10 +1,13 @@
 mod components;
 mod systems;
+use std::borrow::Cow;
+
+use inline_spirv::include_spirv;
+use iridium_graphics::create_renderable_2d;
 use systems::*;
 mod app;
 use app::*;
 mod shaders;
-mod object;
 
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
@@ -30,23 +33,68 @@ async fn main() {
         {
             let mut entities = Entities::new(components::component_types());
 
-            let new_entity = entities.new_entity("Entity 0");
-
-            entities.add_components(
-                new_entity,
-                create_components! {
-                    "Position" => fast_map_any! {
-                        "x" => 0.0,
-                        "y" => 0.0,
-                        "z" => 0.0
-                    },
-                    "Velocity" => fast_map_any! {
-                        "x" => 1.0,
-                        "y" => 1.0,
-                        "z" => 1.0
-                    }
+            entities.new_entity("Entity 0", create_components! {
+                "Position" => fast_map_any! {
+                    "x" => 0.0,
+                    "y" => 0.0,
+                    "z" => 0.0
                 },
-            );
+                "Velocity" => fast_map_any! {
+                    "x" => 1.0,
+                    "y" => 1.0,
+                    "z" => 1.0
+                },
+                "Renderable2D" => create_renderable_2d(
+                    &app.device,
+                    app.surface_config.format,
+                    &crate::shaders::vert_shader(&app.device),
+                    &crate::shaders::frag_shader(&app.device),
+                    &[
+                        [-1.0, -1.0, 0.0],
+                        [-1.0,  0.0, 0.0],
+                        [ 0.0,  0.0, 0.0],
+                        [ 0.0, -1.0, 0.0],
+                    ],
+                    &[
+                        0, 3, 2,
+                        0, 2, 1,
+                    ],
+                )
+            });
+
+            entities.new_entity("Entity 1", create_components! {
+                "Position" => fast_map_any! {
+                    "x" => 0.0,
+                    "y" => 0.0,
+                    "z" => 0.0
+                },
+                "Velocity" => fast_map_any! {
+                    "x" => 1.0,
+                    "y" => 1.0,
+                    "z" => 1.0
+                },
+                "Renderable2D" => create_renderable_2d(
+                    &app.device,
+                    app.surface_config.format,
+                    &crate::shaders::vert_shader(&app.device),
+                    &app.device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+                        label: None,
+                        source: wgpu::ShaderSource::SpirV(Cow::Borrowed(
+                            include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main")
+                        )),
+                    }),
+                    &[
+                        [-0.5, -0.5, 0.0],
+                        [-0.5,  0.5, 0.0],
+                        [ 0.5,  0.5, 0.0],
+                        [ 0.5, -0.5, 0.0],
+                    ],
+                    &[
+                        0, 3, 2,
+                        0, 2, 1,
+                    ],
+                )
+            });
 
             entities
         },
@@ -94,7 +142,7 @@ async fn main() {
             world.run_systems(delta_time);
             app.update();
 
-            match app.render() {
+            match app.render(&world.entities) {
                 Ok(_) => {},
                 Err(wgpu::SurfaceError::Lost) => app.resize(app.surface_size),
                 Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
