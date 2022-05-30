@@ -57,13 +57,11 @@ impl Entities {
             .iter()
             // for each component_type, get a list of entities that have that component
             .map(|component_type| self.components
-                // [*component_type]
                 .get(*component_type)
-                .and_then(|pairs| Some(pairs
+                .map(|some| some
                     .keys()
                     .copied()
-                    .collect::<Vec<u128>>()
-                ))
+                    .collect::<Vec<u128>>())
                 .or_else(|| Some(vec![]))
                 .unwrap())
             // reduce the lists to the intersection of all these lists

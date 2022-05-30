@@ -72,8 +72,7 @@ pub fn create_renderable_2d(
     let vertices_bytes = vertices
         .iter()
         .flatten()
-        .map(|v: &f32| v.to_le_bytes())
-        .flatten()
+        .flat_map(|v: &f32| v.to_le_bytes())
         .collect::<Vec<u8>>();
 
     let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -84,8 +83,7 @@ pub fn create_renderable_2d(
 
     let index_bytes = indices
         .iter()
-        .map(|v: &u16| v.to_le_bytes())
-        .flatten()
+        .flat_map(|v: &u16| v.to_le_bytes())
         .collect::<Vec<u8>>();
 
     let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -113,7 +111,7 @@ impl Renderer2DSystem {
                 let ptr = &renderable_2d as &Component as *const Component;
                 &*ptr
             };
-            render_pass.set_pipeline(&renderable_2d.get::<wgpu::RenderPipeline>("render_pipeline"));
+            render_pass.set_pipeline(renderable_2d.get::<wgpu::RenderPipeline>("render_pipeline"));
             render_pass.set_vertex_buffer(0, renderable_2d.get::<wgpu::Buffer>("vertex_buffer").slice(..));
             render_pass.set_index_buffer(renderable_2d.get::<wgpu::Buffer>("index_buffer").slice(..), wgpu::IndexFormat::Uint16);
             render_pass.draw_indexed(0..*renderable_2d.get::<u32>("index_count"), 0, 0..1);
