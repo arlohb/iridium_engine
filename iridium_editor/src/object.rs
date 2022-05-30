@@ -3,6 +3,8 @@ use wgpu::util::DeviceExt;
 pub struct Object {
     pub render_pipeline: wgpu::RenderPipeline,
     pub vertex_buffer: wgpu::Buffer,
+    pub index_buffer: wgpu::Buffer,
+    pub index_count: u32,
 }
 
 impl Object {
@@ -12,6 +14,7 @@ impl Object {
         vertex_shader: &wgpu::ShaderModule,
         fragment_shader: &wgpu::ShaderModule,
         vertices: &[[f32; 3]],
+        indices: &[u16],
     ) -> Object {
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,
@@ -73,9 +76,25 @@ impl Object {
             usage: wgpu::BufferUsages::VERTEX,
         });
 
+        let index_bytes = indices
+            .iter()
+            .map(|v: &u16| v.to_le_bytes())
+            .flatten()
+            .collect::<Vec<u8>>();
+
+        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Index Buffer"),
+            contents: index_bytes.as_slice(),
+            usage: wgpu::BufferUsages::INDEX,
+        });
+
+        let index_count = indices.len() as u32;
+
         Object {
             render_pipeline,
             vertex_buffer,
+            index_buffer,
+            index_count,
         }
     }
 }

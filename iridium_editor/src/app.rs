@@ -52,9 +52,14 @@ impl App {
                 &crate::shaders::vert_shader(&device),
                 &crate::shaders::frag_shader(&device),
                 &[
-                    [ 0.0,  0.5, 0.0],
-                    [-0.5, -0.5, 0.0],
-                    [ 0.5, -0.5, 0.0],
+                    [-1.0, -1.0, 0.0],
+                    [-1.0,  0.0, 0.0],
+                    [ 0.0,  0.0, 0.0],
+                    [ 0.0, -1.0, 0.0],
+                ],
+                &[
+                    0, 3, 2,
+                    0, 2, 1,
                 ],
             ),
             Object::new(
@@ -71,6 +76,9 @@ impl App {
                     [-0.4, -1., 0.0],
                     [0.6, -1., 0.0],
                     [0.1, 0., 0.0],
+                ],
+                &[
+                    0, 1, 2,
                 ],
             ),
         ];
@@ -142,7 +150,8 @@ impl App {
             for object in &mut self.objects {
                 render_pass.set_pipeline(&object.render_pipeline);
                 render_pass.set_vertex_buffer(0, object.vertex_buffer.slice(..));
-                render_pass.draw(0..3, 0..1);
+                render_pass.set_index_buffer(object.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+                render_pass.draw_indexed(0..object.index_count, 0, 0..1);
             }
         }
         
