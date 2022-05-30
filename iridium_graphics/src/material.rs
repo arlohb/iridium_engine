@@ -1,8 +1,10 @@
+use std::sync::Arc;
+
 use crate::Shader;
 
 pub struct Material {
-    pub vertex: Shader,
-    pub fragment: Shader,
+    pub vertex: Arc<Shader>,
+    pub fragment: Arc<Shader>,
     pub render_pipeline: wgpu::RenderPipeline,
 }
 
@@ -10,8 +12,8 @@ impl Material {
     pub fn new(
         device: &wgpu::Device,
         surface_format: wgpu::TextureFormat,
-        vertex: Shader,
-        fragment: Shader,
+        vertex: Arc<Shader>,
+        fragment: Arc<Shader>,
     ) -> Material {
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,

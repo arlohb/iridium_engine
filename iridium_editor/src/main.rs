@@ -1,15 +1,16 @@
 mod components;
 mod systems;
-
-use inline_spirv::include_spirv;
-use iridium_graphics::create_renderable_2d;
 use systems::*;
 mod app;
 use app::*;
 
+
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
+use iridium_graphics::{create_renderable_2d, Shader, ShaderType};
 
+use std::sync::Arc;
+use inline_spirv::include_spirv;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
@@ -26,6 +27,27 @@ async fn main() {
         .unwrap();
     
     let mut app = App::new(&window).await;
+
+    let shaders: Vec<Arc<Shader>> = vec![
+        Arc::new(Shader::new(
+            &app.device,
+            ShaderType::Vertex,
+            include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
+            vec![],
+        )),
+        Arc::new(Shader::new(
+            &app.device,
+            ShaderType::Fragment,
+            include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
+            vec![],
+        )),
+        Arc::new(Shader::new(
+            &app.device,
+            ShaderType::Fragment,
+            include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
+            vec![],
+        )),
+    ];
 
     let mut world = World::new(
         {
@@ -45,8 +67,8 @@ async fn main() {
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
                     app.surface_config.format,
-                    include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
-                    include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
+                    shaders[0].clone(),
+                    shaders[1].clone(),
                     &[
                         [-1.0, -1.0, 0.0],
                         [-1.0,  0.0, 0.0],
@@ -74,8 +96,8 @@ async fn main() {
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
                     app.surface_config.format,
-                    include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
-                    include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
+                    shaders[0].clone(),
+                    shaders[2].clone(),
                     &[
                         [-0.5, -0.5, 0.0],
                         [-0.5,  0.5, 0.0],
