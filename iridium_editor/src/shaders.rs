@@ -13,7 +13,7 @@ pub fn vert_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
 }
 
 pub fn frag_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
-  let spirv = include_spirv!("src/frag.hlsl", frag, hlsl, entry="fs_main");
+  let spirv = include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main");
 
   device.create_shader_module(&wgpu::ShaderModuleDescriptor {
     label: None,

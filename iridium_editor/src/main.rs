@@ -4,6 +4,7 @@ use systems::*;
 mod app;
 use app::*;
 mod shaders;
+mod object;
 
 use iridium_ecs::*;
 use iridium_ecs::systems::*;

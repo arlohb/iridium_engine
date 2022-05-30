@@ -1,5 +1,3 @@
-float4 vs_main(uint input : SV_VERTEXID) : SV_POSITION {
-  float x = (float)(1 - (int)input) * 0.5;
-  float y = (float)((int)(input & 1) * 2 - 1) * 0.5;
-  return float4(x, y, 0., 1.);
+float4 vs_main(float3 position : POSITION) : SV_POSITION {
+  return float4(position, 1.0);
 }
