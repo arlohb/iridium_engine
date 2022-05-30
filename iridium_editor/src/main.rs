@@ -1,13 +1,11 @@
 mod components;
 mod systems;
-use std::borrow::Cow;
 
 use inline_spirv::include_spirv;
 use iridium_graphics::create_renderable_2d;
 use systems::*;
 mod app;
 use app::*;
-mod shaders;
 
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
@@ -47,8 +45,8 @@ async fn main() {
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
                     app.surface_config.format,
-                    &crate::shaders::vert_shader(&app.device),
-                    &crate::shaders::frag_shader(&app.device),
+                    include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
+                    include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
                     &[
                         [-1.0, -1.0, 0.0],
                         [-1.0,  0.0, 0.0],
@@ -76,13 +74,8 @@ async fn main() {
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
                     app.surface_config.format,
-                    &crate::shaders::vert_shader(&app.device),
-                    &app.device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-                        label: None,
-                        source: wgpu::ShaderSource::SpirV(Cow::Borrowed(
-                            include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main")
-                        )),
-                    }),
+                    include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
+                    include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
                     &[
                         [-0.5, -0.5, 0.0],
                         [-0.5,  0.5, 0.0],
