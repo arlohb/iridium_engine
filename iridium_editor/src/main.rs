@@ -8,7 +8,6 @@ use app::*;
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
 use iridium_graphics::*;
-use wgpu::util::DeviceExt;
 
 use std::sync::Arc;
 use inline_spirv::include_spirv;
@@ -74,28 +73,19 @@ async fn main() {
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
-                    {
-                        let buffer = Arc::new(app.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                            label: None,
-                            contents: &[0.4f32.to_le_bytes(), 0.4f32.to_le_bytes()].into_iter().flatten().collect::<Vec<u8>>(),
-                            usage: wgpu::BufferUsages::UNIFORM
-                                | wgpu::BufferUsages::COPY_DST,
-                        }));
-
-                        MaterialInstance::new(
+                    MaterialInstance::new(
+                        &app.device,
+                        Arc::new(Material::new(
                             &app.device,
-                            Arc::new(Material::new(
-                                &app.device,
-                                app.surface_config.format,
-                                shaders[0].clone(),
-                                shaders[1].clone(),
-                            )),
-                            vec![buffer.clone()],
-                            vec![buffer.as_entire_binding()],
-                            vec![],
-                            vec![],
-                        )
-                    },
+                            app.surface_config.format,
+                            shaders[0].clone(),
+                            shaders[1].clone(),
+                        )),
+                        vec![],
+                        vec![],
+                        vec![],
+                        vec![],
+                    ),
                     &[
                         [-1.0, -1.0, 0.0],
                         [-1.0,  0.0, 0.0],
@@ -121,29 +111,19 @@ async fn main() {
                     "z" => 0.0002
                 },
                 "Renderable2D" => create_renderable_2d(
-                    &app.device,
-                    {
-                        let buffer = Arc::new(app.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                            label: None,
-                            contents: &[0u8; 8],
-                            usage: wgpu::BufferUsages::UNIFORM
-                                | wgpu::BufferUsages::COPY_DST,
-                        }));
-
-                        MaterialInstance::new(
+                    &app.device,MaterialInstance::new(
+                        &app.device,
+                        Arc::new(Material::new(
                             &app.device,
-                            Arc::new(Material::new(
-                                &app.device,
-                                app.surface_config.format,
-                                shaders[0].clone(),
-                                shaders[2].clone(),
-                            )),
-                            vec![buffer.clone()],
-                            vec![buffer.as_entire_binding()],
-                            vec![],
-                            vec![],
-                        )
-                    },
+                            app.surface_config.format,
+                            shaders[0].clone(),
+                            shaders[2].clone(),
+                        )),
+                        vec![],
+                        vec![],
+                        vec![],
+                        vec![],
+                    ),
                     &[
                         [-0.5, -0.5, 0.0],
                         [-0.5,  0.5, 0.0],

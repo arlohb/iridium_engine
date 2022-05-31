@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use wgpu::util::DeviceExt;
+
 use crate::*;
 
 pub struct Material {
@@ -85,19 +87,33 @@ impl MaterialInstance {
         fragment_buffer: Vec<Arc<wgpu::Buffer>>,
         fragment_resources: Vec<wgpu::BindingResource>,
     ) -> MaterialInstance {
+        let buffer = Arc::new(device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: None,
+            contents: &[0u8; 8],
+            usage: wgpu::BufferUsages::UNIFORM
+                | wgpu::BufferUsages::COPY_DST,
+        }));
+
+        let vertex_buffers = std::iter::once(buffer.clone())
+            .chain(vertex_buffers.into_iter())
+            .collect();
+        let vertex_resources = std::iter::once(buffer.as_entire_binding())
+            .chain(vertex_resources.into_iter());
+
         MaterialInstance {
             material: material.clone(),
             vertex_data: ShaderData {
                 buffers: vertex_buffers,
                 bind_group: device.create_bind_group(&wgpu::BindGroupDescriptor {
                     layout: &material.vertex.bind_group_layout,
-                    entries: {
-                        let binding_index = 0;
-                        &vertex_resources.into_iter().map(|binding_resource| wgpu::BindGroupEntry {
-                            binding: binding_index,
-                            resource: binding_resource,
-                        }).collect::<Vec<_>>()
-                    },
+                    entries: &vertex_resources
+                        .enumerate()
+                        .map(|(binding, binding_resource)| {
+                            wgpu::BindGroupEntry {
+                                binding: binding as u32,
+                                resource: binding_resource,
+                            }
+                        }).collect::<Vec<_>>(),
                     label: None,
                 }),
             },
@@ -105,13 +121,15 @@ impl MaterialInstance {
                 buffers: fragment_buffer,
                 bind_group: device.create_bind_group(&wgpu::BindGroupDescriptor {
                     layout: &material.fragment.bind_group_layout,
-                    entries: {
-                        let binding_index = 0;
-                        &fragment_resources.into_iter().map(|binding_resource| wgpu::BindGroupEntry {
-                            binding: binding_index,
-                            resource: binding_resource,
-                        }).collect::<Vec<_>>()
-                    },
+                    entries: &fragment_resources
+                        .into_iter()
+                        .enumerate()
+                        .map(|(binding, binding_resource)| {
+                            wgpu::BindGroupEntry {
+                                binding: binding as u32,
+                                resource: binding_resource,
+                            }
+                        }).collect::<Vec<_>>(),
                     label: None,
                 }),
             },
