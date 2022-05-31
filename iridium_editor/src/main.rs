@@ -3,7 +3,8 @@ mod systems;
 use systems::*;
 mod app;
 use app::*;
-
+mod assets;
+use assets::*;
 
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
@@ -29,30 +30,48 @@ async fn main() {
     
     let mut app = App::new(&window).await;
 
-    let shaders: Vec<Arc<Shader>> = vec![
-        Arc::new(Shader::new(
+    let mut assets = Assets {
+        shaders: vec![
+            Arc::new(Shader::new(
+                &app.device,
+                ShaderType::Vertex,
+                include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
+                vec![
+                    wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                ],
+            )),
+            Arc::new(Shader::new(
+                &app.device,
+                ShaderType::Fragment,
+                include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
+                vec![],
+            )),
+            Arc::new(Shader::new(
+                &app.device,
+                ShaderType::Fragment,
+                include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
+                vec![],
+            )),
+        ],
+        materials: vec![],
+    };
+
+    assets.materials = vec![
+        Arc::new(Material::new(
             &app.device,
-            ShaderType::Vertex,
-            include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
-            vec![
-                wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
-            ],
+            app.surface_config.format,
+            assets.shaders[0].clone(),
+            assets.shaders[1].clone(),
         )),
-        Arc::new(Shader::new(
+        Arc::new(Material::new(
             &app.device,
-            ShaderType::Fragment,
-            include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
-            vec![],
-        )),
-        Arc::new(Shader::new(
-            &app.device,
-            ShaderType::Fragment,
-            include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
-            vec![],
+            app.surface_config.format,
+            assets.shaders[0].clone(),
+            assets.shaders[2].clone(),
         )),
     ];
 
@@ -75,12 +94,7 @@ async fn main() {
                     &app.device,
                     MaterialInstance::new(
                         &app.device,
-                        Arc::new(Material::new(
-                            &app.device,
-                            app.surface_config.format,
-                            shaders[0].clone(),
-                            shaders[1].clone(),
-                        )),
+                        assets.materials[0].clone(),
                         vec![],
                         vec![],
                         vec![],
@@ -113,12 +127,7 @@ async fn main() {
                 "Renderable2D" => create_renderable_2d(
                     &app.device,MaterialInstance::new(
                         &app.device,
-                        Arc::new(Material::new(
-                            &app.device,
-                            app.surface_config.format,
-                            shaders[0].clone(),
-                            shaders[2].clone(),
-                        )),
+                        assets.materials[1].clone(),
                         vec![],
                         vec![],
                         vec![],
