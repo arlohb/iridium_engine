@@ -64,10 +64,6 @@ async fn main() {
             | wgpu::BufferUsages::COPY_DST,
     }));
 
-    let binding = buffer.as_entire_binding();
-
-    app.queue.write_buffer(&buffer, 0, &[0.4f32.to_le_bytes(), 0.4f32.to_le_bytes()].into_iter().flatten().collect::<Vec<u8>>());
-
     let mut world = World::new(
         {
             let mut entities = Entities::new(components::component_types());
@@ -94,7 +90,7 @@ async fn main() {
                             shaders[1].clone(),
                         )),
                         vec![buffer.clone()],
-                        vec![binding],
+                        vec![buffer.as_entire_binding()],
                         vec![],
                         vec![],
                     ),
