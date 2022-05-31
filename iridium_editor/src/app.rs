@@ -106,7 +106,7 @@ impl App {
                 depth_stencil_attachment: None,
             });
 
-            self.renderer_2d_system.run(entities, 0., &mut render_pass);
+            self.renderer_2d_system.run(entities, 0., &mut render_pass, &self.queue);
         }
         
         self.queue.submit(std::iter::once(encoder.finish()));

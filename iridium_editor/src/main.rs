@@ -79,9 +79,9 @@ async fn main() {
                     "z" => 0.0
                 },
                 "Velocity" => fast_map_any! {
-                    "x" => 1.0,
-                    "y" => 1.0,
-                    "z" => 1.0
+                    "x" => 0.00001,
+                    "y" => 0.00001,
+                    "z" => 0.00001
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
@@ -118,9 +118,9 @@ async fn main() {
                     "z" => 0.0
                 },
                 "Velocity" => fast_map_any! {
-                    "x" => 1.0,
-                    "y" => 1.0,
-                    "z" => 1.0
+                    "x" => 0.00001,
+                    "y" => 0.00001,
+                    "z" => 0.00001
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
