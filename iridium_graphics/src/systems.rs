@@ -29,7 +29,7 @@ impl Renderer2DSystem {
             render_pass.set_pipeline(&material.material.render_pipeline);
             render_pass.set_bind_group(0, &material.vertex_data.bind_group, &[]);
             render_pass.set_vertex_buffer(0, renderable_2d.get::<wgpu::Buffer>("vertex_buffer").slice(..));
-            render_pass.set_index_buffer(renderable_2d.get::<wgpu::Buffer>("index_buffer").slice(..), wgpu::IndexFormat::Uint16);
+            render_pass.set_index_buffer(renderable_2d.get::<wgpu::Buffer>("index_buffer").slice(..), wgpu::IndexFormat::Uint32);
             render_pass.draw_indexed(0..*renderable_2d.get::<u32>("index_count"), 0, 0..1);
         }
     }

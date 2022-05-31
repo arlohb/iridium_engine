@@ -58,6 +58,20 @@ async fn main() {
             )),
         ],
         materials: vec![],
+        meshes: vec![
+            Arc::new(Mesh {
+                vertices: vec![
+                    [-1.0, -1.0, 0.0],
+                    [-1.0,  0.0, 0.0],
+                    [ 0.0,  0.0, 0.0],
+                    [ 0.0, -1.0, 0.0],
+                ],
+                indices: vec![
+                    0, 3, 2,
+                    0, 2, 1,
+                ],
+            }),
+        ],
     };
 
     assets.materials = vec![
@@ -81,8 +95,8 @@ async fn main() {
 
             entities.new_entity("Entity 0", create_components! {
                 "Position" => fast_map_any! {
-                    "x" => 0.0,
-                    "y" => 0.0,
+                    "x" => 0.1,
+                    "y" => 0.2,
                     "z" => 0.0
                 },
                 "Velocity" => fast_map_any! {
@@ -100,23 +114,14 @@ async fn main() {
                         vec![],
                         vec![],
                     ),
-                    &[
-                        [-1.0, -1.0, 0.0],
-                        [-1.0,  0.0, 0.0],
-                        [ 0.0,  0.0, 0.0],
-                        [ 0.0, -1.0, 0.0],
-                    ],
-                    &[
-                        0, 3, 2,
-                        0, 2, 1,
-                    ],
+                    &assets.meshes[0],
                 )
             });
 
             entities.new_entity("Entity 1", create_components! {
                 "Position" => fast_map_any! {
-                    "x" => 0.0,
-                    "y" => 0.0,
+                    "x" => 0.2,
+                    "y" => 0.2,
                     "z" => 0.0
                 },
                 "Velocity" => fast_map_any! {
@@ -133,16 +138,7 @@ async fn main() {
                         vec![],
                         vec![],
                     ),
-                    &[
-                        [-0.5, -0.5, 0.0],
-                        [-0.5,  0.5, 0.0],
-                        [ 0.5,  0.5, 0.0],
-                        [ 0.5, -0.5, 0.0],
-                    ],
-                    &[
-                        0, 3, 2,
-                        0, 2, 1,
-                    ],
+                    &assets.meshes[0],
                 )
             });
 
