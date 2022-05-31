@@ -72,41 +72,49 @@ impl Material {
 
 pub struct MaterialInstance {
     pub material: Arc<Material>,
-    pub vertex_bind_group: wgpu::BindGroup,
-    pub fragment_bind_group: wgpu::BindGroup,
+    pub vertex_data: ShaderData,
+    pub fragment_data: ShaderData,
 }
 
 impl MaterialInstance {
     pub fn new(
         device: &wgpu::Device,
         material: Arc<Material>,
+        vertex_buffers: Vec<Arc<wgpu::Buffer>>,
         vertex_resources: Vec<wgpu::BindingResource>,
+        fragment_buffer: Vec<Arc<wgpu::Buffer>>,
         fragment_resources: Vec<wgpu::BindingResource>,
     ) -> MaterialInstance {
         MaterialInstance {
             material: material.clone(),
-            vertex_bind_group: device.create_bind_group(&wgpu::BindGroupDescriptor {
-                layout: &material.vertex.bind_group_layout,
-                entries: {
-                    let binding_index = 0;
-                    &vertex_resources.into_iter().map(|binding_resource| wgpu::BindGroupEntry {
-                        binding: binding_index,
-                        resource: binding_resource,
-                    }).collect::<Vec<_>>()
-                },
-                label: None,
-            }),
-            fragment_bind_group: device.create_bind_group(&wgpu::BindGroupDescriptor {
-                layout: &material.fragment.bind_group_layout,
-                entries: {
-                    let binding_index = 0;
-                    &fragment_resources.into_iter().map(|binding_resource| wgpu::BindGroupEntry {
-                        binding: binding_index,
-                        resource: binding_resource,
-                    }).collect::<Vec<_>>()
-                },
-                label: None,
-            }),
+            vertex_data: ShaderData {
+                buffers: vertex_buffers,
+                bind_group: device.create_bind_group(&wgpu::BindGroupDescriptor {
+                    layout: &material.vertex.bind_group_layout,
+                    entries: {
+                        let binding_index = 0;
+                        &vertex_resources.into_iter().map(|binding_resource| wgpu::BindGroupEntry {
+                            binding: binding_index,
+                            resource: binding_resource,
+                        }).collect::<Vec<_>>()
+                    },
+                    label: None,
+                }),
+            },
+            fragment_data: ShaderData {
+                buffers: fragment_buffer,
+                bind_group: device.create_bind_group(&wgpu::BindGroupDescriptor {
+                    layout: &material.fragment.bind_group_layout,
+                    entries: {
+                        let binding_index = 0;
+                        &fragment_resources.into_iter().map(|binding_resource| wgpu::BindGroupEntry {
+                            binding: binding_index,
+                            resource: binding_resource,
+                        }).collect::<Vec<_>>()
+                    },
+                    label: None,
+                }),
+            },
         }
     }
 }

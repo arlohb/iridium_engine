@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 #[derive(Clone, Copy)]
 pub enum ShaderType {
     Vertex,
@@ -48,4 +50,9 @@ impl Shader {
             shader,
         }
     }
+}
+
+pub struct ShaderData {
+    pub buffers: Vec<Arc<wgpu::Buffer>>,
+    pub bind_group: wgpu::BindGroup,
 }

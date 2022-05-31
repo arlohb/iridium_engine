@@ -8,7 +8,7 @@ use winit::{
 pub struct App {
     surface: wgpu::Surface,
     pub device: wgpu::Device,
-    queue: wgpu::Queue,
+    pub queue: wgpu::Queue,
     pub surface_config: wgpu::SurfaceConfiguration,
     pub surface_size: winit::dpi::PhysicalSize<u32>,
 

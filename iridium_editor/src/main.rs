@@ -57,11 +57,16 @@ async fn main() {
         )),
     ];
 
-    let buffer = app.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+    let buffer = Arc::new(app.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: None,
         contents: &[0.4f32.to_le_bytes(), 0.4f32.to_le_bytes()].into_iter().flatten().collect::<Vec<u8>>(),
-        usage: wgpu::BufferUsages::UNIFORM,
-    });
+        usage: wgpu::BufferUsages::UNIFORM
+            | wgpu::BufferUsages::COPY_DST,
+    }));
+
+    let binding = buffer.as_entire_binding();
+
+    app.queue.write_buffer(&buffer, 0, &[0.4f32.to_le_bytes(), 0.4f32.to_le_bytes()].into_iter().flatten().collect::<Vec<u8>>());
 
     let mut world = World::new(
         {
@@ -88,7 +93,9 @@ async fn main() {
                             shaders[0].clone(),
                             shaders[1].clone(),
                         )),
-                        vec![wgpu::BindingResource::Buffer(buffer.as_entire_buffer_binding())],
+                        vec![buffer.clone()],
+                        vec![binding],
+                        vec![],
                         vec![],
                     ),
                     &[
@@ -125,7 +132,9 @@ async fn main() {
                             shaders[0].clone(),
                             shaders[2].clone(),
                         )),
-                        vec![wgpu::BindingResource::Buffer(buffer.as_entire_buffer_binding())],
+                        vec![buffer.clone()],
+                        vec![buffer.as_entire_binding()],
+                        vec![],
                         vec![],
                     ),
                     &[
