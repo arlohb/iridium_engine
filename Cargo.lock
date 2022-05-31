@@ -617,6 +617,7 @@ dependencies = [
  "iridium_ecs",
  "iridium_ecs_macros",
  "iridium_graphics",
+ "iridium_maths",
  "tokio",
  "wgpu",
  "winit",
@@ -638,8 +639,13 @@ dependencies = [
  "hashbrown 0.12.1",
  "iridium_ecs",
  "iridium_ecs_macros",
+ "iridium_maths",
  "wgpu",
 ]
+
+[[package]]
+name = "iridium_maths"
+version = "0.1.0"
 
 [[package]]
 name = "jni-sys"

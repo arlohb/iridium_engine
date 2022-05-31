@@ -23,8 +23,7 @@ pub fn create_renderable_2d(
 ) -> HashMap<String, Box<dyn std::any::Any>> {
     let vertices_bytes = mesh.vertices
         .iter()
-        .flatten()
-        .flat_map(|v: &f32| v.to_le_bytes())
+        .flat_map(|v| v.as_bytes())
         .collect::<Vec<u8>>();
 
     let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {

@@ -1,4 +1,6 @@
+use iridium_maths::Vec3;
+
 pub struct Mesh {
-    pub vertices: Vec<[f32; 3]>,
+    pub vertices: Vec<Vec3>,
     pub indices: Vec<u32>,
 }

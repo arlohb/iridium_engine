@@ -9,6 +9,7 @@ use assets::*;
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
 use iridium_graphics::*;
+use iridium_maths::*;
 
 use std::sync::Arc;
 use inline_spirv::include_spirv;
@@ -61,10 +62,10 @@ async fn main() {
         meshes: vec![
             Arc::new(Mesh {
                 vertices: vec![
-                    [-1.0, -1.0, 0.0],
-                    [-1.0,  0.0, 0.0],
-                    [ 0.0,  0.0, 0.0],
-                    [ 0.0, -1.0, 0.0],
+                    Vec3::new(-1.0, -1.0, 0.0),
+                    Vec3::new(-1.0,  0.0, 0.0),
+                    Vec3::new( 0.0,  0.0, 0.0),
+                    Vec3::new( 0.0, -1.0, 0.0),
                 ],
                 indices: vec![
                     0, 3, 2,
@@ -94,15 +95,11 @@ async fn main() {
             let mut entities = Entities::new(components::component_types());
 
             entities.new_entity("Entity 0", create_components! {
-                "Position" => fast_map_any! {
-                    "x" => 0.1,
-                    "y" => 0.2,
-                    "z" => 0.0
+                "Transform" => fast_map_any! {
+                    "position" => Vec3::new(0., 0., 0.)
                 },
                 "Velocity" => fast_map_any! {
-                    "x" => 0.0001,
-                    "y" => 0.0001,
-                    "z" => 0.0001
+                    "velocity" => Vec3::new(0.0001, 0.0001, 0.0001)
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
@@ -119,15 +116,11 @@ async fn main() {
             });
 
             entities.new_entity("Entity 1", create_components! {
-                "Position" => fast_map_any! {
-                    "x" => 0.2,
-                    "y" => 0.2,
-                    "z" => 0.0
+                "Transform" => fast_map_any! {
+                    "position" => Vec3::new(0., 0., 0.)
                 },
                 "Velocity" => fast_map_any! {
-                    "x" => 0.0002,
-                    "y" => 0.0002,
-                    "z" => 0.0002
+                    "velocity" => Vec3::new(0.0002, 0.0002, 0.0002)
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,MaterialInstance::new(

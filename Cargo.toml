@@ -9,6 +9,7 @@ members = [
     "iridium_ecs_macros",
     "iridium_editor",
     "iridium_graphics",
+    "iridium_maths",
     "iridium_example_project"
 ]
 

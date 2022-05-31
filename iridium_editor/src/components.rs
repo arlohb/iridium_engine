@@ -6,15 +6,11 @@ pub fn component_types() -> HashMap<String, ComponentType> {
         "Name" => fast_map! {
             "name" => "String"
         },
-        "Position" => fast_map! {
-            "x" => "f64",
-            "y" => "f64",
-            "z" => "f64"
+        "Transform" => fast_map! {
+            "position" => "iridium_maths::Vec3"
         },
         "Velocity" => fast_map! {
-            "x" => "f64",
-            "y" => "f64",
-            "z" => "f64"
+            "velocity" => "iridium_maths::Vec3"
         }
     }
 }
