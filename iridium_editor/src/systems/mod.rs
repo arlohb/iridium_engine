@@ -10,12 +10,12 @@ pub struct VelocitySystem {
 }
 
 impl VelocitySystem {
-    fn run(&mut self, entities: &Entities, _delta_time: f64) {
+    fn run(&mut self, entities: &Entities, delta_time: f64) {
         for [mut position, velocity]
         in entities.query(["Position", "Velocity"]) {
-            *position.get_mut::<f64>("x") += velocity.get::<f64>("x");
-            *position.get_mut::<f64>("y") += velocity.get::<f64>("y");
-            *position.get_mut::<f64>("z") += velocity.get::<f64>("z");
+            *position.get_mut::<f64>("x") += velocity.get::<f64>("x") * delta_time;
+            *position.get_mut::<f64>("y") += velocity.get::<f64>("y") * delta_time;
+            *position.get_mut::<f64>("z") += velocity.get::<f64>("z") * delta_time;
         }
     }
 }
