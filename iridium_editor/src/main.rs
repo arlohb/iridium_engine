@@ -57,13 +57,6 @@ async fn main() {
         )),
     ];
 
-    let buffer = Arc::new(app.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: None,
-        contents: &[0.4f32.to_le_bytes(), 0.4f32.to_le_bytes()].into_iter().flatten().collect::<Vec<u8>>(),
-        usage: wgpu::BufferUsages::UNIFORM
-            | wgpu::BufferUsages::COPY_DST,
-    }));
-
     let mut world = World::new(
         {
             let mut entities = Entities::new(components::component_types());
@@ -81,19 +74,28 @@ async fn main() {
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
-                    MaterialInstance::new(
-                        &app.device,
-                        Arc::new(Material::new(
+                    {
+                        let buffer = Arc::new(app.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                            label: None,
+                            contents: &[0.4f32.to_le_bytes(), 0.4f32.to_le_bytes()].into_iter().flatten().collect::<Vec<u8>>(),
+                            usage: wgpu::BufferUsages::UNIFORM
+                                | wgpu::BufferUsages::COPY_DST,
+                        }));
+
+                        MaterialInstance::new(
                             &app.device,
-                            app.surface_config.format,
-                            shaders[0].clone(),
-                            shaders[1].clone(),
-                        )),
-                        vec![buffer.clone()],
-                        vec![buffer.as_entire_binding()],
-                        vec![],
-                        vec![],
-                    ),
+                            Arc::new(Material::new(
+                                &app.device,
+                                app.surface_config.format,
+                                shaders[0].clone(),
+                                shaders[1].clone(),
+                            )),
+                            vec![buffer.clone()],
+                            vec![buffer.as_entire_binding()],
+                            vec![],
+                            vec![],
+                        )
+                    },
                     &[
                         [-1.0, -1.0, 0.0],
                         [-1.0,  0.0, 0.0],
@@ -114,25 +116,34 @@ async fn main() {
                     "z" => 0.0
                 },
                 "Velocity" => fast_map_any! {
-                    "x" => 0.0001,
-                    "y" => 0.0001,
-                    "z" => 0.0001
+                    "x" => 0.0002,
+                    "y" => 0.0002,
+                    "z" => 0.0002
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
-                    MaterialInstance::new(
-                        &app.device,
-                        Arc::new(Material::new(
+                    {
+                        let buffer = Arc::new(app.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                            label: None,
+                            contents: &[0u8; 8],
+                            usage: wgpu::BufferUsages::UNIFORM
+                                | wgpu::BufferUsages::COPY_DST,
+                        }));
+
+                        MaterialInstance::new(
                             &app.device,
-                            app.surface_config.format,
-                            shaders[0].clone(),
-                            shaders[2].clone(),
-                        )),
-                        vec![buffer.clone()],
-                        vec![buffer.as_entire_binding()],
-                        vec![],
-                        vec![],
-                    ),
+                            Arc::new(Material::new(
+                                &app.device,
+                                app.surface_config.format,
+                                shaders[0].clone(),
+                                shaders[2].clone(),
+                            )),
+                            vec![buffer.clone()],
+                            vec![buffer.as_entire_binding()],
+                            vec![],
+                            vec![],
+                        )
+                    },
                     &[
                         [-0.5, -0.5, 0.0],
                         [-0.5,  0.5, 0.0],
