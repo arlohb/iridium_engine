@@ -8,6 +8,7 @@ use app::*;
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
 use iridium_graphics::*;
+use wgpu::util::DeviceExt;
 
 use std::sync::Arc;
 use inline_spirv::include_spirv;
@@ -19,6 +20,7 @@ use winit::{
 
 #[tokio::main]
 async fn main() {
+    // std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
 
     let event_loop = EventLoop::new();
@@ -34,11 +36,11 @@ async fn main() {
             ShaderType::Vertex,
             include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
             vec![
-                // wgpu::BindingType::Buffer {
-                //     ty: wgpu::BufferBindingType::Uniform,
-                //     has_dynamic_offset: false,
-                //     min_binding_size: None,
-                // },
+                wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
             ],
         )),
         Arc::new(Shader::new(
@@ -54,6 +56,12 @@ async fn main() {
             vec![],
         )),
     ];
+
+    let buffer = app.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: None,
+        contents: &[0.4f32.to_le_bytes(), 0.4f32.to_le_bytes()].into_iter().flatten().collect::<Vec<u8>>(),
+        usage: wgpu::BufferUsages::UNIFORM,
+    });
 
     let mut world = World::new(
         {
@@ -80,7 +88,7 @@ async fn main() {
                             shaders[0].clone(),
                             shaders[1].clone(),
                         )),
-                        vec![],
+                        vec![wgpu::BindingResource::Buffer(buffer.as_entire_buffer_binding())],
                         vec![],
                     ),
                     &[
@@ -117,7 +125,7 @@ async fn main() {
                             shaders[0].clone(),
                             shaders[2].clone(),
                         )),
-                        vec![],
+                        vec![wgpu::BindingResource::Buffer(buffer.as_entire_buffer_binding())],
                         vec![],
                     ),
                     &[
