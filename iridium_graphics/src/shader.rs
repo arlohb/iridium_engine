@@ -28,15 +28,17 @@ impl Shader {
         inputs: Vec<wgpu::BindingType>,
     ) -> Shader {
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: {
-                let binding_index = 0;
-                &inputs.iter().map(|binding_type| wgpu::BindGroupLayoutEntry {
-                    binding: binding_index,
-                    visibility: shader_type.into(),
-                    ty: *binding_type,
-                    count: None,
-                }).collect::<Vec<_>>()
-            },
+            entries: &inputs
+                .iter()
+                .enumerate()
+                .map(|(binding, binding_type)| {
+                    wgpu::BindGroupLayoutEntry {
+                        binding: binding as u32,
+                        visibility: shader_type.into(),
+                        ty: *binding_type,
+                        count: None,
+                    }
+                }).collect::<Vec<_>>(),
             label: None,
         });
 
