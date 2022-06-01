@@ -49,7 +49,14 @@ async fn main() {
                 &app.device,
                 ShaderType::Fragment,
                 include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
-                vec![],
+                vec![
+                    wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                ],
             )),
             Arc::new(Shader::new(
                 &app.device,
@@ -94,6 +101,56 @@ async fn main() {
         {
             let mut entities = Entities::new(components::component_types());
 
+            let steak_bytes = include_bytes!("../assets/FoodSprites/Food/Steak.png");
+            let steak_image = image::load_from_memory(steak_bytes).unwrap();
+            let steak_rgba = steak_image.to_rgba8();
+
+            let dimensions = steak_rgba.dimensions();
+
+            let texture_size = wgpu::Extent3d {
+                width: dimensions.0,
+                height: dimensions.1,
+                depth_or_array_layers: 1,
+            };
+
+            let steak_texture = app.device.create_texture(&wgpu::TextureDescriptor {
+                size: texture_size,
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: wgpu::TextureDimension::D2,
+                format: wgpu::TextureFormat::Rgba8UnormSrgb,
+                usage: wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::COPY_DST,
+                label: None,
+            });
+
+            app.queue.write_texture(
+                wgpu::ImageCopyTexture {
+                    texture: &steak_texture,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                &steak_rgba,
+                wgpu::ImageDataLayout {
+                    offset: 0,
+                    bytes_per_row: std::num::NonZeroU32::new(4 * dimensions.0),
+                    rows_per_image: std::num::NonZeroU32::new(dimensions.1),
+                },
+                texture_size,
+            );
+
+            let steak_texture_view = steak_texture.create_view(&wgpu::TextureViewDescriptor::default());
+            let steak_sampler = app.device.create_sampler(&wgpu::SamplerDescriptor {
+                address_mode_u: wgpu::AddressMode::ClampToEdge,
+                address_mode_v: wgpu::AddressMode::ClampToEdge,
+                address_mode_w: wgpu::AddressMode::ClampToEdge,
+                mag_filter: wgpu::FilterMode::Linear,
+                min_filter: wgpu::FilterMode::Nearest,
+                mipmap_filter: wgpu::FilterMode::Nearest,
+                ..Default::default()
+            });
+
             entities.new_entity("Entity 0", create_components! {
                 "Transform" => fast_map_any! {
                     "position" => Vec3::new(-1., -1., 0.),
@@ -111,7 +168,10 @@ async fn main() {
                         vec![],
                         vec![],
                         vec![],
-                        vec![],
+                        vec![
+                            wgpu::BindingResource::TextureView(&steak_texture_view),
+                            wgpu::BindingResource::Sampler(&steak_sampler),
+                        ],
                     ),
                     &assets.meshes[0],
                 )
