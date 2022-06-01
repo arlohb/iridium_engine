@@ -7,7 +7,8 @@ pub fn component_types() -> HashMap<String, ComponentType> {
             "name" => "String"
         },
         "Transform" => fast_map! {
-            "position" => "iridium_maths::Vec3"
+            "position" => "iridium_maths::Vec3",
+            "scale" => "iridium_maths::Vec3"
         },
         "Velocity" => fast_map! {
             "velocity" => "iridium_maths::Vec3"

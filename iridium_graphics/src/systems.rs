@@ -16,20 +16,14 @@ impl Renderer2DSystem {
 
             let material = renderable_2d.get::<MaterialInstance>("material");
 
-            let position = transform.get::<Vec3>("position");
-
-            let position_bytes = [
-                position.x,
-                position.y,
-            ]
-                .into_iter()
-                .flat_map(|f| f.to_le_bytes())
+            let transform_bytes = transform.get::<Vec3>("position").as_bytes::<16>().into_iter()
+                .chain(transform.get::<Vec3>("scale").as_bytes::<16>().into_iter())
                 .collect::<Vec<u8>>();
 
             queue.write_buffer(
                 &material.vertex_data.buffers[0],
                 0,
-                &position_bytes,
+                &transform_bytes,
             );
 
             render_pass.set_pipeline(&material.material.render_pipeline);

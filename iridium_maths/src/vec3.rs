@@ -16,8 +16,8 @@ impl Vec3 {
         Vec3 { x, y, z }
     }
 
-    pub fn as_bytes(&self) -> [u8; 12] {
-        let mut bytes = [0u8; 12];
+    pub fn as_bytes<const N: usize>(&self) -> [u8; N] {
+        let mut bytes = [0u8; N];
 
         [
             self.x.to_le_bytes(),

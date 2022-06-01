@@ -1,5 +1,13 @@
-float2 position;
+struct Transform {
+  float3 position;
+  float3 scale;
+};
+
+Transform transform;
 
 float4 vs_main(float3 vertex_position : POSITION) : SV_POSITION {
-  return float4(vertex_position + float3(position, 0.0), 1.0);
+  float3 scaled = vertex_position * transform.scale;
+  float3 translated = scaled + transform.position;
+
+  return float4(translated, 1.0);
 }

@@ -96,7 +96,8 @@ async fn main() {
 
             entities.new_entity("Entity 0", create_components! {
                 "Transform" => fast_map_any! {
-                    "position" => Vec3::new(0., 0., 0.)
+                    "position" => Vec3::new(0., 0., 0.),
+                    "scale" => Vec3::new(0.5, 1., 1.)
                 },
                 "Velocity" => fast_map_any! {
                     "velocity" => Vec3::new(0.0001, 0.0001, 0.0001)
@@ -117,7 +118,8 @@ async fn main() {
 
             entities.new_entity("Entity 1", create_components! {
                 "Transform" => fast_map_any! {
-                    "position" => Vec3::new(0., 0., 0.)
+                    "position" => Vec3::new(0., 0., 0.),
+                    "scale" => Vec3::new(1., 2., 1.)
                 },
                 "Velocity" => fast_map_any! {
                     "velocity" => Vec3::new(0.0002, 0.0002, 0.0002)

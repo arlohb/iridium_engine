@@ -89,7 +89,7 @@ impl MaterialInstance {
     ) -> MaterialInstance {
         let buffer = Arc::new(device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
-            contents: &[0u8; 8],
+            contents: &[0u8; 32],
             usage: wgpu::BufferUsages::UNIFORM
                 | wgpu::BufferUsages::COPY_DST,
         }));
