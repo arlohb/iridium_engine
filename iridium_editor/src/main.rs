@@ -62,10 +62,10 @@ async fn main() {
         meshes: vec![
             Arc::new(Mesh {
                 vertices: vec![
-                    Vec3::new(-1.0, -1.0, 0.0),
-                    Vec3::new(-1.0,  0.0, 0.0),
-                    Vec3::new( 0.0,  0.0, 0.0),
-                    Vec3::new( 0.0, -1.0, 0.0),
+                    Vec3::new(-1., -1., 0.),
+                    Vec3::new(-1.,  1., 0.),
+                    Vec3::new( 1.,  1., 0.),
+                    Vec3::new( 1., -1., 0.),
                 ],
                 indices: vec![
                     0, 3, 2,
@@ -96,11 +96,12 @@ async fn main() {
 
             entities.new_entity("Entity 0", create_components! {
                 "Transform" => fast_map_any! {
-                    "position" => Vec3::new(0., 0., 0.),
-                    "scale" => Vec3::new(0.5, 1., 1.)
+                    "position" => Vec3::new(-1., -1., 0.),
+                    "scale" => Vec3::new(0.2, 0.2, 0.2),
+                    "rotation" => 0.3f32
                 },
                 "Velocity" => fast_map_any! {
-                    "velocity" => Vec3::new(0.0001, 0.0001, 0.0001)
+                    "velocity" => Vec3::new(0.0001, 0.0001, 0.)
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
@@ -118,11 +119,12 @@ async fn main() {
 
             entities.new_entity("Entity 1", create_components! {
                 "Transform" => fast_map_any! {
-                    "position" => Vec3::new(0., 0., 0.),
-                    "scale" => Vec3::new(1., 2., 1.)
+                    "position" => Vec3::new(-1., -1., 0.),
+                    "scale" => Vec3::new(0.2, 0.2, 0.2),
+                    "rotation" => 0.6f32
                 },
                 "Velocity" => fast_map_any! {
-                    "velocity" => Vec3::new(0.0002, 0.0002, 0.0002)
+                    "velocity" => Vec3::new(0.0002, 0.0002, 0.)
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,MaterialInstance::new(

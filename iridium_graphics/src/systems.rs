@@ -17,7 +17,8 @@ impl Renderer2DSystem {
             let material = renderable_2d.get::<MaterialInstance>("material");
 
             let transform_bytes = transform.get::<Vec3>("position").as_bytes::<16>().into_iter()
-                .chain(transform.get::<Vec3>("scale").as_bytes::<16>().into_iter())
+                .chain(transform.get::<Vec3>("scale").as_bytes::<12>().into_iter())
+                .chain(transform.get::<f32>("rotation").to_le_bytes().into_iter())
                 .collect::<Vec<u8>>();
 
             queue.write_buffer(

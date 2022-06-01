@@ -18,6 +18,7 @@ impl VelocitySystem {
             // *position.get_mut::<f64>("y") += velocity.get::<f64>("y") * delta_time;
             // *position.get_mut::<f64>("z") += velocity.get::<f64>("z") * delta_time;
             *transform.get_mut::<Vec3>("position")  += *velocity.get::<Vec3>("velocity") * delta_time as f32;
+            *transform.get_mut::<f32>("rotation") += 0.002 * delta_time as f32;
         }
     }
 }
@@ -29,9 +30,10 @@ pub struct PositionLoggerSystem {
 
 impl PositionLoggerSystem {
     fn run(&mut self, entities: &Entities, _delta_time: f64) {
-        for [position]
-        in entities.query(["Position"]) {
-            println!("{}", position.display(&entities.component_types["Position"]));
+        for [transform]
+        in entities.query(["Transform"]) {
+            let position = transform.get::<Vec3>("position");
+            println!("{} {} {}", position.x, position.y, position.z);
         }
     }
 }
