@@ -62,10 +62,10 @@ async fn main() {
         meshes: vec![
             Arc::new(Mesh {
                 vertices: vec![
-                    Vec3::new(-1., -1., 0.),
-                    Vec3::new(-1.,  1., 0.),
-                    Vec3::new( 1.,  1., 0.),
-                    Vec3::new( 1., -1., 0.),
+                    Vertex::new(Vec3::new(-1., -1., 0.), [0., 0.]),
+                    Vertex::new(Vec3::new(-1.,  1., 0.), [0., 1.]),
+                    Vertex::new(Vec3::new( 1.,  1., 0.), [1., 1.]),
+                    Vertex::new(Vec3::new( 1., -1., 0.), [1., 0.]),
                 ],
                 indices: vec![
                     0, 3, 2,
