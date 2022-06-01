@@ -51,11 +51,11 @@ async fn main() {
                 include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
                 vec![
                     wgpu::BindingType::Texture {
-                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        sample_type: wgpu::TextureSampleType::Float { filterable: false },
                         view_dimension: wgpu::TextureViewDimension::D2,
                         multisampled: false,
                     },
-                    wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                    wgpu::BindingType::Sampler(wgpu::SamplerBindingType::NonFiltering),
                 ],
             )),
             Arc::new(Shader::new(
@@ -145,7 +145,7 @@ async fn main() {
                 address_mode_u: wgpu::AddressMode::ClampToEdge,
                 address_mode_v: wgpu::AddressMode::ClampToEdge,
                 address_mode_w: wgpu::AddressMode::ClampToEdge,
-                mag_filter: wgpu::FilterMode::Linear,
+                mag_filter: wgpu::FilterMode::Nearest,
                 min_filter: wgpu::FilterMode::Nearest,
                 mipmap_filter: wgpu::FilterMode::Nearest,
                 ..Default::default()
