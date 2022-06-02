@@ -31,17 +31,17 @@ async fn main() {
     
     let mut app = App::new(&window).await;
 
-    let textures = vec![
-        Arc::new(Texture::from_image_bytes(
+    let textures = fast_map! {
+        "steak" => Arc::new(Texture::from_image_bytes(
             &app.device,
             &app.queue,
             include_bytes!("../assets/FoodSprites/Food/Steak.png"),
             true,
-        )),
-    ];
+        ))
+    };
 
-    let shaders = vec![
-        Arc::new(Shader::new(
+    let shaders = fast_map! {
+        "sprite_vertex" => Arc::new(Shader::new(
             &app.device,
             ShaderType::Vertex,
             include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
@@ -53,40 +53,40 @@ async fn main() {
                 },
             ],
         )),
-        Arc::new(Shader::new(
+        "sprite_fragment" => Arc::new(Shader::new(
             &app.device,
             ShaderType::Fragment,
             include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
             vec![
-                textures[0].texture_binding_type,
-                textures[0].sampler_binding_type,
+                textures["steak"].texture_binding_type,
+                textures["steak"].sampler_binding_type,
             ],
         )),
-        Arc::new(Shader::new(
+        "uv_test_fragment" => Arc::new(Shader::new(
             &app.device,
             ShaderType::Fragment,
             include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
             vec![],
-        )),
-    ];
+        ))
+    };
 
-    let materials = vec![
-        Arc::new(Material::new(
+    let materials = fast_map! {
+        "steak" => Arc::new(Material::new(
             &app.device,
             app.surface_config.format,
-            shaders[0].clone(),
-            shaders[1].clone(),
+            shaders["sprite_vertex"].clone(),
+            shaders["sprite_fragment"].clone(),
         )),
-        Arc::new(Material::new(
+        "uv_test" => Arc::new(Material::new(
             &app.device,
             app.surface_config.format,
-            shaders[0].clone(),
-            shaders[2].clone(),
-        )),
-    ];
+            shaders["sprite_vertex"].clone(),
+            shaders["uv_test_fragment"].clone(),
+        ))
+    };
 
-    let meshes = vec![
-        Arc::new(Mesh {
+    let meshes = fast_map! {
+        "quad" => Arc::new(Mesh {
             vertices: vec![
                 Vertex::new(Vec3::new(-1., -1., 0.), [0., 0.]),
                 Vertex::new(Vec3::new(-1.,  1., 0.), [0., 1.]),
@@ -97,8 +97,8 @@ async fn main() {
                 0, 3, 2,
                 0, 2, 1,
             ],
-        }),
-    ];
+        })
+    };
 
     let assets = Assets {
         textures,
@@ -124,16 +124,16 @@ async fn main() {
                     &app.device,
                     MaterialInstance::new(
                         &app.device,
-                        assets.materials[0].clone(),
+                        assets.materials["steak"].clone(),
                         vec![],
                         vec![],
                         vec![],
                         vec![
-                            wgpu::BindingResource::TextureView(&assets.textures[0].view),
-                            wgpu::BindingResource::Sampler(&assets.textures[0].sampler),
+                            wgpu::BindingResource::TextureView(&assets.textures["steak"].view),
+                            wgpu::BindingResource::Sampler(&assets.textures["steak"].sampler),
                         ],
                     ),
-                    &assets.meshes[0],
+                    &assets.meshes["quad"],
                 )
             });
 
@@ -149,13 +149,13 @@ async fn main() {
                 "Renderable2D" => create_renderable_2d(
                     &app.device,MaterialInstance::new(
                         &app.device,
-                        assets.materials[1].clone(),
+                        assets.materials["uv_test"].clone(),
                         vec![],
                         vec![],
                         vec![],
                         vec![],
                     ),
-                    &assets.meshes[0],
+                    &assets.meshes["quad"],
                 )
             });
 
