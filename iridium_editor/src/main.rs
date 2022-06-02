@@ -31,82 +31,89 @@ async fn main() {
     
     let mut app = App::new(&window).await;
 
-    let mut assets = Assets {
-        shaders: vec![
-            Arc::new(Shader::new(
-                &app.device,
-                ShaderType::Vertex,
-                include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
-                vec![
-                    wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
-                    },
-                ],
-            )),
-            Arc::new(Shader::new(
-                &app.device,
-                ShaderType::Fragment,
-                include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
-                vec![
-                    wgpu::BindingType::Texture {
-                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                        view_dimension: wgpu::TextureViewDimension::D2,
-                        multisampled: false,
-                    },
-                    wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                ],
-            )),
-            Arc::new(Shader::new(
-                &app.device,
-                ShaderType::Fragment,
-                include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
-                vec![],
-            )),
-        ],
-        materials: vec![],
-        meshes: vec![
-            Arc::new(Mesh {
-                vertices: vec![
-                    Vertex::new(Vec3::new(-1., -1., 0.), [0., 0.]),
-                    Vertex::new(Vec3::new(-1.,  1., 0.), [0., 1.]),
-                    Vertex::new(Vec3::new( 1.,  1., 0.), [1., 1.]),
-                    Vertex::new(Vec3::new( 1., -1., 0.), [1., 0.]),
-                ],
-                indices: vec![
-                    0, 3, 2,
-                    0, 2, 1,
-                ],
-            }),
-        ],
-    };
-
-    assets.materials = vec![
-        Arc::new(Material::new(
+    let textures = vec![
+        Arc::new(Texture::from_image_bytes(
             &app.device,
-            app.surface_config.format,
-            assets.shaders[0].clone(),
-            assets.shaders[1].clone(),
-        )),
-        Arc::new(Material::new(
-            &app.device,
-            app.surface_config.format,
-            assets.shaders[0].clone(),
-            assets.shaders[2].clone(),
+            &app.queue,
+            include_bytes!("../assets/FoodSprites/Food/Steak.png"),
+            true,
         )),
     ];
+
+    let shaders = vec![
+        Arc::new(Shader::new(
+            &app.device,
+            ShaderType::Vertex,
+            include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
+            vec![
+                wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+            ],
+        )),
+        Arc::new(Shader::new(
+            &app.device,
+            ShaderType::Fragment,
+            include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
+            vec![
+                wgpu::BindingType::Texture {
+                    sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                    view_dimension: wgpu::TextureViewDimension::D2,
+                    multisampled: false,
+                },
+                wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+            ],
+        )),
+        Arc::new(Shader::new(
+            &app.device,
+            ShaderType::Fragment,
+            include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
+            vec![],
+        )),
+    ];
+
+    let materials = vec![
+        Arc::new(Material::new(
+            &app.device,
+            app.surface_config.format,
+            shaders[0].clone(),
+            shaders[1].clone(),
+        )),
+        Arc::new(Material::new(
+            &app.device,
+            app.surface_config.format,
+            shaders[0].clone(),
+            shaders[2].clone(),
+        )),
+    ];
+
+    let meshes = vec![
+        Arc::new(Mesh {
+            vertices: vec![
+                Vertex::new(Vec3::new(-1., -1., 0.), [0., 0.]),
+                Vertex::new(Vec3::new(-1.,  1., 0.), [0., 1.]),
+                Vertex::new(Vec3::new( 1.,  1., 0.), [1., 1.]),
+                Vertex::new(Vec3::new( 1., -1., 0.), [1., 0.]),
+            ],
+            indices: vec![
+                0, 3, 2,
+                0, 2, 1,
+            ],
+        }),
+    ];
+
+    let assets = Assets {
+        textures,
+        shaders,
+        materials,
+        meshes,
+    };
 
     let mut world = World::new(
         {
             let mut entities = Entities::new(components::component_types());
-
-            let steak_texture = Texture::from_image_bytes(
-                &app.device,
-                &app.queue,
-                include_bytes!("../assets/FoodSprites/Food/Steak.png"),
-                true,
-            );
 
             entities.new_entity("Entity 0", create_components! {
                 "Transform" => fast_map_any! {
@@ -126,8 +133,8 @@ async fn main() {
                         vec![],
                         vec![],
                         vec![
-                            wgpu::BindingResource::TextureView(&steak_texture.view),
-                            wgpu::BindingResource::Sampler(&steak_texture.sampler),
+                            wgpu::BindingResource::TextureView(&assets.textures[0].view),
+                            wgpu::BindingResource::Sampler(&assets.textures[0].sampler),
                         ],
                     ),
                     &assets.meshes[0],
