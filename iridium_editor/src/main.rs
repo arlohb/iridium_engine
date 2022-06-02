@@ -58,12 +58,8 @@ async fn main() {
             ShaderType::Fragment,
             include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
             vec![
-                wgpu::BindingType::Texture {
-                    sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                    view_dimension: wgpu::TextureViewDimension::D2,
-                    multisampled: false,
-                },
-                wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                textures[0].texture_binding_type,
+                textures[0].sampler_binding_type,
             ],
         )),
         Arc::new(Shader::new(

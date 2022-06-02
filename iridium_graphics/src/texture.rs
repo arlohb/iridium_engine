@@ -1,4 +1,6 @@
 pub struct Texture {
+    pub texture_binding_type: wgpu::BindingType,
+    pub sampler_binding_type: wgpu::BindingType,
     pub texture: wgpu::Texture,
     pub view: wgpu::TextureView,
     pub sampler: wgpu::Sampler,
@@ -12,6 +14,16 @@ impl Texture {
         dimensions: (u32, u32),
         filtered: bool,
     ) -> Texture {
+        let texture_binding_type = wgpu::BindingType::Texture {
+            sample_type: wgpu::TextureSampleType::Float { filterable: filtered },
+            view_dimension: wgpu::TextureViewDimension::D2,
+            multisampled: false,
+        };
+
+        let sampler_binding_type = wgpu::BindingType::Sampler(
+            if filtered { wgpu::SamplerBindingType::Filtering } else { wgpu::SamplerBindingType::NonFiltering }
+        );
+
         let size = wgpu::Extent3d {
             width: dimensions.0,
             height: dimensions.1,
@@ -56,7 +68,7 @@ impl Texture {
             ..Default::default()
         });
 
-        Texture { texture, view, sampler }
+        Texture { texture_binding_type, sampler_binding_type, texture, view, sampler }
     }
 
     pub fn from_image_bytes(
