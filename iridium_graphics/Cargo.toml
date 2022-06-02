@@ -11,3 +11,4 @@ iridium_ecs_macros = { path = "../iridium_ecs_macros" }
 iridium_maths = { path = "../iridium_maths" }
 hashbrown = "0.12.1"
 wgpu = "0.12.0"
+image = { version = "0.24.2", default-features = false, features = ["png"] }

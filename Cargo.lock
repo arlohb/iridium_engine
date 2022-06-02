@@ -695,6 +695,7 @@ name = "iridium_graphics"
 version = "0.1.0"
 dependencies = [
  "hashbrown 0.12.1",
+ "image",
  "iridium_ecs",
  "iridium_ecs_macros",
  "iridium_maths",
