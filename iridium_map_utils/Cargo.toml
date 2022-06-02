@@ -1,12 +1,9 @@
 [package]
-name = "iridium_ecs"
+name = "iridium_map_utils"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iridium_map_utils = { path = "../iridium_map_utils" }
 hashbrown = "0.12.1"
-uuid = { version = "1.0.0", features = ["fast-rng", "v4"] }
-rayon = "1.5.3"

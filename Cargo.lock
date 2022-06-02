@@ -652,6 +652,7 @@ name = "iridium_ecs"
 version = "0.1.0"
 dependencies = [
  "hashbrown 0.12.1",
+ "iridium_map_utils",
  "rayon",
  "uuid",
 ]
@@ -674,6 +675,7 @@ dependencies = [
  "iridium_ecs",
  "iridium_ecs_macros",
  "iridium_graphics",
+ "iridium_map_utils",
  "iridium_maths",
  "tokio",
  "wgpu",
@@ -687,6 +689,7 @@ dependencies = [
  "hashbrown 0.12.1",
  "iridium_ecs",
  "iridium_ecs_macros",
+ "iridium_map_utils",
 ]
 
 [[package]]
@@ -697,8 +700,16 @@ dependencies = [
  "image",
  "iridium_ecs",
  "iridium_ecs_macros",
+ "iridium_map_utils",
  "iridium_maths",
  "wgpu",
+]
+
+[[package]]
+name = "iridium_map_utils"
+version = "0.1.0"
+dependencies = [
+ "hashbrown 0.12.1",
 ]
 
 [[package]]

@@ -1,6 +1,7 @@
 use super::*;
 use std::sync::{Mutex, MutexGuard};
 use hashbrown::HashMap;
+use iridium_map_utils::fast_map_any;
 
 pub struct Entities {
     entities: Vec<u128>,

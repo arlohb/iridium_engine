@@ -10,6 +10,7 @@ use iridium_ecs::*;
 use iridium_ecs::systems::*;
 use iridium_graphics::*;
 use iridium_maths::*;
+use iridium_map_utils::*;
 
 use std::sync::Arc;
 use inline_spirv::include_spirv;

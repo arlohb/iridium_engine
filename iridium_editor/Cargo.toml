@@ -10,6 +10,7 @@ iridium_ecs = { path = "../iridium_ecs" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }
 iridium_graphics = { path = "../iridium_graphics" }
 iridium_maths = { path = "../iridium_maths" }
+iridium_map_utils = { path = "../iridium_map_utils" }
 
 winit = "0.26.1"
 env_logger = "0.9.0"
