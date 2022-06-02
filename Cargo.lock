@@ -670,7 +670,6 @@ version = "0.1.0"
 dependencies = [
  "env_logger",
  "hashbrown 0.12.1",
- "image",
  "inline-spirv",
  "iridium_ecs",
  "iridium_ecs_macros",
