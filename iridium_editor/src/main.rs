@@ -12,7 +12,6 @@ use iridium_graphics::*;
 use iridium_maths::*;
 use iridium_map_utils::*;
 
-use std::sync::Arc;
 use inline_spirv::include_spirv;
 use winit::{
     event::*,
@@ -32,17 +31,17 @@ async fn main() {
     
     let mut app = App::new(&window).await;
 
-    let textures = fast_map! {
-        "steak" => Arc::new(Texture::from_image_bytes(
+    let textures = fast_map_arc! {
+        "steak" => Texture::from_image_bytes(
             &app.device,
             &app.queue,
             include_bytes!("../assets/FoodSprites/Food/Steak.png"),
             true,
-        ))
+        )
     };
 
-    let shaders = fast_map! {
-        "sprite_vertex" => Arc::new(Shader::new(
+    let shaders = fast_map_arc! {
+        "sprite_vertex" => Shader::new(
             &app.device,
             ShaderType::Vertex,
             include_spirv!("src/vert.hlsl", vert, hlsl, entry="vs_main"),
@@ -53,8 +52,8 @@ async fn main() {
                     min_binding_size: None,
                 },
             ],
-        )),
-        "sprite_fragment" => Arc::new(Shader::new(
+        ),
+        "sprite_fragment" => Shader::new(
             &app.device,
             ShaderType::Fragment,
             include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
@@ -62,32 +61,32 @@ async fn main() {
                 textures["steak"].texture_binding_type,
                 textures["steak"].sampler_binding_type,
             ],
-        )),
-        "uv_test_fragment" => Arc::new(Shader::new(
+        ),
+        "uv_test_fragment" => Shader::new(
             &app.device,
             ShaderType::Fragment,
             include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
             vec![],
-        ))
+        )
     };
 
-    let materials = fast_map! {
-        "steak" => Arc::new(Material::new(
+    let materials = fast_map_arc! {
+        "steak" => Material::new(
             &app.device,
             app.surface_config.format,
             shaders["sprite_vertex"].clone(),
             shaders["sprite_fragment"].clone(),
-        )),
-        "uv_test" => Arc::new(Material::new(
+        ),
+        "uv_test" => Material::new(
             &app.device,
             app.surface_config.format,
             shaders["sprite_vertex"].clone(),
             shaders["uv_test_fragment"].clone(),
-        ))
+        )
     };
 
-    let meshes = fast_map! {
-        "quad" => Arc::new(Mesh {
+    let meshes = fast_map_arc! {
+        "quad" => Mesh {
             vertices: vec![
                 Vertex::new(Vec3::new(-1., -1., 0.), [0., 0.]),
                 Vertex::new(Vec3::new(-1.,  1., 0.), [0., 1.]),
@@ -98,7 +97,7 @@ async fn main() {
                 0, 3, 2,
                 0, 2, 1,
             ],
-        })
+        }
     };
 
     let assets = Assets {

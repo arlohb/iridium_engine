@@ -23,3 +23,16 @@ macro_rules! fast_map_any {
         }
     };
 }
+
+#[macro_export]
+macro_rules! fast_map_arc {
+    ($($key:expr => $value:expr),*) => {
+        {
+            let mut map = hashbrown::HashMap::new();
+            $(
+                map.insert($key.to_owned(), std::sync::Arc::new($value));
+            )*
+            map
+        }
+    };
+}
