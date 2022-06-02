@@ -36,7 +36,7 @@ async fn main() {
             &app.device,
             &app.queue,
             include_bytes!("../assets/FoodSprites/Food/Steak.png"),
-            true,
+            false,
         ),
     };
 
