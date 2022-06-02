@@ -12,8 +12,8 @@ pub fn component_types() -> HashMap<String, ComponentType> {
             "material" => "MaterialInstance",
             "vertex_buffer" => "wgpu::Buffer",
             "index_buffer" => "wgpu::Buffer",
-            "index_count" => "u32"
-        }
+            "index_count" => "u32",
+        },
     }
 }
 
@@ -50,6 +50,6 @@ pub fn create_renderable_2d(
         "material" => material_instance,
         "vertex_buffer" => vertex_buffer,
         "index_buffer" => index_buffer,
-        "index_count" => index_count
+        "index_count" => index_count,
     }
 }

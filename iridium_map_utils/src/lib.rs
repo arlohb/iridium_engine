@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! fast_map {
-    ($($key:expr => $value:expr),*) => {
+    ($($key:expr => $value:expr),* $(,)*) => {
         {
             let mut map = hashbrown::HashMap::new();
             $(
@@ -13,7 +13,7 @@ macro_rules! fast_map {
 
 #[macro_export]
 macro_rules! fast_map_any {
-    ($($key:expr => $value:expr),*) => {
+    ($($key:expr => $value:expr),* $(,)*) => {
         {
             let mut map = hashbrown::HashMap::<String, Box<dyn std::any::Any>>::new();
             $(
@@ -26,7 +26,7 @@ macro_rules! fast_map_any {
 
 #[macro_export]
 macro_rules! fast_map_arc {
-    ($($key:expr => $value:expr),*) => {
+    ($($key:expr => $value:expr),* $(,)*) => {
         {
             let mut map = hashbrown::HashMap::new();
             $(

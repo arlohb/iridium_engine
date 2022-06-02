@@ -70,7 +70,7 @@ impl Component {
 
 #[macro_export]
 macro_rules! create_components {
-    ($($key:expr => $value:expr),*) => {
+    ($($key:expr => $value:expr),* $(,)*) => {
         {
             let mut components = Vec::<Component>::new();
             $(
@@ -86,7 +86,7 @@ macro_rules! create_components {
 
 #[macro_export]
 macro_rules! create_component_types {
-    ($($key:expr => $value:expr),*) => {
+    ($($key:expr => $value:expr),* $(,)*) => {
         {
             let mut components = hashbrown::HashMap::<String, ComponentType>::new();
             $(

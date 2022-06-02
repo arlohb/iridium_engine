@@ -42,8 +42,8 @@ impl Entities {
 
         self.add_components(id, create_components! {
             "Name" => fast_map_any! {
-                "name" => name.to_owned()
-            }
+                "name" => name.to_owned(),
+            },
         });
 
         self.add_components(id, components);

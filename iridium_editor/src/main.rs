@@ -37,7 +37,7 @@ async fn main() {
             &app.queue,
             include_bytes!("../assets/FoodSprites/Food/Steak.png"),
             true,
-        )
+        ),
     };
 
     let shaders = fast_map_arc! {
@@ -67,7 +67,7 @@ async fn main() {
             ShaderType::Fragment,
             include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
             vec![],
-        )
+        ),
     };
 
     let materials = fast_map_arc! {
@@ -82,7 +82,7 @@ async fn main() {
             app.surface_config.format,
             shaders["sprite_vertex"].clone(),
             shaders["uv_test_fragment"].clone(),
-        )
+        ),
     };
 
     let meshes = fast_map_arc! {
@@ -97,7 +97,7 @@ async fn main() {
                 0, 3, 2,
                 0, 2, 1,
             ],
-        }
+        },
     };
 
     let assets = Assets {
@@ -115,10 +115,10 @@ async fn main() {
                 "Transform" => fast_map_any! {
                     "position" => Vec3::new(-1., -1., 0.),
                     "scale" => Vec3::new(0.2, 0.2, 0.2),
-                    "rotation" => 0.3f32
+                    "rotation" => 0.3f32,
                 },
                 "Velocity" => fast_map_any! {
-                    "velocity" => Vec3::new(0.0001, 0.0001, 0.)
+                    "velocity" => Vec3::new(0.0001, 0.0001, 0.),
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,
@@ -134,17 +134,17 @@ async fn main() {
                         ],
                     ),
                     &assets.meshes["quad"],
-                )
+                ),
             });
 
             entities.new_entity("Entity 1", create_components! {
                 "Transform" => fast_map_any! {
                     "position" => Vec3::new(-1., -1., 0.),
                     "scale" => Vec3::new(0.2, 0.2, 0.2),
-                    "rotation" => 0.6f32
+                    "rotation" => 0.6f32,
                 },
                 "Velocity" => fast_map_any! {
-                    "velocity" => Vec3::new(0.0002, 0.0002, 0.)
+                    "velocity" => Vec3::new(0.0002, 0.0002, 0.),
                 },
                 "Renderable2D" => create_renderable_2d(
                     &app.device,MaterialInstance::new(
@@ -156,7 +156,7 @@ async fn main() {
                         vec![],
                     ),
                     &assets.meshes["quad"],
-                )
+                ),
             });
 
             entities
