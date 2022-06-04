@@ -12,6 +12,11 @@ pub struct App {
     pub surface_config: wgpu::SurfaceConfiguration,
     pub surface_size: winit::dpi::PhysicalSize<u32>,
 
+    egui_winit_state: egui_winit::State,
+    egui_context: egui::Context,
+    egui_rpass: egui_latest_wgpu_backend::RenderPass,
+    ui: egui_demo_lib::DemoWindows,
+
     renderer_2d_system: Renderer2DSystem,
 }
 
@@ -42,12 +47,27 @@ impl App {
         };
         surface.configure(&device, &surface_config);
 
+        let egui_winit_state = egui_winit::State::new(4096, window);
+        let egui_context = egui::Context::default();
+        let egui_rpass = egui_latest_wgpu_backend::RenderPass::new(
+            &device,
+            surface_config.format,
+            1,
+        );
+        let ui = egui_demo_lib::DemoWindows::default();
+
         Self {
             surface,
             device,
             queue,
             surface_config,
             surface_size,
+
+            egui_winit_state,
+            egui_context,
+            egui_rpass,
+            ui,
+
             renderer_2d_system: Renderer2DSystem {},
         }
     }
@@ -62,6 +82,7 @@ impl App {
     }
 
     pub fn input(&mut self, event: &WindowEvent) -> bool {
+        self.egui_winit_state.on_event(&self.egui_context, event);
         match event {
             WindowEvent::KeyboardInput {
                 input: KeyboardInput {
@@ -79,9 +100,35 @@ impl App {
 
     pub fn update(&mut self) {}
 
-    pub fn render(&mut self, entities: &Entities) -> Result<(), wgpu::SurfaceError> {
+    pub fn render(&mut self, window: &Window, entities: &Entities) -> Result<(), wgpu::SurfaceError> {
         let output = self.surface.get_current_texture()?;
         let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+        // Begin to draw the UI frame.
+        let input = self.egui_winit_state.take_egui_input(window);
+        self.egui_context.begin_frame(input);
+
+        // Draw the demo application.
+        self.ui.ui(&self.egui_context);
+
+        // End the UI frame. We could now handle the output and draw the UI with the backend.
+        let egui_output = self.egui_context.end_frame();
+        let paint_jobs = self.egui_context.tessellate(egui_output.shapes);
+
+        self.egui_winit_state.handle_platform_output(window, &self.egui_context, egui_output.platform_output);
+
+        // Upload all resources for the GPU.
+        let screen_descriptor = egui_latest_wgpu_backend::ScreenDescriptor {
+            physical_width: self.surface_config.width / 2,
+            physical_height: self.surface_config.height / 2,
+            scale_factor: window.scale_factor() as f32,
+        };
+
+        self.egui_rpass
+            .add_textures(&self.device, &self.queue, &egui_output.textures_delta)
+            .unwrap();
+        self.egui_rpass.remove_textures(egui_output.textures_delta).unwrap();
+        self.egui_rpass.update_buffers(&self.device, &self.queue, &paint_jobs, &screen_descriptor);
 
         let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("Render Encoder"),
@@ -107,6 +154,21 @@ impl App {
             });
 
             self.renderer_2d_system.run(entities, 0., &mut render_pass, &self.queue);
+
+            render_pass.set_viewport(
+                0.,
+                0.,
+                self.surface_config.width as f32 / 2.,
+                self.surface_config.height as f32 / 2.,
+                0.,
+                1.,
+            );
+
+            self.egui_rpass.execute_with_renderpass(
+                &mut render_pass,
+                &paint_jobs,
+                &screen_descriptor,
+            ).unwrap();
         }
         
         self.queue.submit(std::iter::once(encoder.finish()));

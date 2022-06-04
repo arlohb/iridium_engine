@@ -12,6 +12,11 @@ iridium_graphics = { path = "../iridium_graphics" }
 iridium_maths = { path = "../iridium_maths" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 
+egui = "0.18.1"
+egui-latest_wgpu_backend = "0.18.2"
+egui_demo_lib = "0.18.0"
+egui-winit = "0.18.0"
+
 winit = "0.26.1"
 env_logger = "0.9.0"
 wgpu = { version = "0.12.0", features = ["spirv"] }
