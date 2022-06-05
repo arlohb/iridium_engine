@@ -5,6 +5,7 @@ mod app;
 use app::*;
 mod assets;
 use assets::*;
+mod ui;
 
 use iridium_ecs::*;
 use iridium_ecs::systems::*;

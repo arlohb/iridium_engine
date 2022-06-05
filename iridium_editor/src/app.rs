@@ -5,6 +5,8 @@ use winit::{
     event::*,
 };
 
+use crate::ui::{EguiPanel, EguiState};
+
 pub struct App {
     surface: wgpu::Surface,
     pub device: wgpu::Device,
@@ -12,10 +14,8 @@ pub struct App {
     pub surface_config: wgpu::SurfaceConfiguration,
     pub surface_size: winit::dpi::PhysicalSize<u32>,
 
-    egui_winit_state: egui_winit::State,
-    egui_context: egui::Context,
-    egui_rpass: egui_latest_wgpu_backend::RenderPass,
-    ui: egui_demo_lib::DemoWindows,
+    egui_state: EguiState,
+    egui_panels: Vec<EguiPanel>,
 
     renderer_2d_system: Renderer2DSystem,
 }
@@ -47,14 +47,12 @@ impl App {
         };
         surface.configure(&device, &surface_config);
 
-        let egui_winit_state = egui_winit::State::new(4096, window);
-        let egui_context = egui::Context::default();
-        let egui_rpass = egui_latest_wgpu_backend::RenderPass::new(
+        let egui_state = EguiState::new(window);
+        let egui_panel = EguiPanel::new(
             &device,
             surface_config.format,
-            1,
+            egui_demo_lib::DemoWindows::default(),
         );
-        let ui = egui_demo_lib::DemoWindows::default();
 
         Self {
             surface,
@@ -63,10 +61,8 @@ impl App {
             surface_config,
             surface_size,
 
-            egui_winit_state,
-            egui_context,
-            egui_rpass,
-            ui,
+            egui_state,
+            egui_panels: vec![egui_panel],
 
             renderer_2d_system: Renderer2DSystem {},
         }
@@ -82,7 +78,7 @@ impl App {
     }
 
     pub fn input(&mut self, event: &WindowEvent) -> bool {
-        self.egui_winit_state.on_event(&self.egui_context, event);
+        self.egui_state.winit.on_event(&self.egui_state.context, event);
         match event {
             WindowEvent::KeyboardInput {
                 input: KeyboardInput {
@@ -136,7 +132,7 @@ impl App {
         let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
         // Modify the input
-        let mut input = self.egui_winit_state.take_egui_input(window);
+        let mut input = self.egui_state.winit.take_egui_input(window);
         input.screen_rect = Some(screen_rect_logical);
         input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
         input.events
@@ -146,7 +142,7 @@ impl App {
                     // If a button is being held down,
                     // I still want to be able to move controls
                     if !screen_rect_logical.contains(*position)
-                    && !self.egui_context.input().pointer.any_down() {
+                    && !self.egui_state.context.input().pointer.any_down() {
                         *event = egui::Event::PointerGone;
                     }
                 },
@@ -159,16 +155,16 @@ impl App {
             });
 
         // Begin to draw the UI frame.
-        self.egui_context.begin_frame(input);
+        self.egui_state.context.begin_frame(input);
 
         // Draw the demo application.
-        self.ui.ui(&self.egui_context);
+        self.egui_panels[0].ui.render(&self.egui_state.context);
 
         // End the UI frame. We could now handle the output and draw the UI with the backend.
-        let egui_output = self.egui_context.end_frame();
-        let paint_jobs = self.egui_context.tessellate(egui_output.shapes);
+        let egui_output = self.egui_state.context.end_frame();
+        let paint_jobs = self.egui_state.context.tessellate(egui_output.shapes);
 
-        self.egui_winit_state.handle_platform_output(window, &self.egui_context, egui_output.platform_output);
+        self.egui_state.winit.handle_platform_output(window, &self.egui_state.context, egui_output.platform_output);
 
         // Upload all resources for the GPU.
         let screen_descriptor = egui_latest_wgpu_backend::ScreenDescriptor {
@@ -177,11 +173,11 @@ impl App {
             scale_factor: window.scale_factor() as f32 * scale_factor,
         };
 
-        self.egui_rpass
+        self.egui_panels[0].rpass
             .add_textures(&self.device, &self.queue, &egui_output.textures_delta)
             .unwrap();
-        self.egui_rpass.remove_textures(egui_output.textures_delta).unwrap();
-        self.egui_rpass.update_buffers(&self.device, &self.queue, &paint_jobs, &screen_descriptor);
+        self.egui_panels[0].rpass.remove_textures(egui_output.textures_delta).unwrap();
+        self.egui_panels[0].rpass.update_buffers(&self.device, &self.queue, &paint_jobs, &screen_descriptor);
 
         let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("Render Encoder"),
@@ -217,7 +213,7 @@ impl App {
                 1.,
             );
 
-            self.egui_rpass.execute_with_renderpass(
+            self.egui_panels[0].rpass.execute_with_renderpass(
                 &mut render_pass,
                 &paint_jobs,
                 &screen_descriptor,
