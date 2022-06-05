@@ -102,11 +102,11 @@ impl App {
 
     pub fn render(&mut self, window: &Window, entities: &Entities) -> Result<(), wgpu::SurfaceError> {
         let scale_factor = 0.8;
-        let (screen_rect_physical, _screen_space_rect) = {
+        let (screen_rect_physical, screen_rect_logical) = {
             let min_x = 0.;
             let min_y = 0.;
             let max_x = 1.;
-            let max_y = 0.75;
+            let max_y = 0.8;
 
             (
                 egui::Rect {
@@ -121,12 +121,12 @@ impl App {
                 },
                 egui::Rect {
                     min: egui::emath::pos2(
-                        min_x,
-                        min_y,
+                        min_x * self.surface_size.width as f32 / scale_factor,
+                        min_y * self.surface_size.height as f32 / scale_factor,
                     ),
                     max: egui::emath::pos2(
-                        max_x,
-                        max_y,
+                        max_x * self.surface_size.width as f32 / scale_factor,
+                        max_y * self.surface_size.height as f32 / scale_factor,
                     ),
                 },
             )
@@ -137,7 +137,7 @@ impl App {
 
         // Modify the input
         let mut input = self.egui_winit_state.take_egui_input(window);
-        input.screen_rect = Some(screen_rect_physical);
+        input.screen_rect = Some(screen_rect_logical);
         input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
         input.events
             .iter_mut()
@@ -145,13 +145,13 @@ impl App {
                 egui::Event::PointerMoved(position) => {
                     // If a button is being held down,
                     // I still want to be able to move controls
-                    if !screen_rect_physical.contains(*position)
+                    if !screen_rect_logical.contains(*position)
                     && !self.egui_context.input().pointer.any_down() {
                         *event = egui::Event::PointerGone;
                     }
                 },
                 egui::Event::PointerButton { pos, .. } => {
-                    if !screen_rect_physical.contains(*pos) {
+                    if !screen_rect_logical.contains(*pos) {
                         *event = egui::Event::PointerGone;
                     }
                 },
