@@ -47,17 +47,29 @@ impl App {
         };
         surface.configure(&device, &surface_config);
 
-        let egui_state = EguiState::new(window);
+        let egui_state = EguiState::new(window, 0.8);
         let egui_panels = vec![
             EguiPanel::new(
                 &device,
                 surface_config.format,
                 egui_demo_lib::DemoWindows::default(),
+                ScreenRect::new(
+                    0.,
+                    0.,
+                    1.,
+                    0.8,
+                )
             ),
             EguiPanel::new(
                 &device,
                 surface_config.format,
                 egui_demo_lib::DemoWindows::default(),
+                ScreenRect::new(
+                    0.,
+                    0.,
+                    1.,
+                    0.8,
+                )
             ),
         ];
 
@@ -104,15 +116,8 @@ impl App {
     pub fn update(&mut self) {}
 
     pub fn render(&mut self, window: &Window, entities: &Entities) -> Result<(), wgpu::SurfaceError> {
-        let scale_factor = 0.8;
-        let screen_rect = ScreenRect::new(
-            0.,
-            0.,
-            1.,
-            0.8,
-        );
-        let screen_rect_physical = screen_rect.rect_physical(self.surface_size.width, self.surface_size.height);
-        let screen_rect_logical = screen_rect.rect_logical(self.surface_size.width, self.surface_size.height, scale_factor);
+        let screen_rect_physical = self.egui_panels[0].screen_rect.rect_physical(self.surface_size.width, self.surface_size.height);
+        let screen_rect_logical = self.egui_panels[0].screen_rect.rect_logical(self.surface_size.width, self.surface_size.height, self.egui_state.scale_factor);
 
         let output = self.surface.get_current_texture()?;
         let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
@@ -120,7 +125,7 @@ impl App {
         // Modify the input
         let mut input = self.egui_state.winit.take_egui_input(window);
         input.screen_rect = Some(screen_rect_logical);
-        input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
+        input.pixels_per_point = Some(window.scale_factor() as f32 * self.egui_state.scale_factor);
         input.events
             .iter_mut()
             .for_each(|event| match event {
@@ -156,7 +161,7 @@ impl App {
         let screen_descriptor = egui_latest_wgpu_backend::ScreenDescriptor {
             physical_width: screen_rect_physical.width() as u32,
             physical_height: screen_rect_physical.height() as u32,
-            scale_factor: window.scale_factor() as f32 * scale_factor,
+            scale_factor: window.scale_factor() as f32 * self.egui_state.scale_factor,
         };
 
         self.egui_panels[0].rpass
