@@ -5,7 +5,7 @@ use winit::{
     event::*,
 };
 
-use crate::ui::{EguiPanel, EguiState};
+use crate::ui::{EguiPanel, EguiState, ScreenRect};
 
 pub struct App {
     surface: wgpu::Surface,
@@ -48,11 +48,18 @@ impl App {
         surface.configure(&device, &surface_config);
 
         let egui_state = EguiState::new(window);
-        let egui_panel = EguiPanel::new(
-            &device,
-            surface_config.format,
-            egui_demo_lib::DemoWindows::default(),
-        );
+        let egui_panels = vec![
+            EguiPanel::new(
+                &device,
+                surface_config.format,
+                egui_demo_lib::DemoWindows::default(),
+            ),
+            EguiPanel::new(
+                &device,
+                surface_config.format,
+                egui_demo_lib::DemoWindows::default(),
+            ),
+        ];
 
         Self {
             surface,
@@ -62,7 +69,7 @@ impl App {
             surface_size,
 
             egui_state,
-            egui_panels: vec![egui_panel],
+            egui_panels,
 
             renderer_2d_system: Renderer2DSystem {},
         }
@@ -98,35 +105,14 @@ impl App {
 
     pub fn render(&mut self, window: &Window, entities: &Entities) -> Result<(), wgpu::SurfaceError> {
         let scale_factor = 0.8;
-        let (screen_rect_physical, screen_rect_logical) = {
-            let min_x = 0.;
-            let min_y = 0.;
-            let max_x = 1.;
-            let max_y = 0.8;
-
-            (
-                egui::Rect {
-                    min: egui::emath::pos2(
-                        min_x * self.surface_size.width as f32,
-                        min_y * self.surface_size.height as f32,
-                    ),
-                    max: egui::emath::pos2(
-                        max_x * self.surface_size.width as f32,
-                        max_y * self.surface_size.height as f32,
-                    ),
-                },
-                egui::Rect {
-                    min: egui::emath::pos2(
-                        min_x * self.surface_size.width as f32 / scale_factor,
-                        min_y * self.surface_size.height as f32 / scale_factor,
-                    ),
-                    max: egui::emath::pos2(
-                        max_x * self.surface_size.width as f32 / scale_factor,
-                        max_y * self.surface_size.height as f32 / scale_factor,
-                    ),
-                },
-            )
-        };
+        let screen_rect = ScreenRect::new(
+            0.,
+            0.,
+            1.,
+            0.8,
+        );
+        let screen_rect_physical = screen_rect.rect_physical(self.surface_size.width, self.surface_size.height);
+        let screen_rect_logical = screen_rect.rect_logical(self.surface_size.width, self.surface_size.height, scale_factor);
 
         let output = self.surface.get_current_texture()?;
         let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
