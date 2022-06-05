@@ -101,11 +101,64 @@ impl App {
     pub fn update(&mut self) {}
 
     pub fn render(&mut self, window: &Window, entities: &Entities) -> Result<(), wgpu::SurfaceError> {
+        let scale_factor = 0.8;
+        let (screen_rect_physical, _screen_space_rect) = {
+            let min_x = 0.;
+            let min_y = 0.;
+            let max_x = 1.;
+            let max_y = 0.75;
+
+            (
+                egui::Rect {
+                    min: egui::emath::pos2(
+                        min_x * self.surface_size.width as f32,
+                        min_y * self.surface_size.height as f32,
+                    ),
+                    max: egui::emath::pos2(
+                        max_x * self.surface_size.width as f32,
+                        max_y * self.surface_size.height as f32,
+                    ),
+                },
+                egui::Rect {
+                    min: egui::emath::pos2(
+                        min_x,
+                        min_y,
+                    ),
+                    max: egui::emath::pos2(
+                        max_x,
+                        max_y,
+                    ),
+                },
+            )
+        };
+
         let output = self.surface.get_current_texture()?;
         let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
+        // Modify the input
+        let mut input = self.egui_winit_state.take_egui_input(window);
+        input.screen_rect = Some(screen_rect_physical);
+        input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
+        input.events
+            .iter_mut()
+            .for_each(|event| match event {
+                egui::Event::PointerMoved(position) => {
+                    // If a button is being held down,
+                    // I still want to be able to move controls
+                    if !screen_rect_physical.contains(*position)
+                    && !self.egui_context.input().pointer.any_down() {
+                        *event = egui::Event::PointerGone;
+                    }
+                },
+                egui::Event::PointerButton { pos, .. } => {
+                    if !screen_rect_physical.contains(*pos) {
+                        *event = egui::Event::PointerGone;
+                    }
+                },
+                _ => (),
+            });
+
         // Begin to draw the UI frame.
-        let input = self.egui_winit_state.take_egui_input(window);
         self.egui_context.begin_frame(input);
 
         // Draw the demo application.
@@ -119,9 +172,9 @@ impl App {
 
         // Upload all resources for the GPU.
         let screen_descriptor = egui_latest_wgpu_backend::ScreenDescriptor {
-            physical_width: self.surface_config.width / 2,
-            physical_height: self.surface_config.height / 2,
-            scale_factor: window.scale_factor() as f32,
+            physical_width: screen_rect_physical.width() as u32,
+            physical_height: screen_rect_physical.height() as u32,
+            scale_factor: window.scale_factor() as f32 * scale_factor,
         };
 
         self.egui_rpass
@@ -156,10 +209,10 @@ impl App {
             self.renderer_2d_system.run(entities, 0., &mut render_pass, &self.queue);
 
             render_pass.set_viewport(
-                0.,
-                0.,
-                self.surface_config.width as f32 / 2.,
-                self.surface_config.height as f32 / 2.,
+                screen_rect_physical.min.x,
+                screen_rect_physical.min.y,
+                screen_rect_physical.width(),
+                screen_rect_physical.height(),
                 0.,
                 1.,
             );
