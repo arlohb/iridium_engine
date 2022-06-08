@@ -1,4 +1,4 @@
-use iridium_ecs::Entities;
+use iridium_ecs::World;
 use iridium_graphics::Renderer2DSystem;
 use winit::{
     window::Window,
@@ -47,17 +47,17 @@ impl App {
         };
         surface.configure(&device, &surface_config);
 
-        let egui_state = EguiState::new(window, 0.8);
+        let egui_state = EguiState::new(window, 1.);
         let egui_panels = vec![
             EguiPanel::new(
                 &device,
                 surface_config.format,
-                egui_demo_lib::DemoWindows::default(),
+                crate::ui::panels::EntitiesList,
                 ScreenRect::new(
                     0.,
                     0.,
-                    0.4,
-                    0.2,
+                    0.15,
+                    1.,
                 )
             ),
             // EguiPanel::new(
@@ -115,7 +115,7 @@ impl App {
 
     pub fn update(&mut self) {}
 
-    pub fn render(&mut self, window: &Window, entities: &Entities) -> Result<(), wgpu::SurfaceError> {
+    pub fn render(&mut self, window: &Window, world: &mut World) -> Result<(), wgpu::SurfaceError> {
         let screen_rect_physical = self.egui_panels[0].screen_rect.rect_physical(self.surface_size.width, self.surface_size.height);
         let screen_rect_logical = self.egui_panels[0].screen_rect.rect_logical(self.surface_size.width, self.surface_size.height, self.egui_state.scale_factor);
 
@@ -149,7 +149,7 @@ impl App {
         self.egui_state.context.begin_frame(input);
 
         // Draw the demo application.
-        self.egui_panels[0].ui.render(&self.egui_state.context);
+        self.egui_panels[0].ui.render(&self.egui_state.context, world);
 
         // End the UI frame. We could now handle the output and draw the UI with the backend.
         let egui_output = self.egui_state.context.end_frame();
@@ -193,7 +193,16 @@ impl App {
                 depth_stencil_attachment: None,
             });
 
-            self.renderer_2d_system.run(entities, 0., &mut render_pass, &self.queue);
+            render_pass.set_viewport(
+                self.surface_size.width as f32 * 0.15,
+                self.surface_size.height as f32 * 0.,
+                self.surface_size.width as f32 * 0.85,
+                self.surface_size.height as f32 * 1.,
+                0.,
+                1.,
+            );
+
+            self.renderer_2d_system.run(&world.entities, 0., &mut render_pass, &self.queue);
 
             render_pass.set_viewport(
                 screen_rect_physical.min.x,

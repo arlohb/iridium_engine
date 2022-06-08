@@ -206,7 +206,7 @@ async fn main() {
             world.run_systems(delta_time);
             app.update();
 
-            match app.render(&window, &world.entities) {
+            match app.render(&window, &mut world) {
                 Ok(_) => {},
                 Err(wgpu::SurfaceError::Lost) => app.resize(app.surface_size),
                 Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,

@@ -9,3 +9,5 @@ pub use egui_state::*;
 
 mod screen_rect;
 pub use screen_rect::*;
+
+pub mod panels;
