@@ -5,7 +5,7 @@ use winit::{
     event::*,
 };
 
-use crate::ui::{EguiPanel, EguiState, ScreenRect};
+use crate::ui::*;
 
 pub struct App {
     surface: wgpu::Surface,
@@ -16,6 +16,7 @@ pub struct App {
 
     egui_state: EguiState,
     egui_panels: Vec<EguiPanel>,
+    ui_state: UiState,
 
     renderer_2d_system: Renderer2DSystem,
 }
@@ -72,6 +73,7 @@ impl App {
             //     )
             // ),
         ];
+        let ui_state = UiState::new();
 
         Self {
             surface,
@@ -82,6 +84,7 @@ impl App {
 
             egui_state,
             egui_panels,
+            ui_state,
 
             renderer_2d_system: Renderer2DSystem {},
         }
@@ -149,7 +152,7 @@ impl App {
         self.egui_state.context.begin_frame(input);
 
         // Draw the demo application.
-        self.egui_panels[0].ui.render(&self.egui_state.context, world);
+        self.egui_panels[0].ui.render(&self.egui_state.context, &mut self.ui_state, world);
 
         // End the UI frame. We could now handle the output and draw the UI with the backend.
         let egui_output = self.egui_state.context.end_frame();

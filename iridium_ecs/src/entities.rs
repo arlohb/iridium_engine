@@ -51,20 +51,21 @@ impl Entities {
         id
     }
 
-    pub fn query<const N: usize>(
+    pub fn query_with_id<const N: usize>(
         &self, component_types: [&str; N]
-    ) -> std::vec::IntoIter<[MutexGuard<component::Component>; N]> {
+    ) -> std::vec::IntoIter<(u128, [MutexGuard<component::Component>; N])> {
         component_types
             .iter()
             // for each component_type, get a list of entities that have that component
-            .map(|component_type| self.components
-                .get(*component_type)
-                .map(|some| some
-                    .keys()
-                    .copied()
-                    .collect::<Vec<u128>>())
-                .or_else(|| Some(vec![]))
-                .unwrap())
+            .map(|component_type| 
+                self.components
+                    .get(*component_type)
+                    .map(|some| some
+                        .keys()
+                        .copied()
+                        .collect::<Vec<u128>>())
+                    .or_else(|| Some(vec![]))
+                    .unwrap())
             // reduce the lists to the intersection of all these lists
             .reduce(|result, current| result
                 .iter()
@@ -78,16 +79,28 @@ impl Entities {
                     v.try_into().unwrap_or_else(|_| panic!())
                 }
 
-                into_array(component_types
+                (
+                    *id,
+                    into_array(component_types
                     .iter()
                     .map(|name| self.components
                         [*name]
                         [id]
-                    .lock()
-                    .unwrap())
+                        .lock()
+                        .unwrap())
                     .collect::<Vec<_>>())
+                )
                 })
-            .collect::<Vec<[_; N]>>()
+            .collect::<Vec<(u128, [_; N])>>()
+            .into_iter()
+    }
+
+    pub fn query<const N: usize>(
+        &self, component_types: [&str; N]
+    ) -> std::vec::IntoIter<[MutexGuard<component::Component>; N]> {
+        self.query_with_id(component_types)
+            .map(|(_, components)| components)
+            .collect::<Vec<_>>()
             .into_iter()
     }
 }
