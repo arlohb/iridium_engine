@@ -72,9 +72,9 @@ impl Component {
 macro_rules! create_components {
     ($($key:expr => $value:expr),* $(,)*) => {
         {
-            let mut components = Vec::<Component>::new();
+            let mut components = Vec::<crate::Component>::new();
             $(
-                components.push(Component::new(
+                components.push(crate::Component::new(
                     $key,
                     $value
                 ));
