@@ -8,7 +8,7 @@ pub mod components;
 pub mod systems;
 
 #[no_mangle]
-pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) -> () {
+pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
     world.entities.new_entity("Entity 0", create_components! {
         "Transform" => fast_map_any! {
             "position" => Vec3::new(-1., -1., 0.),
