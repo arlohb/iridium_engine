@@ -109,59 +109,7 @@ async fn main() {
     };
 
     let mut world = World::new(
-        {
-            let mut entities = Entities::new(components::component_types());
-
-            entities.new_entity("Entity 0", create_components! {
-                "Transform" => fast_map_any! {
-                    "position" => Vec3::new(-1., -1., 0.),
-                    "scale" => Vec3::new(0.2, 0.2, 0.2),
-                    "rotation" => 0.3f32,
-                },
-                "Velocity" => fast_map_any! {
-                    "velocity" => Vec3::new(0.0001, 0.0001, 0.),
-                },
-                "Renderable2D" => create_renderable_2d(
-                    &app.device,
-                    MaterialInstance::new(
-                        &app.device,
-                        assets.materials["steak"].clone(),
-                        vec![],
-                        vec![],
-                        vec![],
-                        vec![
-                            wgpu::BindingResource::TextureView(&assets.textures["steak"].view),
-                            wgpu::BindingResource::Sampler(&assets.textures["steak"].sampler),
-                        ],
-                    ),
-                    &assets.meshes["quad"],
-                ),
-            });
-
-            entities.new_entity("Entity 1", create_components! {
-                "Transform" => fast_map_any! {
-                    "position" => Vec3::new(-1., -1., 0.),
-                    "scale" => Vec3::new(0.2, 0.2, 0.2),
-                    "rotation" => 0.6f32,
-                },
-                "Velocity" => fast_map_any! {
-                    "velocity" => Vec3::new(0.0002, 0.0002, 0.),
-                },
-                "Renderable2D" => create_renderable_2d(
-                    &app.device,MaterialInstance::new(
-                        &app.device,
-                        assets.materials["uv_test"].clone(),
-                        vec![],
-                        vec![],
-                        vec![],
-                        vec![],
-                    ),
-                    &assets.meshes["quad"],
-                ),
-            });
-
-            entities
-        },
+        Entities::new(components::component_types()),
         Systems::new(vec![
             SystemsStage::new(vec![
                 Box::new(VelocitySystem::new(true)),
@@ -172,6 +120,8 @@ async fn main() {
             ]),
         ]),
     );
+
+    init_system(&app, &mut world, &assets);
 
     let mut last_time = std::time::Instant::now();
 
