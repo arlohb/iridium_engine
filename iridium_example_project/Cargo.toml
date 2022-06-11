@@ -3,10 +3,18 @@ name = "iridium_example_project"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+crate-type = ["dylib"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+iridium_core = { path = "../iridium_core" }
 iridium_ecs = { path = "../iridium_ecs" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }
+iridium_graphics = { path = "../iridium_graphics" }
+iridium_maths = { path = "../iridium_maths" }
 iridium_map_utils = { path = "../iridium_map_utils" }
+
+wgpu = "0.12"
 hashbrown = "0.12.1"

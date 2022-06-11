@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+iridium_core = { path = "../iridium_core" }
 iridium_ecs = { path = "../iridium_ecs" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }
 iridium_graphics = { path = "../iridium_graphics" }
@@ -23,3 +24,5 @@ wgpu = { version = "0.12.0", features = ["spirv"] }
 tokio = { version = "1.18.2", features = ["full"] }
 hashbrown = "0.12.1"
 inline-spirv = "0.1.4"
+dlopen = "0.1.8"
+dlopen_derive = "0.1.4"

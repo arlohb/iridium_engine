@@ -5,6 +5,7 @@
 resolver = "2"
 
 members = [
+    "iridium_core",
     "iridium_ecs",
     "iridium_ecs_macros",
     "iridium_editor",

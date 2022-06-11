@@ -1,12 +1,16 @@
+#[macro_use]
+extern crate dlopen_derive;
+
 mod components;
 mod systems;
 use systems::*;
 mod app;
-use app::*;
-mod assets;
-use assets::*;
+pub use app::*;
 mod ui;
+mod project;
+use project::Project;
 
+use iridium_core::*;
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
 use iridium_graphics::*;
@@ -121,7 +125,11 @@ async fn main() {
         ]),
     );
 
-    init_system(&app, &mut world, &assets);
+    println!("{:?}", std::env::current_dir().unwrap());
+
+    let project = Project::load("target/debug/libiridium_example_project.so");
+
+    project.init_system(&app.device, &mut world, &assets);
 
     let mut last_time = std::time::Instant::now();
 

@@ -1,13 +1,9 @@
 mod frame_history;
 pub use frame_history::*;
 
-use iridium_ecs::{Entities, World, create_components};
+use iridium_ecs::Entities;
 use iridium_ecs_macros::System;
-use iridium_graphics::{create_renderable_2d, MaterialInstance};
-use iridium_map_utils::fast_map_any;
 use iridium_maths::Vec3;
-
-use crate::{app::App, assets::Assets};
 
 #[derive(System)]
 pub struct VelocitySystem {
@@ -40,54 +36,4 @@ impl PositionLoggerSystem {
             println!("{} {} {}", position.x, position.y, position.z);
         }
     }
-}
-
-pub fn init_system(app: &App, world: &mut World, assets: &Assets) {
-    world.entities.new_entity("Entity 0", create_components! {
-        "Transform" => fast_map_any! {
-            "position" => Vec3::new(-1., -1., 0.),
-            "scale" => Vec3::new(0.2, 0.2, 0.2),
-            "rotation" => 0.3f32,
-        },
-        "Velocity" => fast_map_any! {
-            "velocity" => Vec3::new(0.0001, 0.0001, 0.),
-        },
-        "Renderable2D" => create_renderable_2d(
-            &app.device,
-            MaterialInstance::new(
-                &app.device,
-                assets.materials["steak"].clone(),
-                vec![],
-                vec![],
-                vec![],
-                vec![
-                    wgpu::BindingResource::TextureView(&assets.textures["steak"].view),
-                    wgpu::BindingResource::Sampler(&assets.textures["steak"].sampler),
-                ],
-            ),
-            &assets.meshes["quad"],
-        ),
-    });
-
-    world.entities.new_entity("Entity 1", create_components! {
-        "Transform" => fast_map_any! {
-            "position" => Vec3::new(-1., -1., 0.),
-            "scale" => Vec3::new(0.2, 0.2, 0.2),
-            "rotation" => 0.6f32,
-        },
-        "Velocity" => fast_map_any! {
-            "velocity" => Vec3::new(0.0002, 0.0002, 0.),
-        },
-        "Renderable2D" => create_renderable_2d(
-            &app.device,MaterialInstance::new(
-                &app.device,
-                assets.materials["uv_test"].clone(),
-                vec![],
-                vec![],
-                vec![],
-                vec![],
-            ),
-            &assets.meshes["quad"],
-        ),
-    });
 }
