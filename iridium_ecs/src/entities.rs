@@ -102,4 +102,13 @@ impl Entities {
             .collect::<Vec<_>>()
             .into_iter()
     }
+
+    pub fn get(
+        &self, component_type: &str
+    ) -> MutexGuard<component::Component> {
+        self.query([component_type])
+            .next().unwrap()
+            .into_iter()
+            .next().unwrap()
+    }
 }

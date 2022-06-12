@@ -89,6 +89,30 @@ macro_rules! create_component {
 }
 
 #[macro_export]
+macro_rules! create_component_type {
+    (
+        struct $name:ident {
+            $($key:ident: $value_type:ty),* $(,)?
+        }
+    ) => {
+        {
+            let mut value_types = hashbrown::HashMap::new();
+            $(
+                value_types.insert(
+                    stringify!($key).to_string(),
+                    stringify!($value_type).to_string()
+                );
+            )*
+
+            $crate::ComponentType {
+                name: stringify!($name).to_string(),
+                values: value_types,
+            }
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! create_component_types {
     (
         $(struct $name:ident {
@@ -96,7 +120,7 @@ macro_rules! create_component_types {
         }),* $(,)*
     ) => {
         {
-            let mut component_types = hashbrown::HashMap::<String, ComponentType>::new();
+            let mut component_types = hashbrown::HashMap::<String, $crate::ComponentType>::new();
             $(
                 let mut value_types = hashbrown::HashMap::new();
                 $(
@@ -107,7 +131,7 @@ macro_rules! create_component_types {
                 )*
                 component_types.insert(
                     stringify!($name).to_string(),
-                    ComponentType {
+                    $crate::ComponentType {
                         name: stringify!($name).to_string(),
                         values: value_types,
                     },

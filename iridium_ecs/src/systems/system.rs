@@ -1,8 +1,9 @@
 use crate::*;
 
-pub trait System: Send + Sync {
-    fn name(&self) -> &'static str;
-    fn get_activated(&self) -> bool;
-    fn set_activated(&mut self, activated: bool);
-    fn run_system(&mut self, entities: &Entities, delta_time: f64);
+pub type SystemFn = fn(entities: &Entities, delta_time: f64);
+
+pub struct System {
+    pub name: &'static str,
+    pub component_type: ComponentType,
+    pub system: SystemFn,
 }

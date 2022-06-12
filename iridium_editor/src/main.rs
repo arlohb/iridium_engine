@@ -116,14 +116,22 @@ async fn main() {
         Entities::new(components::component_types()),
         Systems::new(vec![
             SystemsStage::new(vec![
-                Box::new(VelocitySystem::new(true)),
+                velocity_system(),
             ]),
             SystemsStage::new(vec![
-                Box::new(PositionLoggerSystem::new(false)),
-                Box::new(FrameHistorySystem::new(false, 500_000, 5000.)),
+                // position_logger_system(),
+                frame_history_system(),
             ]),
         ]),
     );
+
+    world.entities.new_entity("SystemState", vec![
+        create_component! { FrameHistoryState
+            frames: std::collections::VecDeque::<Frame>::with_capacity(500_000),
+            max_frames: 500_000usize,
+            max_age: 5000f64,
+        },
+    ]);
 
     println!("{:?}", std::env::current_dir().unwrap());
 

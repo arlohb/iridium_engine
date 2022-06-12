@@ -4,11 +4,11 @@ use crate::Entities;
 use super::*;
 
 pub struct SystemsStage {
-    systems: Vec<Box<dyn System>>,
+    systems: Vec<System>,
 }
 
 impl SystemsStage {
-    pub fn new(systems: Vec<Box<dyn System>>) -> SystemsStage {
+    pub fn new(systems: Vec<System>) -> SystemsStage {
         SystemsStage {
             systems,
         }
@@ -16,9 +16,7 @@ impl SystemsStage {
 
     pub fn run_systems(&mut self, entities: &Entities, delta_time: f64) {
         self.systems.par_iter_mut().for_each(|system| {
-            if system.get_activated() {
-                system.run_system(entities, delta_time);
-            }
+            (system.system)(entities, delta_time);
         });
     }
 }
