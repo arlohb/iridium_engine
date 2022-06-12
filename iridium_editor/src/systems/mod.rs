@@ -14,9 +14,6 @@ impl VelocitySystem {
     fn run(&mut self, entities: &Entities, delta_time: f64) {
         for [mut transform, velocity]
         in entities.query(["Transform", "Velocity"]) {
-            // *position.get_mut::<f64>("x") += velocity.get::<f64>("x") * delta_time;
-            // *position.get_mut::<f64>("y") += velocity.get::<f64>("y") * delta_time;
-            // *position.get_mut::<f64>("z") += velocity.get::<f64>("z") * delta_time;
             *transform.get_mut::<Vec3>("position")  += *velocity.get::<Vec3>("velocity") * delta_time as f32;
             *transform.get_mut::<f32>("rotation") += 0.002 * delta_time as f32;
         }
