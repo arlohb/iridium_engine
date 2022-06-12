@@ -105,9 +105,7 @@
             "name": "Debug executable 'iridium_editor'",
             "cargo": {
                 "args": [
-                    "build",
-                    "--bin=iridium_editor",
-                    "--package=iridium_editor"
+                    "build"
                 ],
                 "filter": {
                     "name": "iridium_editor",
