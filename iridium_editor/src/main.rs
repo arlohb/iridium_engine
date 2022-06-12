@@ -61,7 +61,7 @@ async fn main() {
         "sprite_fragment" => Shader::new(
             &app.device,
             ShaderType::Fragment,
-            include_spirv!("src/frag_1.hlsl", frag, hlsl, entry="fs_main"),
+            include_spirv!("src/sprite.hlsl", frag, hlsl, entry="fs_main"),
             vec![
                 textures["steak"].texture_binding_type,
                 textures["steak"].sampler_binding_type,
@@ -70,7 +70,7 @@ async fn main() {
         "uv_test_fragment" => Shader::new(
             &app.device,
             ShaderType::Fragment,
-            include_spirv!("src/frag_2.hlsl", frag, hlsl, entry="fs_main"),
+            include_spirv!("src/uv_test.hlsl", frag, hlsl, entry="fs_main"),
             vec![],
         ),
     };
