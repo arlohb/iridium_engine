@@ -38,8 +38,6 @@ pub fn frame_history_system() -> System {
                     break;
                 }
             }
-
-            println!("Fps average: {:.1}", 1000. / frame_history_average_delta_time(&state));
         },
     }
 }
