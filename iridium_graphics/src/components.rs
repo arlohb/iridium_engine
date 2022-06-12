@@ -8,11 +8,11 @@ use crate::*;
 
 pub fn component_types() -> HashMap<String, ComponentType> {
     create_component_types! {
-        "Renderable2D" => fast_map! {
-            "material" => "MaterialInstance",
-            "vertex_buffer" => "wgpu::Buffer",
-            "index_buffer" => "wgpu::Buffer",
-            "index_count" => "u32",
+        struct Renderable2D {
+            material: MaterialInstance,
+            vertex_buffer: wgpu::Buffer,
+            index_buffer: wgpu::Buffer,
+            index_count: u32,
         },
     }
 }

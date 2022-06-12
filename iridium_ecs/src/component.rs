@@ -86,19 +86,30 @@ macro_rules! create_components {
 
 #[macro_export]
 macro_rules! create_component_types {
-    ($($key:expr => $value:expr),* $(,)*) => {
+    (
+        $(struct $name:ident {
+            $($key:ident: $value:ty),* $(,)?
+        }),* $(,)*
+    ) => {
         {
-            let mut components = hashbrown::HashMap::<String, ComponentType>::new();
+            let mut component_types = hashbrown::HashMap::<String, ComponentType>::new();
             $(
-                components.insert(
-                    $key.to_string(),
+                let mut values = hashbrown::HashMap::new();
+                $(
+                    values.insert(
+                        stringify!($key).to_string(),
+                        stringify!($value).to_string()
+                    );
+                )*
+                component_types.insert(
+                    stringify!($name).to_string(),
                     ComponentType {
-                        name: $key.to_string(),
-                        values: $value
-                    }
+                        name: stringify!($name).to_string(),
+                        values,
+                    },
                 );
             )*
-            components
+            component_types
         }
     };
 }
