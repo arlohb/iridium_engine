@@ -1,4 +1,4 @@
-use iridium_map_utils::*;
+use iridium_ecs::Component;
 use wgpu::util::DeviceExt;
 use hashbrown::HashMap;
 
@@ -21,7 +21,7 @@ pub fn create_renderable_2d(
     device: &wgpu::Device,
     material_instance: MaterialInstance,
     mesh: &Mesh,
-) -> HashMap<String, Box<dyn std::any::Any>> {
+) -> Component {
     let vertices_bytes = mesh.vertices
         .iter()
         .flat_map(|v| v.as_bytes())
@@ -46,10 +46,10 @@ pub fn create_renderable_2d(
 
     let index_count = mesh.indices.len() as u32;
 
-    fast_map_any! {
-        "material" => material_instance,
-        "vertex_buffer" => vertex_buffer,
-        "index_buffer" => index_buffer,
-        "index_count" => index_count,
+    create_component! { Renderable2D
+        material: material_instance,
+        vertex_buffer: vertex_buffer,
+        index_buffer: index_buffer,
+        index_count: index_count,
     }
 }

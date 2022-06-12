@@ -69,17 +69,21 @@ impl Component {
 }
 
 #[macro_export]
-macro_rules! create_components {
-    ($($key:expr => $value:expr),* $(,)*) => {
+macro_rules! create_component {
+    (
+        $name:ident
+        $($key:ident: $value:expr),* $(,)?
+    ) => {
         {
-            let mut components = Vec::<crate::Component>::new();
+            let mut values = hashbrown::HashMap::<String, Box<dyn std::any::Any>>::new();
             $(
-                components.push(crate::Component::new(
-                    $key,
-                    $value
-                ));
+                values.insert(stringify!($key).to_string(), Box::new($value));
             )*
-            components
+
+            $crate::Component::new(
+                stringify!($name),
+                values,
+            )
         }
     };
 }
@@ -88,24 +92,24 @@ macro_rules! create_components {
 macro_rules! create_component_types {
     (
         $(struct $name:ident {
-            $($key:ident: $value:ty),* $(,)?
+            $($key:ident: $value_type:ty),* $(,)?
         }),* $(,)*
     ) => {
         {
             let mut component_types = hashbrown::HashMap::<String, ComponentType>::new();
             $(
-                let mut values = hashbrown::HashMap::new();
+                let mut value_types = hashbrown::HashMap::new();
                 $(
-                    values.insert(
+                    value_types.insert(
                         stringify!($key).to_string(),
-                        stringify!($value).to_string()
+                        stringify!($value_type).to_string()
                     );
                 )*
                 component_types.insert(
                     stringify!($name).to_string(),
                     ComponentType {
                         name: stringify!($name).to_string(),
-                        values,
+                        values: value_types,
                     },
                 );
             )*

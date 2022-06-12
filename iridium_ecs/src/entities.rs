@@ -1,7 +1,6 @@
 use super::*;
 use std::sync::{Mutex, MutexGuard};
 use hashbrown::HashMap;
-use iridium_map_utils::fast_map_any;
 
 pub struct Entities {
     entities: Vec<u128>,
@@ -40,11 +39,11 @@ impl Entities {
 
         self.entities.push(id);
 
-        self.add_components(id, create_components! {
-            "Name" => fast_map_any! {
-                "name" => name.to_owned(),
-            },
-        });
+        self.add_components(id, vec![
+            create_component! { Name
+                name: name.to_owned(),
+            }
+        ]);
 
         self.add_components(id, components);
 
