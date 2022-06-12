@@ -9,10 +9,9 @@ impl Renderer2DSystem {
     pub fn run(&mut self, entities: &Entities, _delta_time: f64, render_pass: &mut wgpu::RenderPass, queue: &wgpu::Queue) {
         for [transform, renderable_2d]
         in entities.query(["Transform", "Renderable2D"]) {
-            let renderable_2d = unsafe {
-                let ptr = &renderable_2d as &Component as *const Component;
-                &*ptr
-            };
+            // Extend the lifetime of renderable_2d for render_pass.set_pipeline.
+            // This is safe because it's only used as the pipeline for the duration of this function.
+            let renderable_2d = unsafe { std::mem::transmute::<&Component, &Component>(&renderable_2d) };
 
             let material = renderable_2d.get::<MaterialInstance>("material");
 
