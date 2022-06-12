@@ -5,7 +5,10 @@ pub struct ComponentsList;
 impl PanelUi for ComponentsList {
     fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World) {
         egui::SidePanel::right("components_list").show(context, |ui| {
-            ui_state.viewport_rect.max_x = ui.min_rect().min.x / (ui_state.screen_size.0 as f32 / ui_state.scale_factor);
+            let min_x_logical = ui.max_rect().min.x - ui.spacing().item_spacing.x;
+            let min_x_physical = min_x_logical * ui_state.scale_factor;
+            let min_x_screen = min_x_physical / ui_state.screen_size.0 as f32;
+            ui_state.viewport_rect.max_x = min_x_screen;
 
             let fps = 1000. / frame_history_average_delta_time(&world.entities.get("FrameHistoryState"));
             ui.label(format!("Fps average: {:.1}", fps));

@@ -139,18 +139,19 @@ impl App {
 
         // End the UI frame. We could now handle the output and draw the UI with the backend.
         let egui_output = self.egui_state.context.end_frame();
-        let mut paint_jobs = self.egui_state.context.tessellate(egui_output.shapes);
+        let paint_jobs = self.egui_state.context.tessellate(egui_output.shapes);
 
+        // May use this in the future?
         // Adjust transparency of the UI depending on where the viewport is.
-        for paint_job in &mut paint_jobs {
-            if let egui::epaint::Primitive::Mesh(mesh) = &mut paint_job.primitive {
-                for vertex in &mut mesh.vertices {
-                    let mut rgba: egui::epaint::Rgba = vertex.color.into();
-                    rgba = rgba.multiply(0.5);
-                    vertex.color = rgba.into();
-                }
-            }
-        }
+        // for paint_job in &mut paint_jobs {
+        //     if let egui::epaint::Primitive::Mesh(mesh) = &mut paint_job.primitive {
+        //         for vertex in &mut mesh.vertices {
+        //             let mut rgba: egui::epaint::Rgba = vertex.color.into();
+        //             rgba = rgba.multiply(1.0);
+        //             vertex.color = rgba.into();
+        //         }
+        //     }
+        // }
 
         self.egui_state.winit.handle_platform_output(window, &self.egui_state.context, egui_output.platform_output);
 

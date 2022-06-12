@@ -7,7 +7,10 @@ pub struct EntitiesList;
 impl PanelUi for EntitiesList {
     fn render(&mut self, context: &egui::Context, ui_state: &mut UiState, world: &mut World) {
         egui::SidePanel::left("entities_list").show(context, |ui| {
-            ui_state.viewport_rect.min_x = ui.min_rect().max.x / (ui_state.screen_size.0 as f32 / ui_state.scale_factor);
+            let max_x_logical = ui.max_rect().max.x + ui.spacing().item_spacing.x;
+            let max_x_physical = max_x_logical * ui_state.scale_factor;
+            let max_x_screen = max_x_physical / ui_state.screen_size.0 as f32;
+            ui_state.viewport_rect.min_x = max_x_screen;
 
             let fps = 1000. / frame_history_average_delta_time(&world.entities.get("FrameHistoryState"));
             ui.label(format!("Fps average: {:.1}", fps));
