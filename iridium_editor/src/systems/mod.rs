@@ -9,10 +9,30 @@ pub fn velocity_system() -> System {
         name: "VelocitySystem",
         component_type: create_component_type! { struct VelocitySystem {} },
         system: |entities, delta_time| {
-            for [mut transform, velocity]
+            for [mut transform, mut velocity]
             in entities.query(["Transform", "Velocity"]) {
-                *transform.get_mut::<Vec3>("position")  += *velocity.get::<Vec3>("velocity") * delta_time as f32;
                 *transform.get_mut::<f32>("rotation") += 0.002 * delta_time as f32;
+
+                let position = transform.get_mut::<Vec3>("position");
+                let velocity = velocity.get_mut::<Vec3>("velocity");
+                *position += *velocity * delta_time as f32;
+
+                if position.x < -1. {
+                    position.x = -1.;
+                    velocity.x = -velocity.x;
+                }
+                if position.x > 1. {
+                    position.x = 1.;
+                    velocity.x = -velocity.x;
+                }
+                if position.y < -1. {
+                    position.y = -1.;
+                    velocity.y = -velocity.y;
+                }
+                if position.y > 1. {
+                    position.y = 1.;
+                    velocity.y = -velocity.y;
+                }
             }
         },
     }
