@@ -1,13 +1,11 @@
-use iridium_ecs::World;
+use crate::{ui::PanelUi, systems::frame_history_average_delta_time};
 
-use crate::{ui::{UiState, PanelUi}, systems::frame_history_average_delta_time};
+pub struct ComponentsList;
 
-pub struct EntitiesList;
-
-impl PanelUi for EntitiesList {
-    fn render(&mut self, context: &egui::Context, ui_state: &mut UiState, world: &mut World) {
-        egui::SidePanel::left("entities_list").show(context, |ui| {
-            ui_state.viewport_rect.min_x = ui.min_rect().max.x / (ui_state.screen_size.0 as f32 / ui_state.scale_factor);
+impl PanelUi for ComponentsList {
+    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World) {
+        egui::SidePanel::right("components_list").show(context, |ui| {
+            ui_state.viewport_rect.max_x = ui.min_rect().min.x / (ui_state.screen_size.0 as f32 / ui_state.scale_factor);
 
             let fps = 1000. / frame_history_average_delta_time(&world.entities.get("FrameHistoryState"));
             ui.label(format!("Fps average: {:.1}", fps));
