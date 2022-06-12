@@ -48,7 +48,7 @@ impl App {
         };
         surface.configure(&device, &surface_config);
 
-        let egui_state = EguiState::new(window, 1.);
+        let egui_state = EguiState::new(window, 1.2);
         let egui_panels = vec![
             EguiPanel::new(
                 &device,

@@ -31,6 +31,8 @@ async fn main() {
 
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
+        .with_title("Iridium Editor")
+        .with_maximized(false)
         .build(&event_loop)
         .unwrap();
     
