@@ -160,10 +160,10 @@ async fn main() {
                 *control_flow = ControlFlow::Exit;
             },
             WindowEvent::Resized(physical_size) => {
-                app.resize(*physical_size);
+                app.resize((physical_size.width, physical_size.height));
             },
             WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                app.resize(**new_inner_size);
+                app.resize((new_inner_size.width, new_inner_size.height));
             },
             _ => {}
         }},
@@ -172,14 +172,8 @@ async fn main() {
             last_time = std::time::Instant::now();
 
             world.run_systems(delta_time);
-            app.update();
 
-            match app.render(&window, &mut world) {
-                Ok(_) => {},
-                Err(wgpu::SurfaceError::Lost) => app.resize(app.surface_size),
-                Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
-                Err(err) => panic!("{:?}", err),
-            }
+            app.render(&window, &mut world);
         },
         Event::MainEventsCleared => {
             window.request_redraw();
