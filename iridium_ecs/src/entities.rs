@@ -2,6 +2,7 @@ use super::*;
 use std::sync::{Mutex, MutexGuard};
 use hashbrown::HashMap;
 
+/// Stores all the entities in the scene.
 pub struct Entities {
     /// entity_id => components
     entities: HashMap<u128, Vec<String>>,
@@ -11,6 +12,7 @@ pub struct Entities {
 }
 
 impl Entities {
+    /// Create a new empty instance.
     pub fn new(component_types: HashMap<String, ComponentType>) -> Entities {
         Entities {
             entities: HashMap::new(),
@@ -19,38 +21,54 @@ impl Entities {
         }
     }
 
+    /// Add components to an entity.
     pub fn add_components(&mut self, entity_id: u128, components: Vec<Component>) {
+        // If the entity doesn't exist,
         if !self.entities.contains_key(&entity_id) {
+            // Add it.
             self.entities.insert(entity_id, vec![]);
         }
 
+        // For each component to be added.
         for component in components {
+            // Add to entities.
             self.entities.get_mut(&entity_id).unwrap().push(component.name.clone());
 
+            // If components of this type already exists,
             if self.components.contains_key(&component.name) {
+                // Add to it.
                 self.components.get_mut(&component.name).unwrap().insert(entity_id, Mutex::new(component));
             } else {
+                // Create a new one.
                 let name = component.name.clone();
                 let mut components = HashMap::new();
+                // And insert the component into it.
                 components.insert(entity_id, Mutex::new(component));
                 self.components.insert(name, components);
             }
         }
     }
 
+    /// Create a new entity with the given components.
+    /// Automatically adds the Name component with the given name.
     pub fn new_entity(&mut self, name: &str, components: Vec<Component>) -> u128 {
+        // Generate a new entity id.
         let id = uuid::Uuid::new_v4().as_u128();
 
+        // Add it to entities.
         self.entities.insert(id, vec![]);
 
+        // Add the name component.
         self.add_components(id, vec![
             create_component! { Name
                 name: name.to_owned(),
             }
         ]);
 
+        // Add the other components.
         self.add_components(id, components);
 
+        // Return the id.
         id
     }
 
@@ -61,16 +79,24 @@ impl Entities {
     }
 
     /// Get all the components of a given entity.
-    pub fn get_entity_components(&self, entity_id: u128) -> Vec<MutexGuard<Component>> {
+    pub fn get_entity_components(&self, entity_id: u128) -> HashMap<String, MutexGuard<Component>> {
         // Get the component types of the entity.
         let component_types = self.get_entity_component_types(entity_id);
 
+        // For each component the entity has.
         component_types.into_iter().map(|component_type| {
+            // Get the map of entities => components.
             let entities_to_components = self.components.get(&component_type).unwrap();
+            // Get the component for this entity.
             let component_mutex = entities_to_components.get(&entity_id).unwrap();
 
-            component_mutex.lock().unwrap()
-        }).collect::<Vec<_>>()
+            // Lock the Component.
+            let component = component_mutex.lock().unwrap();
+
+            // Return the type with the component to be used in a HashMap.
+            (component_type, component)
+        // Collect into a HashMap
+        }).collect::<HashMap<_, _>>()
     }
 
     /// Get an iterator over components of given types, in the form (entity_id, [comp1, comp2, comp3]).

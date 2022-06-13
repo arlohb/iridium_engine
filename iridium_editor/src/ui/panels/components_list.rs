@@ -27,7 +27,7 @@ impl PanelUi for ComponentsList {
             if let Some(id) = ui_state.selected_entity {
                 let components = world.entities.get_entity_components(id);
 
-                for component in components {
+                for component in components.values() {
                     ui.label(component.name.to_string());
                 }
             }
