@@ -47,8 +47,20 @@ impl PanelUi for ComponentsList {
                         continue;
                     }
 
-                    // The component type.
-                    ui.label(component.name.to_string());
+                    egui::CollapsingHeader::new(&component.name)
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            println!("{}", component.name);
+                            let component_type = &world.entities.component_types[&component.name];
+
+                            component_type.values.iter().for_each(|(key, value_type)| {
+                                ui.horizontal(|ui| {
+                                    ui.label(key);
+                                    ui.label(value_type);
+                                });
+                            })
+                        });
+
 
                     // Separator.
                     ui.separator();

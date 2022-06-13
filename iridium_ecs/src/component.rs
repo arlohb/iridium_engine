@@ -5,6 +5,7 @@ use std::{
 
 use hashbrown::HashMap;
 
+#[derive(Clone)]
 pub struct ComponentType {
     pub name: String,
     pub values: HashMap<String, String>,

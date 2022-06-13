@@ -13,7 +13,14 @@ pub struct Entities {
 
 impl Entities {
     /// Create a new empty instance.
-    pub fn new(component_types: HashMap<String, ComponentType>) -> Entities {
+    pub fn new(component_types: Vec<HashMap<String, ComponentType>>) -> Entities {
+        let component_types = component_types
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, map| {
+                acc.extend(map);
+                acc
+            });
+
         Entities {
             entities: HashMap::new(),
             components: HashMap::new(),

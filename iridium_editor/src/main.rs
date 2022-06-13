@@ -115,7 +115,11 @@ async fn main() {
     };
 
     let mut world = World::new(
-        Entities::new(components::component_types()),
+        Entities::new(vec![
+            components::component_types(),
+            iridium_graphics::component_types(),
+            fast_map! { "FrameHistoryState" => frame_history_system().component_type },
+        ]),
         Systems::new(vec![
             SystemsStage::new(vec![
                 velocity_system(),
