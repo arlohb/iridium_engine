@@ -60,7 +60,6 @@ impl App {
             &device,
             surface_config.format,
             window,
-            EngineUi::new(),
         );
         let ui_state = UiState::new(
             ScreenRect::new(1. / 3., 0., 2. / 3., 0.6),
@@ -147,7 +146,7 @@ impl App {
         self.egui_state.context.begin_frame(input);
 
         // Draw the UI.
-        self.egui_state.engine_ui.render(&self.egui_state.context, &mut self.ui_state, world);
+        self.egui_state.render_panels(&mut self.ui_state, world);
 
         // End the UI frame.
         let egui_output = self.egui_state.context.end_frame();

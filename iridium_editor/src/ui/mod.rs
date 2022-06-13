@@ -1,9 +1,6 @@
 mod panel_ui;
 pub use panel_ui::*;
 
-mod engine_ui;
-pub use engine_ui::*;
-
 mod egui_state;
 pub use egui_state::*;
 
