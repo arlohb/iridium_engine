@@ -79,7 +79,7 @@ impl Entities {
     }
 
     /// Get all the components of a given entity.
-    pub fn get_entity_components(&self, entity_id: u128) -> HashMap<String, MutexGuard<Component>> {
+    pub fn get_entity_components(&self, entity_id: u128) -> Vec<MutexGuard<Component>> {
         // Get the component types of the entity.
         let component_types = self.get_entity_component_types(entity_id);
 
@@ -93,10 +93,10 @@ impl Entities {
             // Lock the Component.
             let component = component_mutex.lock().unwrap();
 
-            // Return the type with the component to be used in a HashMap.
-            (component_type, component)
+            // Return the component.
+            component
         // Collect into a HashMap
-        }).collect::<HashMap<_, _>>()
+        }).collect::<Vec<_>>()
     }
 
     /// Get an iterator over components of given types, in the form (entity_id, [comp1, comp2, comp3]).

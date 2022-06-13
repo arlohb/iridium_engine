@@ -1,4 +1,4 @@
-use crate::{ui::PanelUi, systems::frame_history_average_delta_time};
+use crate::ui::PanelUi;
 
 pub struct ComponentsList;
 
@@ -10,25 +10,48 @@ impl PanelUi for ComponentsList {
             let min_x_screen = min_x_physical / ui_state.screen_size.0 as f32;
             ui_state.viewport_rect.max_x = min_x_screen;
 
-            let fps = 1000. / frame_history_average_delta_time(&world.entities.get("FrameHistoryState"));
-            ui.label(format!("Fps average: {:.1}", fps));
-            ui.separator();
-
-            ui.menu_button("Add Entity", |ui| {
-                if ui.button("Empty").clicked() {
-                    world.entities.new_entity("New Entity", vec![]);
-                    ui.close_menu()
-                }
-            });
-
-            ui.separator();
-            ui.add_space(10.);
-
+            // If something is actually selected.
             if let Some(id) = ui_state.selected_entity {
-                let components = world.entities.get_entity_components(id);
+                // Get the components of the entity.
+                let mut components = world.entities.get_entity_components(id);
 
-                for component in components.values() {
+                // Sort the components by type, putting name first.
+                components.sort_by(|a, b| {
+                    if a.name == "Name" {
+                        return std::cmp::Ordering::Less;
+                    }
+                    if b.name == "Name" {
+                        return std::cmp::Ordering::Greater;
+                    }
+            
+                    a.name.cmp(&b.name)
+                });
+
+                // Get the name of the entity.
+                let name = components[0].get_mut::<String>("name");
+
+                // Add some top spacing.
+                ui.add_space(10.);
+
+                // Text edit for name
+                ui.text_edit_singleline(name);
+
+                // Separator.
+                ui.separator();
+                ui.add_space(10.);
+
+                // For each component,
+                for component in components {
+                    // Except Name.
+                    if component.name == "Name" {
+                        continue;
+                    }
+
+                    // The component type.
                     ui.label(component.name.to_string());
+
+                    // Separator.
+                    ui.separator();
                 }
             }
         });
