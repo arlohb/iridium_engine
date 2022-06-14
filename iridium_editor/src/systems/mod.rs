@@ -10,13 +10,17 @@ impl System for VelocitySystem {
     fn name(&self) -> &'static str { "VelocitySystem" }
 
     fn component_type(&self) -> ComponentType {
-        create_component_type!( struct VelocityState {} )
+        create_component_type!( struct VelocityState {
+            rotation_speed: f32,
+        } )
     }
 
     fn system(&self, entities: &Entities, delta_time: f64) {
         for [mut transform, mut velocity]
         in entities.query(["Transform", "Velocity"]) {
-            *transform.get_mut::<f32>("rotation") += 0.002 * delta_time as f32;
+            let state = entities.get("VelocityState");
+            let rotation_speed = *state.get::<f32>("rotation_speed");
+            *transform.get_mut::<f32>("rotation") += rotation_speed * delta_time as f32;
 
             let position = transform.get_mut::<Vec3>("position");
             let velocity = velocity.get_mut::<Vec3>("velocity");

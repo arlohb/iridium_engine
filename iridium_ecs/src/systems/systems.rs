@@ -1,4 +1,6 @@
-use crate::Entities;
+use hashbrown::HashMap;
+
+use crate::{Entities, ComponentType};
 use super::*;
 
 pub struct Systems {
@@ -16,5 +18,15 @@ impl Systems {
         for systems_stage in self.systems.iter_mut() {
             systems_stage.run_systems(entities, delta_time);
         }
+    }
+
+    pub fn component_types(&self) -> HashMap<String, ComponentType> {
+        let mut component_types = HashMap::new();
+        for systems_stage in &self.systems {
+            for system in &systems_stage.systems {
+                component_types.insert(system.component_type().name, system.component_type());
+            }
+        }
+        component_types
     }
 }

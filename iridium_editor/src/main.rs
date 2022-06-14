@@ -114,21 +114,23 @@ async fn main() {
         meshes,
     };
 
+    let systems = Systems::new(vec![
+        SystemsStage::new(vec![
+            Box::new(VelocitySystem),
+        ]),
+        SystemsStage::new(vec![
+            // Box::new(PositionLoggerSystem),
+            Box::new(FrameHistorySystem),
+        ]),
+    ]);
+
     let mut world = World::new(
         Entities::new(vec![
             components::component_types(),
             iridium_graphics::component_types(),
-            fast_map! { "FrameHistoryState" => FrameHistorySystem.component_type() },
+            systems.component_types(),
         ]),
-        Systems::new(vec![
-            SystemsStage::new(vec![
-                Box::new(VelocitySystem),
-            ]),
-            SystemsStage::new(vec![
-                // Box::new(PositionLoggerSystem),
-                Box::new(FrameHistorySystem),
-            ]),
-        ]),
+        systems,
     );
 
     world.entities.new_entity("SystemState", vec![
@@ -137,6 +139,9 @@ async fn main() {
             max_frames: 500_000usize,
             max_age: 5000f64,
         },
+        create_component! { VelocityState
+            rotation_speed: 0.002f32,
+        }
     ]);
 
     let project = Project::load("target/debug/libiridium_example_project.so");

@@ -4,7 +4,7 @@ use crate::Entities;
 use super::*;
 
 pub struct SystemsStage {
-    systems: Vec<Box<dyn System>>,
+    pub systems: Vec<Box<dyn System>>,
 }
 
 impl SystemsStage {
