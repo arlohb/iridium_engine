@@ -41,7 +41,7 @@ impl PanelUi for ComponentsList {
                 ui.add_space(10.);
 
                 // For each component,
-                for component in components {
+                for mut component in components {
                     // Except Name.
                     if component.type_name == "Name" {
                         continue;
@@ -55,7 +55,26 @@ impl PanelUi for ComponentsList {
                             component_type.values.iter().for_each(|(key, value_type)| {
                                 ui.horizontal(|ui| {
                                     ui.label(key);
-                                    ui.label(value_type);
+
+                                    match value_type.as_str() {
+                                        "f64" => {
+                                            let value = component.get_mut::<f64>(key);
+                                            ui.add(egui::DragValue::new(value));
+                                        },
+                                        "f32" => {
+                                            let value = component.get_mut::<f32>(key);
+                                            ui.add(egui::DragValue::new(value));
+                                        },
+                                        "iridium_maths::Vec3" => {
+                                            let value = component.get_mut::<iridium_maths::Vec3>(key);
+                                            ui.add(egui::DragValue::new(&mut value.x).speed(0.0001));
+                                            ui.add(egui::DragValue::new(&mut value.y).speed(0.0001));
+                                            ui.add(egui::DragValue::new(&mut value.z).speed(0.0001));
+                                        },
+                                        _ => {
+                                            ui.label(value_type);
+                                        },
+                                    }
                                 });
                             })
                         });
