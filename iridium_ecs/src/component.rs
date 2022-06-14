@@ -12,7 +12,7 @@ pub struct ComponentType {
 }
 
 pub struct Component {
-    pub name: String,
+    pub type_name: String,
     values: HashMap<String, Box<dyn Any>>,
 }
 
@@ -25,14 +25,14 @@ impl Component {
         values: HashMap<String, Box<dyn Any>>,
     ) -> Component {
         Component {
-            name: name.to_owned(),
+            type_name: name.to_owned(),
             values,
         }
     }
 
     pub fn display(&self, component_type: &ComponentType) -> String {
         let mut result = String::new();
-        write!(result, "{} {{ ", self.name).unwrap();
+        write!(result, "{} {{ ", self.type_name).unwrap();
         for (key, value_type) in &component_type.values {
             let value = self.values.get(key).unwrap();
             match value_type.as_str() {

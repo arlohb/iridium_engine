@@ -39,15 +39,15 @@ impl Entities {
         // For each component to be added.
         for component in components {
             // Add to entities.
-            self.entities.get_mut(&entity_id).unwrap().push(component.name.clone());
+            self.entities.get_mut(&entity_id).unwrap().push(component.type_name.clone());
 
             // If components of this type already exists,
-            if self.components.contains_key(&component.name) {
+            if self.components.contains_key(&component.type_name) {
                 // Add to it.
-                self.components.get_mut(&component.name).unwrap().insert(entity_id, Mutex::new(component));
+                self.components.get_mut(&component.type_name).unwrap().insert(entity_id, Mutex::new(component));
             } else {
                 // Create a new one.
-                let name = component.name.clone();
+                let name = component.type_name.clone();
                 let mut components = HashMap::new();
                 // And insert the component into it.
                 components.insert(entity_id, Mutex::new(component));

@@ -17,14 +17,14 @@ impl PanelUi for ComponentsList {
 
                 // Sort the components by type, putting name first.
                 components.sort_by(|a, b| {
-                    if a.name == "Name" {
+                    if a.type_name == "Name" {
                         return std::cmp::Ordering::Less;
                     }
-                    if b.name == "Name" {
+                    if b.type_name == "Name" {
                         return std::cmp::Ordering::Greater;
                     }
             
-                    a.name.cmp(&b.name)
+                    a.type_name.cmp(&b.type_name)
                 });
 
                 // Get the name of the entity.
@@ -43,14 +43,14 @@ impl PanelUi for ComponentsList {
                 // For each component,
                 for component in components {
                     // Except Name.
-                    if component.name == "Name" {
+                    if component.type_name == "Name" {
                         continue;
                     }
 
-                    egui::CollapsingHeader::new(&component.name)
+                    egui::CollapsingHeader::new(&component.type_name)
                         .default_open(true)
                         .show(ui, |ui| {
-                            let component_type = &world.entities.component_types[&component.name];
+                            let component_type = &world.entities.component_types[&component.type_name];
 
                             component_type.values.iter().for_each(|(key, value_type)| {
                                 ui.horizontal(|ui| {
