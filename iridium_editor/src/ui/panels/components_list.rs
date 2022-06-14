@@ -50,7 +50,6 @@ impl PanelUi for ComponentsList {
                     egui::CollapsingHeader::new(&component.name)
                         .default_open(true)
                         .show(ui, |ui| {
-                            println!("{}", component.name);
                             let component_type = &world.entities.component_types[&component.name];
 
                             component_type.values.iter().for_each(|(key, value_type)| {

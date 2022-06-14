@@ -139,8 +139,6 @@ async fn main() {
         },
     ]);
 
-    println!("{:?}", std::env::current_dir().unwrap());
-
     let project = Project::load("target/debug/libiridium_example_project.so");
 
     project.init_system(&app.device, &mut world, &assets);
