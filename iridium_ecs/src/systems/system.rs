@@ -1,9 +1,7 @@
 use crate::*;
 
-pub type SystemFn = fn(entities: &Entities, delta_time: f64);
-
-pub struct System {
-    pub name: &'static str,
-    pub component_type: ComponentType,
-    pub system: SystemFn,
+pub trait System: 'static + Send + Sync {
+    fn name(&self) -> &'static str;
+    fn component_type(&self) -> ComponentType;
+    fn system(&self, entities: &Entities, delta_time: f64);
 }

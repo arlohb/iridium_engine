@@ -1,6 +1,6 @@
 use iridium_ecs::World;
 
-use crate::{ui::{UiState, PanelUi}, systems::frame_history_average_delta_time};
+use crate::{ui::{UiState, PanelUi}, systems::FrameHistorySystem};
 
 pub struct EntitiesList;
 
@@ -12,7 +12,7 @@ impl PanelUi for EntitiesList {
             let max_x_screen = max_x_physical / ui_state.screen_size.0 as f32;
             ui_state.viewport_rect.min_x = max_x_screen;
 
-            let fps = 1000. / frame_history_average_delta_time(&world.entities.get("FrameHistoryState"));
+            let fps = 1000. / FrameHistorySystem::average_delta_time(&world.entities.get("FrameHistoryState"));
             ui.label(format!("Fps average: {:.1}", fps));
             ui.separator();
 

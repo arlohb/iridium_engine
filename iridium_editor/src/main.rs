@@ -118,15 +118,15 @@ async fn main() {
         Entities::new(vec![
             components::component_types(),
             iridium_graphics::component_types(),
-            fast_map! { "FrameHistoryState" => frame_history_system().component_type },
+            fast_map! { "FrameHistoryState" => FrameHistorySystem.component_type() },
         ]),
         Systems::new(vec![
             SystemsStage::new(vec![
-                velocity_system(),
+                Box::new(VelocitySystem),
             ]),
             SystemsStage::new(vec![
-                // position_logger_system(),
-                frame_history_system(),
+                // Box::new(PositionLoggerSystem),
+                Box::new(FrameHistorySystem),
             ]),
         ]),
     );
