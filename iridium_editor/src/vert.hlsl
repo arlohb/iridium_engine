@@ -21,8 +21,8 @@ VertexOut vs_main(VertexIn vertex) {
                                sin(transform.rotation),  cos(transform.rotation), 0.,
                                0.,                       0.,                      1.);
 
-  vertex.position = mul(rotation, vertex.position);
   vertex.position *= transform.scale;
+  vertex.position = mul(rotation, vertex.position);
   vertex.position += transform.position;
 
   return VertexOut(float4(vertex.position, 1.), vertex.uv_coords);
