@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate dlopen_derive;
 
-mod components;
 mod systems;
 use systems::*;
 mod app;

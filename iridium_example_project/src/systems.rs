@@ -1,7 +1,9 @@
 use iridium_ecs::{*, systems::System};
+use iridium_ecs_macros::ComponentTrait;
 
 use crate::components::Custom;
 
+#[derive(ComponentTrait)]
 pub struct CustomState {
     pub test: f64,
 }

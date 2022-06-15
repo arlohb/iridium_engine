@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+iridium_ecs_macros = { path = "../iridium_ecs_macros" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 iridium_maths = { path = "../iridium_maths" }
 hashbrown = "0.12.1"

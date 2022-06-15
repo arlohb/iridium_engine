@@ -1,9 +1,9 @@
+use iridium_ecs_macros::ComponentTrait;
 use wgpu::util::DeviceExt;
-
-use iridium_ecs::*;
 
 use crate::*;
 
+#[derive(ComponentTrait)]
 pub struct Renderable2D {
     pub material: MaterialInstance,
     pub vertex_buffer: wgpu::Buffer,
@@ -48,9 +48,4 @@ impl Renderable2D {
             index_count,
         }
     }
-}
-
-impl ComponentTrait for Renderable2D {
-    fn type_name() -> &'static str { "Renderable2D" }
-    fn dyn_type_name(&self) -> &'static str { "Renderable2D" }
 }

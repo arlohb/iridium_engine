@@ -1,21 +1,18 @@
 use std::{collections::VecDeque, time::SystemTime};
 
 use iridium_ecs::{*, systems::System};
+use iridium_ecs_macros::ComponentTrait;
 
 pub struct Frame {
     pub time: SystemTime,
     pub delta_time: f64,
 }
 
+#[derive(ComponentTrait)]
 pub struct FrameHistoryState {
     pub frames: VecDeque<Frame>,
     pub max_frames: usize,
     pub max_age: f64,
-}
-
-impl ComponentTrait for FrameHistoryState {
-    fn type_name() -> &'static str { "FrameHistoryState" }
-    fn dyn_type_name(&self) -> &'static str { "FrameHistoryState" }
 }
 
 pub struct FrameHistorySystem;

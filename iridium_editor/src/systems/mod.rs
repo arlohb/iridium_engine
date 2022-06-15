@@ -2,14 +2,11 @@ mod frame_history;
 pub use frame_history::*;
 
 use iridium_ecs::{*, systems::System};
+use iridium_ecs_macros::ComponentTrait;
 
+#[derive(ComponentTrait)]
 pub struct VelocityState {
     pub rotation_speed: f32,
-}
-
-impl ComponentTrait for VelocityState {
-    fn type_name() -> &'static str { "VelocityState" }
-    fn dyn_type_name(&self) -> &'static str { "VelocityState" }
 }
 
 pub struct VelocitySystem;
@@ -54,6 +51,7 @@ impl System for VelocitySystem {
 }
 
 #[allow(dead_code)]
+#[derive(ComponentTrait)]
 pub struct PositionLoggerState {}
 
 // This is a system to test other things,
