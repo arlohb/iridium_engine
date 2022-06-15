@@ -1,3 +1,5 @@
+use iridium_ecs::Name;
+
 use crate::ui::PanelUi;
 
 pub struct ComponentsList;
@@ -17,18 +19,18 @@ impl PanelUi for ComponentsList {
 
                 // Sort the components by type, putting name first.
                 components.sort_by(|a, b| {
-                    if a.type_name == "Name" {
+                    if a.type_name() == "Name" {
                         return std::cmp::Ordering::Less;
                     }
-                    if b.type_name == "Name" {
+                    if b.type_name() == "Name" {
                         return std::cmp::Ordering::Greater;
                     }
             
-                    a.type_name.cmp(&b.type_name)
+                    a.type_name().cmp(b.type_name())
                 });
 
                 // Get the name of the entity.
-                let name = components[0].get_mut::<String>("name");
+                let name = &mut components[0].component::<Name>().name;
 
                 // Add some top spacing.
                 ui.add_space(10.);
@@ -41,42 +43,42 @@ impl PanelUi for ComponentsList {
                 ui.add_space(10.);
 
                 // For each component,
-                for mut component in components {
+                for component in components {
                     // Except Name.
-                    if component.type_name == "Name" {
+                    if component.type_name() == "Name" {
                         continue;
                     }
 
-                    egui::CollapsingHeader::new(&component.type_name)
+                    egui::CollapsingHeader::new(component.type_name())
                         .default_open(true)
-                        .show(ui, |ui| {
-                            let component_type = &world.entities.component_types[&component.type_name];
+                        .show(ui, |_ui| {
+                            // let component_type = &world.entities.component_types[&component.type_name];
 
-                            component_type.values.iter().for_each(|(key, value_type)| {
-                                ui.horizontal(|ui| {
-                                    ui.label(key);
+                            // component_type.values.iter().for_each(|(key, value_type)| {
+                            //     ui.horizontal(|ui| {
+                            //         ui.label(key);
 
-                                    match value_type.as_str() {
-                                        "f64" => {
-                                            let value = component.get_mut::<f64>(key);
-                                            ui.add(egui::DragValue::new(value));
-                                        },
-                                        "f32" => {
-                                            let value = component.get_mut::<f32>(key);
-                                            ui.add(egui::DragValue::new(value));
-                                        },
-                                        "iridium_maths::Vec3" => {
-                                            let value = component.get_mut::<iridium_maths::Vec3>(key);
-                                            ui.add(egui::DragValue::new(&mut value.x).speed(0.0001));
-                                            ui.add(egui::DragValue::new(&mut value.y).speed(0.0001));
-                                            ui.add(egui::DragValue::new(&mut value.z).speed(0.0001));
-                                        },
-                                        _ => {
-                                            ui.label(value_type);
-                                        },
-                                    }
-                                });
-                            })
+                            //         match value_type.as_str() {
+                            //             "f64" => {
+                            //                 let value = component.get_mut::<f64>(key);
+                            //                 ui.add(egui::DragValue::new(value));
+                            //             },
+                            //             "f32" => {
+                            //                 let value = component.get_mut::<f32>(key);
+                            //                 ui.add(egui::DragValue::new(value));
+                            //             },
+                            //             "iridium_maths::Vec3" => {
+                            //                 let value = component.get_mut::<iridium_maths::Vec3>(key);
+                            //                 ui.add(egui::DragValue::new(&mut value.x).speed(0.0001));
+                            //                 ui.add(egui::DragValue::new(&mut value.y).speed(0.0001));
+                            //                 ui.add(egui::DragValue::new(&mut value.z).speed(0.0001));
+                            //             },
+                            //             _ => {
+                            //                 ui.label(value_type);
+                            //             },
+                            //         }
+                            //     });
+                            // })
                         });
 
 

@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 iridium_map_utils = { path = "../iridium_map_utils" }
+iridium_maths = { path = "../iridium_maths" }
 hashbrown = "0.12.1"
 uuid = { version = "1.0.0", features = ["fast-rng", "v4"] }
 rayon = "1.5.3"

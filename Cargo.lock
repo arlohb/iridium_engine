@@ -909,6 +909,7 @@ version = "0.1.0"
 dependencies = [
  "hashbrown 0.12.1",
  "iridium_map_utils",
+ "iridium_maths",
  "rayon",
  "uuid",
 ]

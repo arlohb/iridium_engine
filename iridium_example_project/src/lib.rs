@@ -1,6 +1,6 @@
 use iridium_core::Assets;
-use iridium_ecs::{create_component, World};
-use iridium_graphics::{create_renderable_2d, MaterialInstance};
+use iridium_ecs::{Transform, World, Component, Velocity};
+use iridium_graphics::{MaterialInstance, Renderable2D};
 use iridium_maths::Vec3;
 
 pub mod components;
@@ -9,15 +9,15 @@ pub mod systems;
 #[no_mangle]
 pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
     world.entities.new_entity("Entity 0", vec![
-        create_component! { Transform
+        Component::new(Transform {
             position: Vec3::new(-1., -1., 0.),
             scale: Vec3::new(0.2, 0.2, 0.2),
-            rotation: 0.3f32,
-        },
-        create_component! { Velocity
+            rotation: 0.3,
+        }),
+        Component::new(Velocity {
             velocity: Vec3::new(0.0006, -0.0002, 0.),
-        },
-        create_renderable_2d(
+        }),
+        Component::new(Renderable2D::new(
             device,
             MaterialInstance::new(
                 device,
@@ -31,19 +31,19 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 ],
             ),
             &assets.meshes["quad"],
-        ),
+        )),
     ]);
 
     world.entities.new_entity("Entity 1", vec![
-        create_component! { Transform
+        Component::new(Transform {
             position: Vec3::new(-1., -1., 0.),
             scale: Vec3::new(0.2, 0.2, 0.2),
-            rotation: 0.6f32,
-        },
-        create_component! { Velocity
+            rotation: 0.6,
+        }),
+        Component::new(Velocity {
             velocity: Vec3::new(0.0001, 0.0004, 0.),
-        },
-        create_renderable_2d(
+        }),
+        Component::new(Renderable2D::new(
             device,
             MaterialInstance::new(
                 device,
@@ -54,16 +54,16 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 vec![],
             ),
             &assets.meshes["quad"],
-        ),
+        )),
     ]);
 
     world.entities.new_entity("LeftWall", vec![
-        create_component! { Transform
+        Component::new(Transform {
             position: Vec3::new(-1., 0., 0.),
             scale: Vec3::new(0.05, 2., 1.),
             rotation: 0.0f32,
-        },
-        create_renderable_2d(
+        }),
+        Component::new(Renderable2D::new(
             device,
             MaterialInstance::new(
                 device,
@@ -74,16 +74,16 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 vec![],
             ),
             &assets.meshes["quad"],
-        ),
+        )),
     ]);
 
     world.entities.new_entity("RightWall", vec![
-        create_component! { Transform
+        Component::new(Transform {
             position: Vec3::new(1., 0., 0.),
             scale: Vec3::new(0.05, 2., 1.),
             rotation: 0.0f32,
-        },
-        create_renderable_2d(
+        }),
+        Component::new(Renderable2D::new(
             device,
             MaterialInstance::new(
                 device,
@@ -94,16 +94,16 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 vec![],
             ),
             &assets.meshes["quad"],
-        ),
+        )),
     ]);
 
     world.entities.new_entity("BottomWall", vec![
-        create_component! { Transform
+        Component::new(Transform {
             position: Vec3::new(0., -1., 0.),
             scale: Vec3::new(2., 0.05, 1.),
             rotation: 0.0f32,
-        },
-        create_renderable_2d(
+        }),
+        Component::new(Renderable2D::new(
             device,
             MaterialInstance::new(
                 device,
@@ -114,16 +114,16 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 vec![],
             ),
             &assets.meshes["quad"],
-        ),
+        )),
     ]);
 
     world.entities.new_entity("TopWall", vec![
-        create_component! { Transform
+        Component::new(Transform {
             position: Vec3::new(0., 1., 0.),
             scale: Vec3::new(2., 0.05, 1.),
             rotation: 0.0f32,
-        },
-        create_renderable_2d(
+        }),
+        Component::new(Renderable2D::new(
             device,
             MaterialInstance::new(
                 device,
@@ -134,6 +134,6 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 vec![],
             ),
             &assets.meshes["quad"],
-        ),
+        )),
     ]);
 }

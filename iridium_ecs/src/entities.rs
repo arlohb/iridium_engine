@@ -8,26 +8,18 @@ pub struct Entities {
     entities: HashMap<u128, Vec<String>>,
     /// component_type => entity_id => component
     components: HashMap<String, HashMap<u128, Mutex<Component>>>,
-    pub component_types: HashMap<String, ComponentType>,
+}
+
+impl Default for Entities {
+    fn default() -> Self {
+        Self {
+            entities: HashMap::new(),
+            components: HashMap::new(),
+        }
+    }
 }
 
 impl Entities {
-    /// Create a new empty instance.
-    pub fn new(component_types: Vec<HashMap<String, ComponentType>>) -> Entities {
-        let component_types = component_types
-            .into_iter()
-            .fold(HashMap::new(), |mut acc, map| {
-                acc.extend(map);
-                acc
-            });
-
-        Entities {
-            entities: HashMap::new(),
-            components: HashMap::new(),
-            component_types,
-        }
-    }
-
     /// Add components to an entity.
     pub fn add_components(&mut self, entity_id: u128, components: Vec<Component>) {
         // If the entity doesn't exist,
@@ -39,15 +31,15 @@ impl Entities {
         // For each component to be added.
         for component in components {
             // Add to entities.
-            self.entities.get_mut(&entity_id).unwrap().push(component.type_name.clone());
+            self.entities.get_mut(&entity_id).unwrap().push(component.type_name().to_string());
 
             // If components of this type already exists,
-            if self.components.contains_key(&component.type_name) {
+            if self.components.contains_key(&component.type_name().to_string()) {
                 // Add to it.
-                self.components.get_mut(&component.type_name).unwrap().insert(entity_id, Mutex::new(component));
+                self.components.get_mut(&component.type_name().to_string()).unwrap().insert(entity_id, Mutex::new(component));
             } else {
                 // Create a new one.
-                let name = component.type_name.clone();
+                let name = component.type_name().to_string();
                 let mut components = HashMap::new();
                 // And insert the component into it.
                 components.insert(entity_id, Mutex::new(component));
@@ -67,9 +59,9 @@ impl Entities {
 
         // Add the name component.
         self.add_components(id, vec![
-            create_component! { Name
+            Component::new(Name {
                 name: name.to_owned(),
-            }
+            }),
         ]);
 
         // Add the other components.
@@ -107,9 +99,9 @@ impl Entities {
     }
 
     /// Get an iterator over components of given types, in the form (entity_id, [comp1, comp2, comp3]).
-    pub fn query_with_id<const N: usize>(
-        &self, component_types: [&str; N]
-    ) -> std::vec::IntoIter<(u128, [MutexGuard<component::Component>; N])> {
+    pub fn query_with_id<'a, const N: usize>(
+        &'a self, component_types: [&str; N]
+    ) -> std::vec::IntoIter<(u128, [MutexGuard<'a, component::Component>; N])> {
         // Find all the entities that have each component.
         let entities_with_each_component = component_types.into_iter()
             // Get all the entities that have each component.
@@ -199,17 +191,12 @@ impl Entities {
     /// Get a single component of a given type.
     /// This gets the first component of the given type,
     /// but should only be used when you're sure there is only one.
-    pub fn get(
-        &self, component_type: &str
-    ) -> MutexGuard<component::Component> {
-        // Do a usual query.
-        self.query([component_type])
-            // Get the first component.
-            .next()
-            // If there isn't one, panic.
-            .unwrap()
-            // Convert the array of length 1 to a single element.
-            .into_iter()
+    pub fn get<T: ComponentTrait>(&self) -> MutexGuard<Component> {
+        let component_type = T::type_name();
+
+        self.components[component_type]
+            .values()
             .next().unwrap()
+            .lock().unwrap()
     }
 }

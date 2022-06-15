@@ -1,10 +1,10 @@
-use hashbrown::HashMap;
 use iridium_ecs::*;
 
-pub fn component_types() -> HashMap<String, ComponentType> {
-    create_component_types! {
-        struct Custom {
-            test: f64,
-        },
-    }
+pub struct Custom {
+    pub test: f64,
+}
+
+impl ComponentTrait for Custom {
+    fn type_name() -> &'static str { "Custom" }
+    fn dyn_type_name(&self) -> &'static str { "Custom" }
 }

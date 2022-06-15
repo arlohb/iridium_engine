@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, time::SystemTime, sync::MutexGuard};
+use std::{collections::VecDeque, time::SystemTime};
 
 use iridium_ecs::{*, systems::System};
 
@@ -7,36 +7,41 @@ pub struct Frame {
     pub delta_time: f64,
 }
 
+pub struct FrameHistoryState {
+    pub frames: VecDeque<Frame>,
+    pub max_frames: usize,
+    pub max_age: f64,
+}
+
+impl ComponentTrait for FrameHistoryState {
+    fn type_name() -> &'static str { "FrameHistoryState" }
+    fn dyn_type_name(&self) -> &'static str { "FrameHistoryState" }
+}
+
 pub struct FrameHistorySystem;
 
 impl System for FrameHistorySystem {
     fn name(&self) -> &'static str { "FrameHistorySystem" }
 
-    fn component_type(&self) -> ComponentType {
-        create_component_type! { struct FrameHistoryState {
-            frames: VecDeque<Frame>,
-            max_frames: usize,
-            max_age: f64,
-        }}
+    fn component_type(&self) -> &'static str {
+        "FrameHistoryState"
     }
 
     fn system(&self, entities: &Entities, delta_time: f64) {
-        let mut state = entities.get("FrameHistoryState");
-        let max_frames = *state.get::<usize>("max_frames");
-        let max_age = *state.get::<f64>("max_age");
-        let frames = state.get_mut::<VecDeque<Frame>>("frames");
+        let mut component = entities.get::<FrameHistoryState>();
+        let state = component.component::<FrameHistoryState>();
 
-        frames.push_back(Frame {
+        state.frames.push_back(Frame {
             time: std::time::SystemTime::now(),
             delta_time,
         });
-        if frames.len() > max_frames {
-            frames.pop_front();
+        if state.frames.len() > state.max_frames {
+            state.frames.pop_front();
         }
 
-        while let Some(frame) = frames.front() {
-            if frame.time.elapsed().unwrap().as_millis() > max_age as u128 {
-                frames.pop_front();
+        while let Some(frame) = state.frames.front() {
+            if frame.time.elapsed().unwrap().as_millis() > state.max_age as u128 {
+                state.frames.pop_front();
             } else {
                 break;
             }
@@ -45,8 +50,8 @@ impl System for FrameHistorySystem {
 }
 
 impl FrameHistorySystem {
-    pub fn average_delta_time(frame_history_component: &MutexGuard<Component>) -> f64 {
-        let frames = frame_history_component.get::<VecDeque<Frame>>("frames");
+    pub fn average_delta_time(state: &FrameHistoryState) -> f64 {
+        let frames = &state.frames;
     
         frames
             .iter()

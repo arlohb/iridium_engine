@@ -26,7 +26,7 @@ use winit::{
 
 #[tokio::main]
 async fn main() {
-    // std::env::set_var("RUST_BACKTRACE", "1");
+    std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
 
     let event_loop = EventLoop::new();
@@ -114,34 +114,28 @@ async fn main() {
         meshes,
     };
 
-    let systems = Systems::new(vec![
-        SystemsStage::new(vec![
-            Box::new(VelocitySystem),
-        ]),
-        SystemsStage::new(vec![
-            // Box::new(PositionLoggerSystem),
-            Box::new(FrameHistorySystem),
-        ]),
-    ]);
-
     let mut world = World::new(
-        Entities::new(vec![
-            components::component_types(),
-            iridium_graphics::component_types(),
-            systems.component_types(),
+        Entities::default(),
+        Systems::new(vec![
+            SystemsStage::new(vec![
+                Box::new(VelocitySystem),
+            ]),
+            SystemsStage::new(vec![
+                // Box::new(PositionLoggerSystem),
+                Box::new(FrameHistorySystem),
+            ]),
         ]),
-        systems,
     );
 
     world.entities.new_entity("SystemState", vec![
-        create_component! { FrameHistoryState
+        Component::new(FrameHistoryState {
             frames: std::collections::VecDeque::<Frame>::with_capacity(500_000),
             max_frames: 500_000usize,
             max_age: 5000f64,
-        },
-        create_component! { VelocityState
+        }),
+        Component::new(VelocityState {
             rotation_speed: 0.002f32,
-        }
+        }),
     ]);
 
     let project = Project::load("target/debug/libiridium_example_project.so");
