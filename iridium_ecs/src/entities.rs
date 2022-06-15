@@ -1,5 +1,6 @@
+#![allow(clippy::mut_from_ref)]
+
 use super::*;
-use std::sync::{Mutex, MutexGuard};
 use hashbrown::HashMap;
 
 /// Stores all the entities in the scene.
@@ -7,7 +8,7 @@ pub struct Entities {
     /// entity_id => components
     entities: HashMap<u128, Vec<String>>,
     /// component_type => entity_id => component
-    components: HashMap<String, HashMap<u128, Mutex<Component>>>,
+    components: HashMap<String, HashMap<u128, Component>>,
 }
 
 impl Default for Entities {
@@ -36,13 +37,13 @@ impl Entities {
             // If components of this type already exists,
             if self.components.contains_key(&component.type_name().to_string()) {
                 // Add to it.
-                self.components.get_mut(&component.type_name().to_string()).unwrap().insert(entity_id, Mutex::new(component));
+                self.components.get_mut(&component.type_name().to_string()).unwrap().insert(entity_id, component);
             } else {
                 // Create a new one.
                 let name = component.type_name().to_string();
                 let mut components = HashMap::new();
                 // And insert the component into it.
-                components.insert(entity_id, Mutex::new(component));
+                components.insert(entity_id, component);
                 self.components.insert(name, components);
             }
         }
@@ -78,7 +79,7 @@ impl Entities {
     }
 
     /// Get all the components of a given entity.
-    pub fn get_entity_components(&self, entity_id: u128) -> Vec<MutexGuard<Component>> {
+    pub fn get_entity_components(&self, entity_id: u128) -> Vec<&Component> {
         // Get the component types of the entity.
         let component_types = self.get_entity_component_types(entity_id);
 
@@ -86,22 +87,16 @@ impl Entities {
         component_types.into_iter().map(|component_type| {
             // Get the map of entities => components.
             let entities_to_components = self.components.get(&component_type).unwrap();
-            // Get the component for this entity.
-            let component_mutex = entities_to_components.get(&entity_id).unwrap();
-
-            // Lock the Component.
-            let component = component_mutex.lock().unwrap();
-
             // Return the component.
-            component
+            entities_to_components.get(&entity_id).unwrap()
         // Collect into a HashMap
         }).collect::<Vec<_>>()
     }
 
     /// Get an iterator over components of given types, in the form (entity_id, [comp1, comp2, comp3]).
-    pub fn query_with_id<'a, const N: usize>(
-        &'a self, component_types: [&str; N]
-    ) -> std::vec::IntoIter<(u128, [MutexGuard<'a, component::Component>; N])> {
+    pub fn query_with_id<const N: usize>(
+        &self, component_types: [&str; N]
+    ) -> std::vec::IntoIter<(u128, [&Component; N])> {
         // Find all the entities that have each component.
         let entities_with_each_component = component_types.into_iter()
             // Get all the entities that have each component.
@@ -150,11 +145,8 @@ impl Entities {
                     .map(|component_type| {
                         // Get the map of entities => components.
                         let entities_to_components = &self.components[component_type];
-                        // Get the component for this entity.
-                        let component_mutex = &entities_to_components[id];
-
-                        // Lock the component.
-                        component_mutex.lock().unwrap()
+                        // Return the component.
+                        &entities_to_components[id]
                     })
                     // Into a vector.
                     .collect::<Vec<_>>();
@@ -177,7 +169,7 @@ impl Entities {
     /// Get an iterator over components of given types, in the form [comp1, comp2, comp3].
     pub fn query<const N: usize>(
         &self, component_types: [&str; N]
-    ) -> std::vec::IntoIter<[MutexGuard<component::Component>; N]> {
+    ) -> std::vec::IntoIter<[&Component; N]> {
         // Do the usual query.
         self.query_with_id(component_types)
             // Remove the id.
@@ -191,12 +183,12 @@ impl Entities {
     /// Get a single component of a given type.
     /// This gets the first component of the given type,
     /// but should only be used when you're sure there is only one.
-    pub fn get<T: ComponentTrait>(&self) -> MutexGuard<Component> {
+    pub fn get<T: ComponentTrait>(&self) -> &mut T {
         let component_type = T::type_name();
 
         self.components[component_type]
             .values()
             .next().unwrap()
-            .lock().unwrap()
+            .get_mut::<T>()
     }
 }

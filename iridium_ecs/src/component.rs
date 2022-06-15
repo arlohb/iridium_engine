@@ -1,34 +1,53 @@
+#![allow(clippy::mut_from_ref)]
+
+use std::cell::UnsafeCell;
+
 pub trait ComponentTrait: 'static + Send + Sync {
     fn type_name() -> &'static str where Self: Sized;
     fn dyn_type_name(&self) -> &'static str;
 }
 
 pub struct Component {
-    component: Box<dyn ComponentTrait>,
+    data: Box<UnsafeCell<dyn ComponentTrait>>,
 }
+
+unsafe impl Send for Component {}
+unsafe impl Sync for Component {}
 
 impl Component {
     pub fn new<T>(component: T) -> Self
     where T: ComponentTrait + 'static {
         Component {
-            component: Box::new(component),
+            data: Box::new(UnsafeCell::new(component)),
+        }
+    }
+
+    pub fn get_dyn(&self) -> &dyn ComponentTrait {
+        unsafe {
+            &*self.data.get()
+        }
+    }
+
+    pub fn get_dyn_mut(&self) -> &mut dyn ComponentTrait {
+        unsafe {
+            &mut *self.data.get()
+        }
+    }
+
+    pub fn get<T: ComponentTrait>(&self) -> &T {
+        unsafe {
+            &*(self.data.get() as *const _ as *const T)
+        }
+    }
+
+    pub fn get_mut<T: ComponentTrait>(&self) -> &mut T {
+        unsafe {
+            &mut *(self.data.get() as *mut _ as *mut T)
         }
     }
 
     pub fn type_name(&self) -> &'static str {
-        self.component.dyn_type_name()
-    }
-
-    pub fn component<T>(&mut self) -> &mut T
-    where T: ComponentTrait {
-        // Get a reference to the value inside the box.
-        let trait_ref: &mut dyn ComponentTrait = &mut *self.component;
-        // Cast the reference to a pointer.
-        let trait_ptr: *mut dyn ComponentTrait = trait_ref as *mut dyn ComponentTrait;
-        // Cast the dyn trait to T.
-        let t_ptr: *mut T = trait_ptr as *mut T;
-        // Cast the pointer to a reference.
-        unsafe { &mut *t_ptr }
+        self.get_dyn().dyn_type_name()
     }
 }
 

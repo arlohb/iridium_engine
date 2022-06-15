@@ -30,7 +30,7 @@ impl PanelUi for ComponentsList {
                 });
 
                 // Get the name of the entity.
-                let name = &mut components[0].component::<Name>().name;
+                let name = &mut components[0].get_mut::<Name>().name;
 
                 // Add some top spacing.
                 ui.add_space(10.);

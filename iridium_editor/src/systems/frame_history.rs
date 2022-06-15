@@ -25,8 +25,7 @@ impl System for FrameHistorySystem {
     }
 
     fn system(&self, entities: &Entities, delta_time: f64) {
-        let mut component = entities.get::<FrameHistoryState>();
-        let state = component.component::<FrameHistoryState>();
+        let state = entities.get::<FrameHistoryState>();
 
         state.frames.push_back(Frame {
             time: std::time::SystemTime::now(),

@@ -12,7 +12,7 @@ impl PanelUi for EntitiesList {
             let max_x_screen = max_x_physical / ui_state.screen_size.0 as f32;
             ui_state.viewport_rect.min_x = max_x_screen;
 
-            let fps = 1000. / FrameHistorySystem::average_delta_time(world.entities.get::<FrameHistoryState>().component::<FrameHistoryState>());
+            let fps = 1000. / FrameHistorySystem::average_delta_time(world.entities.get::<FrameHistoryState>());
             ui.label(format!("Fps average: {:.1}", fps));
             ui.separator();
 
@@ -26,9 +26,9 @@ impl PanelUi for EntitiesList {
             ui.separator();
             ui.add_space(10.);
 
-            for (id, [mut name])
+            for (id, [name])
             in world.entities.query_with_id(["Name"]) {
-                let name = name.component::<Name>();
+                let name = name.get::<Name>();
                 let name = &name.name;
 
                 let mut rich_text = egui::RichText::new(name);
