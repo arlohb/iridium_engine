@@ -17,11 +17,8 @@ impl System for VelocitySystem {
     fn component_type(&self) -> &'static str { "VelocityState" }
 
     fn system(&self, entities: &Entities, delta_time: f64) {
-        for [transform, velocity]
-        in entities.query(["Transform", "Velocity"]) {
-            let transform = transform.get_mut::<Transform>();
-            let velocity = velocity.get_mut::<Velocity>();
-
+        for (transform, velocity)
+        in query!(entities, [mut Transform, mut Velocity;]) {
             let state = entities.get::<VelocityState>();
             transform.rotation += state.rotation_speed * delta_time as f32;
 
@@ -66,9 +63,8 @@ impl System for PositionLoggerSystem {
     }
 
     fn system(&self, entities: &Entities, _delta_time: f64) {
-        for [transform]
-        in entities.query(["Transform"]) {
-            let transform = transform.get::<Transform>();
+        for transform
+        in query!(entities, [Transform]) {
             let position = transform.position;
             println!("{} {} {}", position.x, position.y, position.z);
         }

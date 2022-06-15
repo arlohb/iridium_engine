@@ -192,3 +192,55 @@ impl Entities {
             .get_mut::<T>()
     }
 }
+
+#[macro_export]
+macro_rules! query {
+    ($entities:expr, [mut $mut_type:ty]) => {
+        {
+            $entities.query([stringify!($mut_type)]).map(|components| {
+                components[0].get_mut::<$mut_type>()
+            }).collect::<Vec<_>>().into_iter()
+        }
+    };
+
+    ($entities:expr, [$type:ty]) => {
+        {
+            $entities.query([stringify!($type)]).map(|components| {
+                components[0].get::<$type>()
+            }).collect::<Vec<_>>().into_iter()
+        }
+    };
+
+    ($entities:expr, [$(mut $mut_type:ty),* ; $($type:ty),* $(,)?]) => {
+        {
+            let type_names = [
+                $(
+                    stringify!($mut_type),
+                )*
+                $(
+                    stringify!($type),
+                )*
+            ];
+
+            $entities.query(type_names).map(|components| {
+                let mut index = 0;
+                (
+                    $(
+                        {
+                            #![allow(clippy::eval_order_dependence)]
+                            index += 1;
+                            components[index - 1].get_mut::<$mut_type>()
+                        },
+                    )*
+                    $(
+                        {
+                            #![allow(clippy::eval_order_dependence)]
+                            index += 1;
+                            components[index - 1].get::<$type>()
+                        },
+                    )*
+                )
+            }).collect::<Vec<_>>().into_iter()
+        }
+    };
+}
