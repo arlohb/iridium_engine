@@ -1,3 +1,5 @@
+/// Stores the rect an area of the screen covers.
+/// From 0..1.
 pub struct ScreenRect {
     pub min_x: f32,
     pub min_y: f32,
@@ -6,6 +8,7 @@ pub struct ScreenRect {
 }
 
 impl ScreenRect {
+    /// Creates a new ScreenRect with the given values.
     pub fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> ScreenRect {
         ScreenRect {
             min_x,
@@ -15,6 +18,7 @@ impl ScreenRect {
         }
     }
 
+    /// Converts to an egui::Rect in logical coordinates.
     pub fn egui_logical(&self, width: u32, height: u32, scale_factor: f32) -> egui::Rect {
         egui::Rect {
             min: egui::emath::pos2(
