@@ -4,6 +4,7 @@ use std::{cell::UnsafeCell, any::{Any, TypeId}};
 
 pub trait ComponentTrait: 'static + Send + Sync + Any {
     fn dyn_type_name(&self) -> &'static str;
+    fn field_types(&self) -> Vec<(&'static str, &'static str)>;
 }
 
 pub struct Component {
@@ -55,6 +56,17 @@ impl Component {
 
     pub fn type_name(&self) -> &'static str {
         self.get_trait().dyn_type_name()
+    }
+}
+
+pub struct Name {
+    pub name: String,
+}
+
+impl ComponentTrait for Name {
+    fn dyn_type_name(&self) -> &'static str { "Name" }
+    fn field_types(&self) -> Vec<(&'static str, &'static str)> {
+        vec![("name", "String")]
     }
 }
 
@@ -181,11 +193,3 @@ impl Component {
 //         }
 //     };
 // }
-
-pub struct Name {
-    pub name: String,
-}
-
-impl ComponentTrait for Name {
-    fn dyn_type_name(&self) -> &'static str { "Name" }
-}
