@@ -1,5 +1,3 @@
-mod component;
-pub use component::*;
 mod components;
 pub use components::*;
 mod entities;
