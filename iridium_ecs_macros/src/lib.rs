@@ -11,7 +11,7 @@ fn get_struct_fields(ast: &syn::DeriveInput) -> Vec<&syn::Field> {
     }
 }
 
-#[proc_macro_derive(ComponentTrait, attributes(hidden))]
+#[proc_macro_derive(ComponentTrait, attributes(hidden, drag_speed))]
 pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
@@ -19,7 +19,8 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     let mut idents = vec![];
     let mut idents_strings = vec![];
     let mut types = vec![];
-    let mut attributes = vec![];
+    let mut attrs_path = vec![];
+    let mut attrs_tts = vec![];
 
     if let syn::Data::Struct(data) = ast.data {
         for field in data.fields {
@@ -30,7 +31,13 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
             idents_strings.push(ident.to_string());
             idents.push(ident);
             types.push(field.ty);
-            attributes.push(field.attrs);
+            attrs_path.push(vec![]);
+            attrs_tts.push(vec![]);
+            for attr in field.attrs {
+                let last = attrs_path.len() - 1;
+                attrs_path[last].push(attr.path);
+                attrs_tts[last].push(attr.tokens);
+            }
         }
     }
 
@@ -51,7 +58,10 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
                     let attributes = {
                         let mut attributes = hashbrown::HashMap::new();
                         #(
-                            attributes.insert(stringify!(#attributes.path), stringify!(#attributes.tts));
+                            let tts = stringify!(#attrs_tts);
+                            // Remove the first and last chars, which are ( and )
+                            let tts = &tts[1..tts.len() - 1];
+                            attributes.insert(stringify!(#attrs_path), tts);
                         )*
                         iridium_ecs::ComponentFieldAttributes(attributes)
                     };

@@ -8,8 +8,14 @@ macro_rules! impl_component_field_ui_num {
     ($($ty:ty),*) => {
         $(
             impl ComponentFieldUi for $ty {
-                fn ui(&mut self, ui: &mut egui::Ui, _attributes: ComponentFieldAttributes) {
-                    ui.add(egui::DragValue::new(self));
+                fn ui(&mut self, ui: &mut egui::Ui, attributes: ComponentFieldAttributes) {
+                    let mut drag_value = egui::DragValue::new(self);
+
+                    if let Some(drag_speed) = attributes.0.get("drag_speed") {
+                        drag_value = drag_value.speed(drag_speed.parse::<f32>().unwrap());
+                    }
+
+                    ui.add(drag_value);
                 }
             }
         )*
@@ -25,11 +31,20 @@ impl ComponentFieldUi for String {
 }
 
 impl ComponentFieldUi for iridium_maths::Vec3 {
-    fn ui(&mut self, ui: &mut egui::Ui, _attributes: ComponentFieldAttributes) {
+    fn ui(&mut self, ui: &mut egui::Ui, attributes: ComponentFieldAttributes) {
         ui.horizontal(|ui| {
-            ui.add(egui::DragValue::new(&mut self.x));
-            ui.add(egui::DragValue::new(&mut self.y));
-            ui.add(egui::DragValue::new(&mut self.z));
+            let mut x_drag = egui::DragValue::new(&mut self.x);
+            let mut y_drag = egui::DragValue::new(&mut self.y);
+            let mut z_drag = egui::DragValue::new(&mut self.z);
+
+            if let Some(drag_speed) = attributes.0.get("drag_speed") {
+                x_drag = x_drag.speed(drag_speed.parse::<f32>().unwrap());
+                y_drag = y_drag.speed(drag_speed.parse::<f32>().unwrap());
+                z_drag = z_drag.speed(drag_speed.parse::<f32>().unwrap());
+            }
+            ui.add(x_drag);
+            ui.add(y_drag);
+            ui.add(z_drag);
         });
     }
 }
