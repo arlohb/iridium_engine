@@ -1,9 +1,8 @@
 #![allow(clippy::mut_from_ref)]
 
-use std::cell::UnsafeCell;
+use std::{cell::UnsafeCell, any::{Any, TypeId}};
 
-pub trait ComponentTrait: 'static + Send + Sync {
-    fn type_name() -> &'static str where Self: Sized;
+pub trait ComponentTrait: 'static + Send + Sync + Any {
     fn dyn_type_name(&self) -> &'static str;
 }
 
@@ -22,18 +21,6 @@ impl Component {
         }
     }
 
-    pub fn get_dyn(&self) -> &dyn ComponentTrait {
-        unsafe {
-            &*self.data.get()
-        }
-    }
-
-    pub fn get_dyn_mut(&self) -> &mut dyn ComponentTrait {
-        unsafe {
-            &mut *self.data.get()
-        }
-    }
-
     pub fn get<T: ComponentTrait>(&self) -> &T {
         unsafe {
             &*(self.data.get() as *const _ as *const T)
@@ -46,8 +33,28 @@ impl Component {
         }
     }
 
+    pub fn get_trait(&self) -> &dyn ComponentTrait {
+        unsafe {
+            &*self.data.get()
+        }
+    }
+
+    pub fn get_trait_mut(&self) -> &mut dyn ComponentTrait {
+        unsafe {
+            &mut *self.data.get()
+        }
+    }
+
+    pub fn type_id(&self) -> TypeId {
+        self.get_trait().type_id()
+    }
+
+    pub fn is_type<T: ComponentTrait>(&self) -> bool {
+        self.type_id() == TypeId::of::<T>()
+    }
+
     pub fn type_name(&self) -> &'static str {
-        self.get_dyn().dyn_type_name()
+        self.get_trait().dyn_type_name()
     }
 }
 
@@ -180,6 +187,5 @@ pub struct Name {
 }
 
 impl ComponentTrait for Name {
-    fn type_name() -> &'static str { "Name" }
     fn dyn_type_name(&self) -> &'static str { "Name" }
 }

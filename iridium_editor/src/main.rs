@@ -25,7 +25,7 @@ use winit::{
 
 #[tokio::main]
 async fn main() {
-    std::env::set_var("RUST_BACKTRACE", "1");
+    // std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
 
     let event_loop = EventLoop::new();

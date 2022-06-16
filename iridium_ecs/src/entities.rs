@@ -1,14 +1,16 @@
 #![allow(clippy::mut_from_ref)]
 
+use std::any::TypeId;
+
 use super::*;
 use hashbrown::HashMap;
 
 /// Stores all the entities in the scene.
 pub struct Entities {
     /// entity_id => components
-    entities: HashMap<u128, Vec<String>>,
+    entities: HashMap<u128, Vec<TypeId>>,
     /// component_type => entity_id => component
-    components: HashMap<String, HashMap<u128, Component>>,
+    components: HashMap<TypeId, HashMap<u128, Component>>,
 }
 
 impl Default for Entities {
@@ -32,19 +34,19 @@ impl Entities {
         // For each component to be added.
         for component in components {
             // Add to entities.
-            self.entities.get_mut(&entity_id).unwrap().push(component.type_name().to_string());
+            self.entities.get_mut(&entity_id).unwrap().push(component.type_id());
 
             // If components of this type already exists,
-            if self.components.contains_key(&component.type_name().to_string()) {
+            if self.components.contains_key(&component.type_id()) {
                 // Add to it.
-                self.components.get_mut(&component.type_name().to_string()).unwrap().insert(entity_id, component);
+                self.components.get_mut(&component.type_id()).unwrap().insert(entity_id, component);
             } else {
                 // Create a new one.
-                let name = component.type_name().to_string();
+                let type_id = component.type_id();
                 let mut components = HashMap::new();
                 // And insert the component into it.
                 components.insert(entity_id, component);
-                self.components.insert(name, components);
+                self.components.insert(type_id, components);
             }
         }
     }
@@ -73,7 +75,7 @@ impl Entities {
     }
 
     /// Get all the component types an entity has.
-    pub fn get_entity_component_types(&self, entity_id: u128) -> Vec<String> {
+    pub fn get_entity_component_types(&self, entity_id: u128) -> Vec<TypeId> {
         // Do a simple look up in the entities map.
         self.entities.get(&entity_id).unwrap().clone()
     }
@@ -95,7 +97,7 @@ impl Entities {
 
     /// Get an iterator over components of given types, in the form (entity_id, [comp1, comp2, comp3]).
     pub fn query_with_id<const N: usize>(
-        &self, component_types: [&str; N]
+        &self, component_types: [&TypeId; N]
     ) -> std::vec::IntoIter<(u128, [&Component; N])> {
         // Find all the entities that have each component.
         let entities_with_each_component = component_types.into_iter()
@@ -168,7 +170,7 @@ impl Entities {
 
     /// Get an iterator over components of given types, in the form [comp1, comp2, comp3].
     pub fn query<const N: usize>(
-        &self, component_types: [&str; N]
+        &self, component_types: [&TypeId; N]
     ) -> std::vec::IntoIter<[&Component; N]> {
         // Do the usual query.
         self.query_with_id(component_types)
@@ -184,7 +186,7 @@ impl Entities {
     /// This gets the first component of the given type,
     /// but should only be used when you're sure there is only one.
     pub fn get<T: ComponentTrait>(&self) -> &mut T {
-        let component_type = T::type_name();
+        let component_type = &TypeId::of::<T>();
 
         self.components[component_type]
             .values()
@@ -197,16 +199,16 @@ impl Entities {
 macro_rules! query {
     ($entities:expr, [$(mut $mut_type:ty),* ; $($type:ty),* $(,)?]) => {
         {
-            let type_names = [
+            let type_ids = [
                 $(
-                    stringify!($mut_type),
+                    &std::any::TypeId::of::<$mut_type>(),
                 )*
                 $(
-                    stringify!($type),
+                    &std::any::TypeId::of::<$type>(),
                 )*
             ];
 
-            $entities.query(type_names).map(|components| {
+            $entities.query(type_ids).map(|components| {
                 let mut index = 0;
                 (
                     $(

@@ -27,7 +27,7 @@ impl PanelUi for EntitiesList {
             ui.add_space(10.);
 
             for (id, [name])
-            in world.entities.query_with_id(["Name"]) {
+            in world.entities.query_with_id([&std::any::TypeId::of::<Name>()]) {
                 let name = name.get::<Name>();
                 let name = &name.name;
 

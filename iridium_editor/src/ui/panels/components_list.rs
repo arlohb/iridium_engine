@@ -19,14 +19,14 @@ impl PanelUi for ComponentsList {
 
                 // Sort the components by type, putting name first.
                 components.sort_by(|a, b| {
-                    if a.type_name() == "Name" {
+                    if a.is_type::<Name>() {
                         return std::cmp::Ordering::Less;
                     }
-                    if b.type_name() == "Name" {
+                    if b.is_type::<Name>() {
                         return std::cmp::Ordering::Greater;
                     }
             
-                    a.type_name().cmp(b.type_name())
+                    a.type_id().cmp(&b.type_id())
                 });
 
                 // Get the name of the entity.
@@ -45,7 +45,7 @@ impl PanelUi for ComponentsList {
                 // For each component,
                 for component in components {
                     // Except Name.
-                    if component.type_name() == "Name" {
+                    if component.is_type::<Name>() {
                         continue;
                     }
 
