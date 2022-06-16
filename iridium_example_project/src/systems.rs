@@ -14,8 +14,8 @@ impl System for CustomSystem {
     fn name(&self) -> &'static str { "CustomSystem" }
 
     fn system(&self, entities: &Entities, _delta_time: f64) {
-        for custom_component
-        in query!(entities, [Custom]) {
+        for (custom_component, )
+        in query!(entities, [; Custom]) {
             println!("Custom component value: {}", custom_component.test);
         }
     }

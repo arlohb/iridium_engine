@@ -63,8 +63,8 @@ impl System for PositionLoggerSystem {
     }
 
     fn system(&self, entities: &Entities, _delta_time: f64) {
-        for transform
-        in query!(entities, [Transform]) {
+        for (transform, )
+        in query!(entities, [; Transform]) {
             let position = transform.position;
             println!("{} {} {}", position.x, position.y, position.z);
         }
