@@ -7,7 +7,9 @@ pub struct World {
 }
 
 impl World {
-    pub fn new(entities: Entities, systems: Systems) -> World {
+    pub fn new(mut entities: Entities, systems: Systems) -> World {
+        entities.new_entity("SystemState", systems.default_component_states());
+
         World {
             entities,
             systems,

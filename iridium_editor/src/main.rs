@@ -126,17 +126,6 @@ async fn main() {
         ]),
     );
 
-    world.entities.new_entity("SystemState", vec![
-        Component::new(FrameHistoryState {
-            frames: std::collections::VecDeque::<Frame>::with_capacity(500_000),
-            max_frames: 500_000usize,
-            max_age: 5000f64,
-        }),
-        Component::new(VelocityState {
-            rotation_speed: 0.002f32,
-        }),
-    ]);
-
     let project = Project::load("target/debug/libiridium_example_project.so");
 
     project.init_system(&app.device, &mut world, &assets);

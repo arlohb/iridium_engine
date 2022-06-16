@@ -14,7 +14,11 @@ pub struct VelocitySystem;
 impl System for VelocitySystem {
     fn name(&self) -> &'static str { "VelocitySystem" }
 
-    fn component_type(&self) -> &'static str { "VelocityState" }
+    fn default_state(&self) -> Component {
+        Component::new(VelocityState {
+            rotation_speed: 0.002,
+        })
+    }
 
     fn system(&self, entities: &Entities, delta_time: f64) {
         for (transform, velocity)
@@ -58,8 +62,8 @@ pub struct PositionLoggerSystem;
 impl System for PositionLoggerSystem {
     fn name(&self) -> &'static str { "PositionLoggerSystem" }
 
-    fn component_type(&self) -> &'static str {
-        "PositionLoggerState"
+    fn default_state(&self) -> Component {
+        Component::new(PositionLoggerState {})
     }
 
     fn system(&self, entities: &Entities, _delta_time: f64) {

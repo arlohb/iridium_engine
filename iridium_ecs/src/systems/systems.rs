@@ -1,4 +1,4 @@
-use crate::Entities;
+use crate::{Entities, Component};
 use super::*;
 
 pub struct Systems {
@@ -10,6 +10,15 @@ impl Systems {
         Systems {
             systems: systems_stages,
         }
+    }
+
+    pub fn default_component_states(&self) -> Vec<Component> {
+        self.systems.iter()
+            .flat_map(|systems_stage| systems_stage.systems
+                .iter()
+                .map(|system| system.default_state())
+            )
+            .collect()
     }
 
     pub fn run_systems(&mut self, entities: &Entities, delta_time: f64) {

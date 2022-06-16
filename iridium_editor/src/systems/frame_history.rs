@@ -20,8 +20,12 @@ pub struct FrameHistorySystem;
 impl System for FrameHistorySystem {
     fn name(&self) -> &'static str { "FrameHistorySystem" }
 
-    fn component_type(&self) -> &'static str {
-        "FrameHistoryState"
+    fn default_state(&self) -> Component {
+        Component::new(FrameHistoryState {
+            frames: VecDeque::with_capacity(500_000),
+            max_frames: 500_000,
+            max_age: 5000.,
+        })
     }
 
     fn system(&self, entities: &Entities, delta_time: f64) {
