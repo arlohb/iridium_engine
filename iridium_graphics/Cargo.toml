@@ -13,3 +13,4 @@ iridium_map_utils = { path = "../iridium_map_utils" }
 hashbrown = "0.12.1"
 wgpu = "0.12.0"
 image = { version = "0.24.2", default-features = false, features = ["png"] }
+egui = "0.18.1"

@@ -1,6 +1,13 @@
 use iridium_ecs_macros::ComponentTrait;
 
+use crate::ComponentFieldUi;
+
 use crate as iridium_ecs;
+
+#[derive(ComponentTrait)]
+pub struct Name {
+    pub name: String,
+}
 
 #[derive(ComponentTrait)]
 pub struct Transform {

@@ -5,9 +5,13 @@ use crate::*;
 
 #[derive(ComponentTrait)]
 pub struct Renderable2D {
+    #[hidden]
     pub material: MaterialInstance,
+    #[hidden]
     pub vertex_buffer: wgpu::Buffer,
+    #[hidden]
     pub index_buffer: wgpu::Buffer,
+    #[hidden]
     pub index_count: u32,
 }
 

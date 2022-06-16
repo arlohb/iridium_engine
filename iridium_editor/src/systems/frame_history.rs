@@ -10,6 +10,7 @@ pub struct Frame {
 
 #[derive(ComponentTrait)]
 pub struct FrameHistoryState {
+    #[hidden]
     pub frames: VecDeque<Frame>,
     pub max_frames: usize,
     pub max_age: f64,

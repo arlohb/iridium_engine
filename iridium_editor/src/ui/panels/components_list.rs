@@ -52,14 +52,7 @@ impl PanelUi for ComponentsList {
                     egui::CollapsingHeader::new(component.type_name())
                         .default_open(true)
                         .show(ui, |ui| {
-                            let fields = component.get_trait().field_types();
-
-                            for (name, ty) in fields.into_iter() {
-                                ui.horizontal(|ui| {
-                                    ui.label(name);
-                                    ui.label(ty);
-                                });
-                            }
+                            component.get_trait_mut().ui(ui);
                         });
 
 

@@ -907,6 +907,7 @@ dependencies = [
 name = "iridium_ecs"
 version = "0.1.0"
 dependencies = [
+ "egui",
  "hashbrown 0.12.1",
  "iridium_ecs_macros",
  "iridium_map_utils",
@@ -951,6 +952,7 @@ dependencies = [
 name = "iridium_example_project"
 version = "0.1.0"
 dependencies = [
+ "egui",
  "hashbrown 0.12.1",
  "iridium_core",
  "iridium_ecs",
@@ -965,6 +967,7 @@ dependencies = [
 name = "iridium_graphics"
 version = "0.1.0"
 dependencies = [
+ "egui",
  "hashbrown 0.12.1",
  "image",
  "iridium_ecs",
