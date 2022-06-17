@@ -6,6 +6,7 @@ use iridium_ecs_macros::ComponentTrait;
 
 #[derive(ComponentTrait)]
 pub struct VelocityState {
+    #[drag_speed(0.001)]
     pub rotation_speed: f32,
 }
 
