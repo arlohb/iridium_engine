@@ -14,6 +14,16 @@ impl PanelUi for ComponentsList {
 
             // If something is actually selected.
             if let Some(id) = ui_state.selected_entity {
+                ui.menu_button("Add Component", |ui| {
+                    for (type_name, factory) in world.entities.component_factories() {
+                        if ui.button(type_name).clicked() {
+                            ui.close_menu();
+                            let component = factory();
+                            world.entities.add_components(id, vec![component]);
+                        }
+                    }
+                });
+
                 // Get the components of the entity.
                 let mut components = world.entities.get_entity_components(id);
 

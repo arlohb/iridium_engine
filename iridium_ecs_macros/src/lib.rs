@@ -43,6 +43,9 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
 
     quote! {
         impl iridium_ecs::ComponentTrait for #struct_name {
+            fn type_name() -> &'static str {
+                stringify!(#struct_name)
+            }
             fn dyn_type_name(&self) -> &'static str {
                 stringify!(#struct_name)
             }

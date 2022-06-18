@@ -2,7 +2,25 @@
 
 use std::{cell::UnsafeCell, any::{Any, TypeId}};
 
+pub struct ComponentInfo {
+    pub type_name: &'static str,
+}
+
+impl ComponentInfo {
+    pub fn new<T>() -> Self
+    where T: ComponentTrait {
+        Self {
+            type_name: T::type_name(),
+        }
+    }
+}
+
+pub trait ComponentFactory: ComponentTrait + Sized {
+    fn create() -> Component;
+}
+
 pub trait ComponentTrait: 'static + Send + Sync + Any {
+    fn type_name() -> &'static str where Self: Sized;
     fn dyn_type_name(&self) -> &'static str;
     fn field_types(&self) -> Vec<(&'static str, &'static str)>;
     fn ui(&mut self, ui: &mut egui::Ui);

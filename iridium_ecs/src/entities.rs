@@ -11,18 +11,70 @@ pub struct Entities {
     entities: HashMap<u128, Vec<TypeId>>,
     /// component_type => entity_id => component
     components: HashMap<TypeId, HashMap<u128, Component>>,
+    /// Stores info about components.
+    component_info: HashMap<TypeId, ComponentInfo>,
+    /// Functions to create components from the UI.
+    component_factories: HashMap<TypeId, fn() -> Component>,
 }
 
 impl Default for Entities {
     fn default() -> Self {
-        Self {
+        // Create Entities.
+        let mut entities = Self {
             entities: HashMap::new(),
             components: HashMap::new(),
-        }
+            component_info: HashMap::new(),
+            component_factories: HashMap::new(),
+        };
+
+        // Register the default components.
+        entities.register_component::<Name>();
+        entities.register_component_with_factory::<Transform>();
+        entities.register_component_with_factory::<Velocity>();
+
+        entities
     }
 }
 
 impl Entities {
+    /// Registers a component type.
+    /// This stores info about the component.
+    pub fn register_component<T>(&mut self)
+    where T: ComponentTrait {
+        let type_id = TypeId::of::<T>();
+        let component_info = ComponentInfo::new::<T>();
+        self.component_info.insert(type_id, component_info);
+    }
+
+    /// Registers a component type with a factory.
+    /// Called instead of `register_component`
+    pub fn register_component_with_factory<T>(&mut self)
+    where T: ComponentTrait + ComponentFactory {
+        self.register_component::<T>();
+        self.add_component_factory::<T>()
+    }
+
+    /// Add a component factory.
+    /// Use `register_component_with_factory` instead.
+    fn add_component_factory<T>(&mut self)
+    where T: ComponentTrait + ComponentFactory {
+        self.component_factories.insert(TypeId::of::<T>(), T::create);
+    }
+
+    /// Get a vec of component names and their factories.
+    #[allow(clippy::type_complexity)]
+    pub fn component_factories(&self) -> Vec<(&'static str, fn() -> Component)> {
+        self.component_factories
+            .iter()
+            .map(|(type_id, factory)| {
+                (
+                    self.component_info.get(type_id).expect("Component type not registered").type_name,
+                    *factory,
+                )
+            })
+            .collect::<Vec<_>>()
+    }
+
     /// Add components to an entity.
     pub fn add_components(&mut self, entity_id: u128, components: Vec<Component>) {
         // If the entity doesn't exist,
@@ -33,8 +85,16 @@ impl Entities {
 
         // For each component to be added.
         for component in components {
+            // Get the vec of components the entities has.
+            let entity = self.entities.get_mut(&entity_id).unwrap();
+
+            // If the component is already added, continue.
+            if entity.contains(&component.type_id()) {
+                continue;
+            }
+
             // Add to entities.
-            self.entities.get_mut(&entity_id).unwrap().push(component.type_id());
+            entity.push(component.type_id());
 
             // If components of this type already exists,
             if self.components.contains_key(&component.type_id()) {

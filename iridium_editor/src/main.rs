@@ -126,6 +126,8 @@ async fn main() {
         ]),
     );
 
+    world.entities.register_component::<Renderable2D>();
+
     let project = Project::load("target/debug/libiridium_example_project.so");
 
     project.init_system(&app.device, &mut world, &assets);
