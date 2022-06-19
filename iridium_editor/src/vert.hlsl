@@ -17,8 +17,8 @@ struct Transform {
 Transform transform;
 
 VertexOut vs_main(VertexIn vertex) {
-  float3x3 rotation = float3x3(cos(transform.rotation), -sin(transform.rotation), 0.,
-                               sin(transform.rotation),  cos(transform.rotation), 0.,
+  float3x3 rotation = float3x3(cos(-transform.rotation), -sin(-transform.rotation), 0.,
+                               sin(-transform.rotation),  cos(-transform.rotation), 0.,
                                0.,                       0.,                      1.);
 
   vertex.position *= transform.scale;
