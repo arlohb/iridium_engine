@@ -16,6 +16,6 @@ iridium_graphics = { path = "../iridium_graphics" }
 iridium_maths = { path = "../iridium_maths" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 
-wgpu = "0.12"
-hashbrown = "0.12.1"
 egui = "0.18.1"
+wgpu = "0.12"
+hashbrown = "0.12"
