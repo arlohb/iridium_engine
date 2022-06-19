@@ -42,9 +42,12 @@ impl ComponentFieldUi for iridium_maths::Vec3 {
                 y_drag = y_drag.speed(drag_speed.parse::<f32>().unwrap());
                 z_drag = z_drag.speed(drag_speed.parse::<f32>().unwrap());
             }
-            ui.add(x_drag);
-            ui.add(y_drag);
-            ui.add(z_drag);
+
+            ui.columns(3, |ui| {
+                ui[0].add(x_drag);
+                ui[1].add(y_drag);
+                ui[2].add(z_drag);
+            });
         });
     }
 }

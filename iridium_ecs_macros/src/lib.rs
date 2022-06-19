@@ -68,10 +68,10 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
                         )*
                         iridium_ecs::ComponentFieldAttributes(attributes)
                     };
-                    ui.horizontal(|ui| {
-                        ui.label(#idents_strings);
-                        self.#idents.ui(ui, attributes);
-                    });
+
+                    ui.label(#idents_strings);
+                    self.#idents.ui(ui, attributes);
+                    ui.end_row();
                 )*
             }
         }

@@ -53,7 +53,7 @@ impl PanelUi for ComponentsList {
                 ui.add_space(10.);
 
                 // For each component,
-                for component in components {
+                for (index, component) in components.into_iter().enumerate() {
                     // Except Name.
                     if component.is_type::<Name>() {
                         continue;
@@ -62,7 +62,10 @@ impl PanelUi for ComponentsList {
                     egui::CollapsingHeader::new(component.type_name())
                         .default_open(true)
                         .show(ui, |ui| {
-                            component.get_trait_mut().ui(ui);
+                            egui::Grid::new(index)
+                                .show(ui, |ui| {
+                                    component.get_trait_mut().ui(ui);
+                                });
                         });
 
 
