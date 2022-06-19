@@ -40,7 +40,6 @@ impl PanelUi for EntitiesList {
                 }
 
                 if ui.add(egui::Label::new(rich_text).sense(egui::Sense::click())).clicked() {
-                    println!("Clicked id: {id}");
                     ui_state.selected_entity = Some(id);
                 }
             }
