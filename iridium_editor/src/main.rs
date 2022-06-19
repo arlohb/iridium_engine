@@ -2,12 +2,14 @@
 extern crate dlopen_derive;
 
 mod systems;
+use play_state::PlayState;
 use systems::*;
 mod app;
 pub use app::*;
 mod ui;
 mod project;
 use project::Project;
+mod play_state;
 
 use iridium_core::*;
 use iridium_ecs::*;
@@ -162,7 +164,9 @@ async fn main() {
             let delta_time = last_time.elapsed().as_nanos() as f64 / 1_000_000.;
             last_time = std::time::Instant::now();
 
-            world.run_systems(delta_time);
+            if let PlayState::Play = app.ui_state.play_state() {
+                world.run_systems(delta_time);
+            }
 
             app.render(&window, &mut world);
         },

@@ -31,6 +31,13 @@ impl ScreenRect {
             ),
         }
     }
+
+    pub fn center(&self) -> (f32, f32) {
+        (
+            (self.min_x + self.max_x) / 2.,
+            (self.min_y + self.max_y) / 2.,
+        )
+    }
 }
 
 impl std::fmt::Debug for ScreenRect {

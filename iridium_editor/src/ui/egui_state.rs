@@ -37,6 +37,7 @@ impl EguiState {
 
         // Create the UI panels.
         let panels: Vec<Box<dyn PanelUi>> = vec![
+            Box::new(super::panels::TopPanel),
             Box::new(super::panels::EntitiesList),
             Box::new(super::panels::ComponentsList),
         ];

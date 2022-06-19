@@ -15,7 +15,7 @@ pub struct App {
     pub surface_config: wgpu::SurfaceConfiguration,
 
     egui_state: EguiState,
-    ui_state: UiState,
+    pub ui_state: UiState,
 
     renderer_2d_system: Renderer2DSystem,
 }

@@ -1,3 +1,5 @@
+use crate::play_state::PlayState;
+
 // Stores the editor UI state.
 pub struct UiState {
     /// The screen rect the viewport covers.
@@ -8,6 +10,8 @@ pub struct UiState {
     pub scale_factor: f32,
     /// The id of the currently selected entity.
     pub selected_entity: Option<u128>,
+    /// The current play state.
+    play_state: PlayState,
 }
 
 impl UiState {
@@ -22,6 +26,28 @@ impl UiState {
             screen_size,
             scale_factor,
             selected_entity: None,
+            play_state: PlayState::Stop,
         }
+    }
+
+    /// Gets the play state.
+    pub fn play_state(&self) -> PlayState {
+        self.play_state
+    }
+
+    /// Sets the plat state to `PlayState::Play`.
+    pub fn play(&mut self) {
+        self.play_state = PlayState::Play;
+    }
+
+    /// Sets the plat state to `PlayState::Pause`.
+    pub fn pause(&mut self) {
+        self.play_state = PlayState::Pause;
+    }
+
+    /// Sets the plat state to `PlayState::Stop`.
+    pub fn stop(&mut self) {
+        // Eventually this will do quite a bit more, but that comes later.
+        self.play_state = PlayState::Stop;
     }
 }
