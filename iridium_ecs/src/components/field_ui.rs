@@ -35,12 +35,16 @@ impl ComponentFieldUi for String {
     }
 }
 
-impl ComponentFieldUi for iridium_maths::Vec3 {
+impl ComponentFieldUi for iridium_maths::VecN<3> {
     fn ui(&mut self, ui: &mut egui::Ui, attributes: ComponentFieldAttributes) {
         ui.horizontal(|ui| {
-            let mut x_drag = egui::DragValue::new(&mut self.x);
-            let mut y_drag = egui::DragValue::new(&mut self.y);
-            let mut z_drag = egui::DragValue::new(&mut self.z);
+            let mut x_clone = self.x();
+            let mut y_clone = self.y();
+            let mut z_clone = self.z();
+
+            let mut x_drag = egui::DragValue::new(&mut x_clone);
+            let mut y_drag = egui::DragValue::new(&mut y_clone);
+            let mut z_drag = egui::DragValue::new(&mut z_clone);
 
             if let Some(drag_speed) = attributes.0.get("drag_speed") {
                 x_drag = x_drag.speed(drag_speed.parse::<f32>().unwrap());
@@ -53,6 +57,10 @@ impl ComponentFieldUi for iridium_maths::Vec3 {
                 ui[1].add(y_drag);
                 ui[2].add(z_drag);
             });
+
+            *self.x_mut() = x_clone;
+            *self.y_mut() = y_clone;
+            *self.z_mut() = z_clone;
         });
     }
 }

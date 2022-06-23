@@ -2,5 +2,5 @@
 
 //! A basic maths library for the Iridium game engine.
 
-mod vec3;
-pub use vec3::*;
+mod vecn;
+pub use vecn::*;

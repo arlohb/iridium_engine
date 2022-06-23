@@ -31,21 +31,21 @@ impl System for VelocitySystem {
             let velocity = &mut velocity.velocity;
             *position += *velocity * delta_time as f32;
 
-            if position.x < -1. {
-                position.x = -1.;
-                velocity.x = -velocity.x;
+            if position.x() < -1. {
+                *position.x_mut() = -1.;
+                *velocity.x_mut() = -velocity.x();
             }
-            if position.x > 1. {
-                position.x = 1.;
-                velocity.x = -velocity.x;
+            if position.x() > 1. {
+                *position.x_mut() = 1.;
+                *velocity.x_mut() = -velocity.x();
             }
-            if position.y < -1. {
-                position.y = -1.;
-                velocity.y = -velocity.y;
+            if position.y() < -1. {
+                *position.y_mut() = -1.;
+                *velocity.y_mut() = -velocity.y();
             }
-            if position.y > 1. {
-                position.y = 1.;
-                velocity.y = -velocity.y;
+            if position.y() > 1. {
+                *position.y_mut() = 1.;
+                *velocity.y_mut() = -velocity.y();
             }
         }
     }
@@ -71,7 +71,7 @@ impl System for PositionLoggerSystem {
         for (transform, )
         in query!(entities, [; Transform]) {
             let position = transform.position;
-            println!("{} {} {}", position.x, position.y, position.z);
+            println!("{} {} {}", position.x(), position.y(), position.z());
         }
     }
 }

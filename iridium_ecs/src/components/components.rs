@@ -18,10 +18,10 @@ pub struct Name {
 pub struct Transform {
     /// The position.
     #[drag_speed(0.05)]
-    pub position: iridium_maths::Vec3,
+    pub position: iridium_maths::VecN<3>,
     /// The scale.
     #[drag_speed(0.05)]
-    pub scale: iridium_maths::Vec3,
+    pub scale: iridium_maths::VecN<3>,
     /// The rotation.
     /// 
     /// This is in radians.
@@ -32,8 +32,8 @@ pub struct Transform {
 impl ComponentDefault for Transform {
     fn create() -> Component {
         Component::new(Self {
-            position: iridium_maths::Vec3::new(0.0, 0.0, 0.0),
-            scale: iridium_maths::Vec3::new(1.0, 1.0, 1.0),
+            position: iridium_maths::VecN::new([0.0, 0.0, 0.0]),
+            scale: iridium_maths::VecN::new([1.0, 1.0, 1.0]),
             rotation: 0.0,
         })
     }
@@ -44,13 +44,13 @@ impl ComponentDefault for Transform {
 pub struct Velocity {
     #[drag_speed(0.0001)]
     /// The velocity.
-    pub velocity: iridium_maths::Vec3,
+    pub velocity: iridium_maths::VecN<3>,
 }
 
 impl ComponentDefault for Velocity {
     fn create() -> Component {
         Component::new(Self {
-            velocity: iridium_maths::Vec3::new(0.0, 0.0, 0.0),
+            velocity: iridium_maths::VecN::new([0.0, 0.0, 0.0]),
         })
     }
 }
