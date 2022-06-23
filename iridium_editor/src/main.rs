@@ -25,8 +25,7 @@ use winit::{
     window::WindowBuilder,
 };
 
-#[tokio::main]
-async fn main() {
+fn main() {
     // std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
 
@@ -37,7 +36,7 @@ async fn main() {
         .build(&event_loop)
         .unwrap();
     
-    let mut app = App::new(&window).await;
+    let mut app = pollster::block_on(App::new(&window));
 
     let textures = fast_map_arc! {
         "steak" => Texture::from_image_bytes(
