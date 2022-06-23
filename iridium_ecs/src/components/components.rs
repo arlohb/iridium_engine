@@ -1,25 +1,35 @@
 use iridium_ecs_macros::ComponentTrait;
 
-use crate::{ComponentFieldUi, ComponentFactory, Component};
+use crate::{ComponentFieldUi, ComponentDefault, Component};
 
 use crate as iridium_ecs;
 
+/// The name of an entity.
+/// 
+/// Added by default to all entities on creation.
 #[derive(ComponentTrait)]
 pub struct Name {
+    /// The name of the entity.
     pub name: String,
 }
 
+/// The position, scale and rotation of an entity.
 #[derive(ComponentTrait)]
 pub struct Transform {
+    /// The position.
     #[drag_speed(0.05)]
     pub position: iridium_maths::Vec3,
+    /// The scale.
     #[drag_speed(0.05)]
     pub scale: iridium_maths::Vec3,
+    /// The rotation.
+    /// 
+    /// This is in radians.
     #[drag_speed(0.05)]
     pub rotation: f32,
 }
 
-impl ComponentFactory for Transform {
+impl ComponentDefault for Transform {
     fn create() -> Component {
         Component::new(Self {
             position: iridium_maths::Vec3::new(0.0, 0.0, 0.0),
@@ -29,13 +39,15 @@ impl ComponentFactory for Transform {
     }
 }
 
+/// The velocity of an entity.
 #[derive(ComponentTrait)]
 pub struct Velocity {
     #[drag_speed(0.0001)]
+    /// The velocity.
     pub velocity: iridium_maths::Vec3,
 }
 
-impl ComponentFactory for Velocity {
+impl ComponentDefault for Velocity {
     fn create() -> Component {
         Component::new(Self {
             velocity: iridium_maths::Vec3::new(0.0, 0.0, 0.0),

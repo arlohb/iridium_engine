@@ -15,10 +15,10 @@ impl PanelUi for ComponentsList {
             // If something is actually selected.
             if let Some(id) = ui_state.selected_entity {
                 ui.menu_button("Add Component", |ui| {
-                    for (type_name, factory) in world.entities.component_factories() {
+                    for (type_name, default) in world.entities.component_defaults() {
                         if ui.button(type_name).clicked() {
                             ui.close_menu();
-                            let component = factory();
+                            let component = default();
                             world.entities.add_components(id, vec![component]);
                         }
                     }

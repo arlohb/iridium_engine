@@ -4,13 +4,18 @@ use wgpu::util::DeviceExt;
 
 use crate::*;
 
+/// Describes how an entity should be drawn to the screen.
 pub struct Material {
+    /// The vertex shader.
     pub vertex: Arc<Shader>,
+    /// The fragment shader.
     pub fragment: Arc<Shader>,
+    /// The render pipeline to use.
     pub render_pipeline: wgpu::RenderPipeline,
 }
 
 impl Material {
+    /// Creates a new material.
     pub fn new(
         device: &wgpu::Device,
         surface_format: wgpu::TextureFormat,
@@ -72,13 +77,18 @@ impl Material {
     }
 }
 
+/// An instance of a `Material`.
 pub struct MaterialInstance {
+    /// The material ths is an instance of.
     pub material: Arc<Material>,
+    /// The shader data for the vertex shader.
     pub vertex_data: ShaderData,
+    /// The shader data for the fragment shader.
     pub fragment_data: ShaderData,
 }
 
 impl MaterialInstance {
+    /// Creates a new material instance.
     pub fn new(
         device: &wgpu::Device,
         material: Arc<Material>,

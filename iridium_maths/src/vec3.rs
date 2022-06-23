@@ -3,19 +3,24 @@ use std::ops;
 /// Represents a point, vector, or normal in 3D space.
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
-  pub x: f32,
-  pub y: f32,
-  pub z: f32,
+    /// The x component of the vector.
+    pub x: f32,
+    /// The y component of the vector.
+    pub y: f32,
+    /// The z component of the vector.
+    pub z: f32,
 }
 
 impl Vec3 {
     /// A tiny value used when checking for equality.
     const EPSILON: f32 = 0.000001;
 
+    /// Creates a new `Vec3` with the given values.
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Vec3 { x, y, z }
     }
 
+    /// Converts to bytes with the given size.
     pub fn as_bytes<const N: usize>(&self) -> [u8; N] {
         let mut bytes = [0u8; N];
 

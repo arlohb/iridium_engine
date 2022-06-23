@@ -1,8 +1,15 @@
 use std::sync::Arc;
 
+/// The type of a shader.
+/// 
+/// Either `Vertex` or `Fragment`.
+/// 
+/// Into can be called on this type to get the corresponding `wgpu::ShaderStages`.
 #[derive(Clone, Copy)]
 pub enum ShaderType {
+    /// A vertex shader.
     Vertex,
+    /// A fragment shader.
     Fragment,
 }
 
@@ -15,12 +22,16 @@ impl From<ShaderType> for wgpu::ShaderStages {
     }
 }
 
+/// A shader.
 pub struct Shader {
+    /// The bind group layout of the inputs.
     pub bind_group_layout: wgpu::BindGroupLayout,
+    /// The wgpu shader module.
     pub shader: wgpu::ShaderModule,
 }
 
 impl Shader {
+    /// Creates a new shader from the spirv bytes.
     pub fn new(
         device: &wgpu::Device,
         shader_type: ShaderType,
@@ -54,7 +65,10 @@ impl Shader {
     }
 }
 
+/// Stores data about a shader instance to be used in a `MaterialInstance`.
 pub struct ShaderData {
+    /// The buffers to be sent to the shader.
     pub buffers: Vec<Arc<wgpu::Buffer>>,
+    /// The bind group to be sent to the shader.
     pub bind_group: wgpu::BindGroup,
 }

@@ -14,7 +14,7 @@ pub struct Entities {
     /// Stores info about components.
     component_info: HashMap<TypeId, ComponentInfo>,
     /// Functions to create components from the UI.
-    component_factories: HashMap<TypeId, fn() -> Component>,
+    component_defaults: HashMap<TypeId, fn() -> Component>,
 }
 
 impl Default for Entities {
@@ -24,13 +24,13 @@ impl Default for Entities {
             entities: HashMap::new(),
             components: HashMap::new(),
             component_info: HashMap::new(),
-            component_factories: HashMap::new(),
+            component_defaults: HashMap::new(),
         };
 
         // Register the default components.
         entities.register_component::<Name>();
-        entities.register_component_with_factory::<Transform>();
-        entities.register_component_with_factory::<Velocity>();
+        entities.register_component_with_default::<Transform>();
+        entities.register_component_with_default::<Velocity>();
 
         entities
     }
@@ -38,6 +38,7 @@ impl Default for Entities {
 
 impl Entities {
     /// Registers a component type.
+    /// 
     /// This stores info about the component.
     pub fn register_component<T>(&mut self)
     where T: ComponentTrait {
@@ -46,30 +47,32 @@ impl Entities {
         self.component_info.insert(type_id, component_info);
     }
 
-    /// Registers a component type with a factory.
+    /// Registers a component type with a default implementation.
+    /// 
     /// Called instead of `register_component`
-    pub fn register_component_with_factory<T>(&mut self)
-    where T: ComponentTrait + ComponentFactory {
+    pub fn register_component_with_default<T>(&mut self)
+    where T: ComponentTrait + ComponentDefault {
         self.register_component::<T>();
-        self.add_component_factory::<T>()
+        self.add_component_default::<T>()
     }
 
-    /// Add a component factory.
-    /// Use `register_component_with_factory` instead.
-    fn add_component_factory<T>(&mut self)
-    where T: ComponentTrait + ComponentFactory {
-        self.component_factories.insert(TypeId::of::<T>(), T::create);
+    /// Add a component default after the component has been registered.
+    /// 
+    /// Use `register_component_with_default` instead.
+    fn add_component_default<T>(&mut self)
+    where T: ComponentTrait + ComponentDefault {
+        self.component_defaults.insert(TypeId::of::<T>(), T::create);
     }
 
     /// Get a vec of component names and their factories.
     #[allow(clippy::type_complexity)]
-    pub fn component_factories(&self) -> Vec<(&'static str, fn() -> Component)> {
-        self.component_factories
+    pub fn component_defaults(&self) -> Vec<(&'static str, fn() -> Component)> {
+        self.component_defaults
             .iter()
-            .map(|(type_id, factory)| {
+            .map(|(type_id, default)| {
                 (
                     self.component_info.get(type_id).expect("Component type not registered").type_name,
-                    *factory,
+                    *default,
                 )
             })
             .collect::<Vec<_>>()
@@ -112,6 +115,7 @@ impl Entities {
     }
 
     /// Create a new entity with the given components.
+    /// 
     /// Automatically adds the Name component with the given name.
     pub fn new_entity(&mut self, name: &str, components: Vec<Component>) -> u128 {
         // Generate a new entity id.
@@ -243,7 +247,9 @@ impl Entities {
     }
 
     /// Get a single component of a given type.
+    /// 
     /// This gets the first component of the given type,
+    /// 
     /// but should only be used when you're sure there is only one.
     pub fn get<T: ComponentTrait>(&self) -> &mut T {
         let component_type = &TypeId::of::<T>();
@@ -255,6 +261,20 @@ impl Entities {
     }
 }
 
+/// Queries the entities that have a set of components.
+/// 
+/// Used as `query(&Entities, [mut Component1, mut Component2 etc ; Component3, Component4 etc])`.
+/// 
+/// Returns an iterator of tuples of the form (Component1, Component2 etc).
+/// 
+/// # Examples
+/// 
+/// ```
+/// for (transform, velocity)
+/// in query!(&entities, [mut Transform, Velocity]) {
+///    transform.position += velocity.velocity;
+/// }
+/// ```
 #[macro_export]
 macro_rules! query {
     ($entities:expr, [$(mut $mut_type:ty),* ; $($type:ty),* $(,)?]) => {

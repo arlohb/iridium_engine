@@ -1,3 +1,7 @@
+//! # Iridium Editor
+//! 
+//! A game engine for Rust.
+
 #[macro_use]
 extern crate dlopen_derive;
 

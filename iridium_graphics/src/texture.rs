@@ -1,12 +1,23 @@
+/// Stores wgpu texture and sampler data.
+/// 
+/// While wgpu separates textures and samplers, it makes sense for them to be one in iridium.
+/// 
+/// Also stores the binding types for ease of use.
 pub struct Texture {
+    /// The binding type of the texture.
     pub texture_binding_type: wgpu::BindingType,
+    /// The binding type of the sampler.
     pub sampler_binding_type: wgpu::BindingType,
+    /// The texture.
     pub texture: wgpu::Texture,
+    /// The texture view.
     pub view: wgpu::TextureView,
+    /// The sampler.
     pub sampler: wgpu::Sampler,
 }
 
 impl Texture {
+    /// Creates a new texture from the rgba bytes.
     pub fn new(
         device: &wgpu::Device,
         queue: &wgpu::Queue,
@@ -71,6 +82,11 @@ impl Texture {
         Texture { texture_binding_type, sampler_binding_type, texture, view, sampler }
     }
 
+    /// Creates a new texture from the raw bytes of the image file.
+    /// 
+    /// While this function can in theory read images of any file type, for now only the png feature of the `image` crate is enabled.
+    /// 
+    /// In the future I hope to allow any image format supported by the `image` crate, but this would increase compile times by quite a bit.
     pub fn from_image_bytes(
         device: &wgpu::Device,
         queue: &wgpu::Queue,

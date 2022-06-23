@@ -1,13 +1,19 @@
 use iridium_maths::Vec3;
 
+/// Stores data about a vertex.
 pub struct Vertex {
+    /// The position.
     pub position: Vec3,
-    // There aren't many uses for Vec2,
-    // so for now we'll just use [f32; 2]
+    /// The UV coordinates.
+    /// 
+    /// There aren't many uses for Vec2,
+    /// so for now we'll just use `[f32; 2]`.
+    /// Perhaps I'll implement a Vec2 later.
     pub uv: [f32; 2],
 }
 
 impl Vertex {
+    /// Creates a new vertex.
     pub fn new(position: Vec3, uv: [f32; 2]) -> Self {
         Self {
             position,
@@ -15,6 +21,7 @@ impl Vertex {
         }
     }
 
+    /// Convert to bytes to be sent to the shader.
     pub fn as_bytes(&self) -> [u8; 20] {
         let mut bytes = [0u8; 20];
 
@@ -28,7 +35,10 @@ impl Vertex {
     }
 }
 
+/// Stores data about a mesh.
 pub struct Mesh {
+    /// The vertices.
     pub vertices: Vec<Vertex>,
+    /// The indices.
     pub indices: Vec<u32>,
 }

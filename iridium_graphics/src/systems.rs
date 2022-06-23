@@ -2,9 +2,13 @@ use iridium_ecs::*;
 
 use crate::*;
 
+/// Draws entities to the screen.
+/// 
+/// This system is much more specialised, so doesn't impl the `System` trait.
 pub struct Renderer2DSystem {}
 
 impl Renderer2DSystem {
+    /// Runs the system.
     pub fn run(&mut self, entities: &Entities, _delta_time: f64, render_pass: &mut wgpu::RenderPass, queue: &wgpu::Queue) {
         for (transform, renderable_2d)
         in query!(entities, [; Transform, Renderable2D]) {

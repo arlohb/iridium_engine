@@ -1,16 +1,12 @@
+#![warn(missing_docs)]
+
+//! This is the procedural macros to be used with the `iridium_ecs` crate.
+
 use proc_macro::TokenStream;
 use syn::parse_macro_input;
 use quote::quote;
 
-// I am sure this will be used at some point.
-#[allow(dead_code)]
-fn get_struct_fields(ast: &syn::DeriveInput) -> Vec<&syn::Field> {
-    match &ast.data {
-        syn::Data::Struct(data) => data.fields.iter().collect(),
-        _ => panic!("#[derive(Component)] can only be used on structs"),
-    }
-}
-
+/// Derive macro generating an impl of the trait `ComponentTrait`.
 #[proc_macro_derive(ComponentTrait, attributes(hidden, drag_speed))]
 pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);

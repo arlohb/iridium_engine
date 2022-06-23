@@ -3,19 +3,25 @@ use wgpu::util::DeviceExt;
 
 use crate::*;
 
+/// Describes how an entity should be drawn to the screen.
 #[derive(ComponentTrait)]
 pub struct Renderable2D {
+    /// The material used.
     #[hidden]
     pub material: MaterialInstance,
+    /// The vertex buffer.
     #[hidden]
     pub vertex_buffer: wgpu::Buffer,
+    /// The index buffer.
     #[hidden]
     pub index_buffer: wgpu::Buffer,
+    /// The number of vertices.
     #[hidden]
     pub index_count: u32,
 }
 
 impl Renderable2D {
+    /// Creates a new `Renderable2D` from a `MaterialInstance` and a `Mesh`.
     pub fn new(
         device: &wgpu::Device,
         material_instance: MaterialInstance,

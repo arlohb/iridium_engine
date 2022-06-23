@@ -1,6 +1,11 @@
+/// The attributes a component field has.
+/// 
+/// Map is attribute name -> attribute value.
 pub struct ComponentFieldAttributes(pub hashbrown::HashMap<&'static str, &'static str>);
 
+/// A trait implemented by component fields that aren't hidden.
 pub trait ComponentFieldUi {
+    /// Draws the ui for the component field.
     fn ui(&mut self, ui: &mut egui::Ui, attributes: ComponentFieldAttributes);
 }
 
