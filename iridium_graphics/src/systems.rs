@@ -10,8 +10,23 @@ pub struct Renderer2DSystem {}
 impl Renderer2DSystem {
     /// Runs the system.
     pub fn run(&mut self, entities: &Entities, _delta_time: f64, render_pass: &mut wgpu::RenderPass, queue: &wgpu::Queue) {
-        for (transform, renderable_2d)
-        in query!(entities, [; Transform, Renderable2D]) {
+        let mut components = query!(entities, [; Transform, Renderable2D, Name]).collect::<Vec<_>>();
+
+        // Sort entities by their z position, then name if z is equal.
+        // The name shouldn't be used to order sprites, it's just to prevent z-fighting.
+        components.sort_by(|(a_t, _, a_name), (b_t, _, b_name)| {
+            // Sort by z-index.
+            let ordering = a_t.position.z().partial_cmp(&b_t.position.z()).unwrap();
+
+            // If z-index is equal, sort by name.
+            if let std::cmp::Ordering::Equal = ordering {
+                a_name.name.cmp(&b_name.name)
+            } else {
+                ordering
+            }
+        });
+
+        for (transform, renderable_2d, _) in components {
             // Extend the lifetime of renderable_2d for render_pass.set_pipeline.
             // This is safe because it's only used as the pipeline for the duration of this function.
             let renderable_2d = unsafe { std::mem::transmute::<&Renderable2D, &Renderable2D>(renderable_2d) };
