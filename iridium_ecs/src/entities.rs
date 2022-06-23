@@ -270,8 +270,10 @@ impl Entities {
 /// # Examples
 /// 
 /// ```
+/// # use iridium_ecs::*;
+/// # let entities = Entities::default();
 /// for (transform, velocity)
-/// in query!(&entities, [mut Transform, Velocity]) {
+/// in query!(&entities, [mut Transform; Velocity]) {
 ///    transform.position += velocity.velocity;
 /// }
 /// ```
