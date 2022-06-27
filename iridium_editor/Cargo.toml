@@ -23,6 +23,9 @@ env_logger = "0.9"
 wgpu = { version = "0.12", features = ["spirv"] }
 pollster = "0.2.5"
 hashbrown = "0.12"
-inline-spirv = "0.1"
+# For whatever reason manjaro's shaderc stopped working,
+# so I can't rely on any of them,
+# so it is built from source whether it's installed or not.
+inline-spirv = { version = "0.1", features = ["build-from-source"] }
 dlopen = "0.1"
 dlopen_derive = "0.1"
