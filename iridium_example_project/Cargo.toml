@@ -19,3 +19,4 @@ iridium_map_utils = { path = "../iridium_map_utils" }
 egui = "0.18.1"
 wgpu = "0.12"
 hashbrown = "0.12"
+rand = "0.8"

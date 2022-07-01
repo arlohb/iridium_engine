@@ -960,6 +960,7 @@ dependencies = [
  "iridium_graphics",
  "iridium_map_utils",
  "iridium_maths",
+ "rand",
  "wgpu",
 ]
 

@@ -3,59 +3,97 @@ use iridium_ecs::{Transform, World, Component, Velocity};
 use iridium_graphics::{MaterialInstance, Renderable2D};
 use iridium_maths::VecN;
 
+use rand::Rng;
+
 pub mod components;
 pub mod systems;
 
 #[no_mangle]
 pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
-    world.entities.new_entity("Entity 0", vec![
-        Component::new(Transform {
-            position: VecN::new([-1., -1., 0.]),
-            scale: VecN::new([0.2, 0.2, 0.2]),
-            rotation: 0.3,
-        }),
-        Component::new(Velocity {
-            velocity: VecN::new([0.0006, -0.0002, 0.]),
-        }),
-        Component::new(Renderable2D::new(
-            device,
-            MaterialInstance::new(
-                device,
-                assets.materials["steak"].clone(),
-                vec![],
-                vec![],
-                vec![],
-                vec![
-                    wgpu::BindingResource::TextureView(&assets.textures["steak"].view),
-                    wgpu::BindingResource::Sampler(&assets.textures["steak"].sampler),
-                ],
-            ),
-            &assets.meshes["quad"],
-        )),
-    ]);
+    let mut rng = rand::thread_rng();
 
-    world.entities.new_entity("Entity 1", vec![
-        Component::new(Transform {
-            position: VecN::new([-1., -1., 0.]),
-            scale: VecN::new([0.2, 0.2, 0.2]),
-            rotation: 0.6,
-        }),
-        Component::new(Velocity {
-            velocity: VecN::new([0.0001, 0.0004, 0.]),
-        }),
-        Component::new(Renderable2D::new(
-            device,
-            MaterialInstance::new(
+    for i in 0..1000 {
+        world.entities.new_entity(&format!("Steak {i}"), vec![
+            Component::new(Transform {
+                position: VecN::new([
+                    rng.gen_range(-1f32..1f32),
+                    rng.gen_range(-1f32..1f32),
+                    rng.gen_range(0f32..1f32),
+                ]),
+                scale: {
+                    let scale = rng.gen_range(0.05f32..0.3f32);
+
+                    VecN::new([
+                        scale,
+                        scale,
+                        1.,
+                    ])
+                },
+                rotation: rng.gen_range(0f32..std::f32::consts::PI),
+            }),
+            Component::new(Velocity {
+                velocity: VecN::new([
+                    rng.gen_range(-0.001f32..0.001f32),
+                    rng.gen_range(-0.001f32..0.001f32),
+                    0.,
+                ]),
+            }),
+            Component::new(Renderable2D::new(
                 device,
-                assets.materials["uv_test"].clone(),
-                vec![],
-                vec![],
-                vec![],
-                vec![],
-            ),
-            &assets.meshes["quad"],
-        )),
-    ]);
+                MaterialInstance::new(
+                    device,
+                    assets.materials["steak"].clone(),
+                    vec![],
+                    vec![],
+                    vec![],
+                    vec![
+                        wgpu::BindingResource::TextureView(&assets.textures["steak"].view),
+                        wgpu::BindingResource::Sampler(&assets.textures["steak"].sampler),
+                    ],
+                ),
+                &assets.meshes["quad"],
+            )),
+        ]);
+
+        world.entities.new_entity(&format!("Entity {i}"), vec![
+            Component::new(Transform {
+                position: VecN::new([
+                    rng.gen_range(-1f32..1f32),
+                    rng.gen_range(-1f32..1f32),
+                    rng.gen_range(0f32..1f32),
+                ]),
+                scale: {
+                    let scale = rng.gen_range(0.05f32..0.3f32);
+
+                    VecN::new([
+                        scale,
+                        scale,
+                        1.,
+                    ])
+                },
+                rotation: rng.gen_range(0f32..std::f32::consts::PI),
+            }),
+            Component::new(Velocity {
+                velocity: VecN::new([
+                    rng.gen_range(-0.001f32..0.001f32),
+                    rng.gen_range(-0.001f32..0.001f32),
+                    0.,
+                ]),
+            }),
+            Component::new(Renderable2D::new(
+                device,
+                MaterialInstance::new(
+                    device,
+                    assets.materials["uv_test"].clone(),
+                    vec![],
+                    vec![],
+                    vec![],
+                    vec![],
+                ),
+                &assets.meshes["quad"],
+            )),
+        ]);
+    }
 
     world.entities.new_entity("LeftWall", vec![
         Component::new(Transform {
