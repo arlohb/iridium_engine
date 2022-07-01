@@ -1,0 +1,17 @@
+How I want systems to work?
+
+pub struct PositionLoggerState;
+
+pub struct PositionLoggerSystem;
+
+#[system]
+impl System for PositionLoggerSystem {
+    fn default_state(&self) -> Component {
+        Component::new(PositionLoggerState)
+    }
+
+    fn system_for_each((transform, ): (&Transform, ), _delta_time: f64) {
+        let position = transform.position;
+        println!("{} {} {}", position.x(), position.y(), position.z());
+    }
+}
