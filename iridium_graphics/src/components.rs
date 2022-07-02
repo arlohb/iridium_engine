@@ -1,3 +1,4 @@
+use iridium_assets::Assets;
 use iridium_ecs::storage::*;
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
@@ -23,7 +24,7 @@ pub struct Renderable2D {
 }
 
 impl ComponentStorage for Renderable2D {
-    fn from_stored(_stored: StoredComponent) -> Option<Self> {
+    fn from_stored(_stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         None
     }
 

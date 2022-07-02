@@ -1,3 +1,4 @@
+use iridium_assets::Assets;
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
@@ -16,7 +17,7 @@ pub struct Name {
 }
 
 impl ComponentStorage for Name {
-    fn from_stored(mut stored: StoredComponent) -> Option<Self> {
+    fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         Some(Name {
             name: stored.get("name")?,
         })
@@ -49,7 +50,7 @@ pub struct Transform {
 }
 
 impl ComponentStorage for Transform {
-    fn from_stored(mut stored: StoredComponent) -> Option<Self> {
+    fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         Some(Self {
             position: iridium_maths::VecN::<3>::from_string(&stored.get("position")?)?,
             scale: iridium_maths::VecN::<3>::from_string(&stored.get("scale")?)?,
@@ -88,7 +89,7 @@ pub struct Velocity {
 }
 
 impl ComponentStorage for Velocity {
-    fn from_stored(mut stored: StoredComponent) -> Option<Self> {
+    fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         Some(Self {
             velocity: iridium_maths::VecN::<3>::from_string(&stored.get("velocity")?)?,
         })

@@ -1,4 +1,5 @@
 use hashbrown::HashMap;
+use iridium_assets::Assets;
 
 /// A field in a `StoredComponent`.
 pub enum StoredComponentField {
@@ -50,7 +51,7 @@ pub trait ComponentStorage {
     /// 
     /// This returns an Option as the user may have corrupted save data
     /// so it may be invalid.
-    fn from_stored(stored: StoredComponent) -> Option<Self>
+    fn from_stored(stored: StoredComponent, assets: &Assets) -> Option<Self>
         where Self: Sized;
 
     /// Create a stored component from a component.

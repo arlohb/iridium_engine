@@ -1,3 +1,4 @@
+use iridium_assets::Assets;
 use iridium_ecs::{*, systems::System, storage::*};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
@@ -10,7 +11,7 @@ pub struct CustomState {
 }
 
 impl ComponentStorage for CustomState {
-    fn from_stored(mut stored: StoredComponent) -> Option<Self> {
+    fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         Some(CustomState {
             test: stored.get("test")?.parse().ok()?,
         })
