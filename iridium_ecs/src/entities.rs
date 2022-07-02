@@ -37,6 +37,11 @@ impl Default for Entities {
 }
 
 impl Entities {
+    /// Gets a vec of all entity ids.
+    pub fn entity_ids(&self) -> Vec<u128> {
+        self.entities.keys().copied().collect()
+    }
+
     /// Registers a component type.
     /// 
     /// This stores info about the component.

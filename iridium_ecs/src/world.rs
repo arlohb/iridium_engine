@@ -1,5 +1,6 @@
 use crate::*;
 use systems::*;
+use storage::StorageWriter;
 
 /// The world of the game.
 /// 
@@ -32,5 +33,16 @@ impl World {
     /// Runs the world's systems.
     pub fn run_systems(&mut self, delta_time: f64) {
         self.systems.run_systems(&self.entities, delta_time);
+    }
+
+    /// Saves the world's state to the given file.
+    pub fn save(&self, file: &str) {
+        let mut writer = StorageWriter::new(file.to_string()).unwrap();
+
+        writer.begin();
+        writer.save_world(self);
+        writer.end();
+
+        writer.write();
     }
 }

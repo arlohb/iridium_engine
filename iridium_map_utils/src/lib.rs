@@ -18,7 +18,7 @@ macro_rules! fast_map {
         {
             let mut map = hashbrown::HashMap::new();
             $(
-                map.insert($key.to_owned(), $value.to_owned());
+                map.insert($key.to_owned(), $value);
             )*
             map
         }

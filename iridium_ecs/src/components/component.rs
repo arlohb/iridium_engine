@@ -2,6 +2,8 @@
 
 use std::{cell::UnsafeCell, any::{Any, TypeId}};
 
+use crate::storage::ComponentStorage;
+
 /// Information about a component type when it is registered.
 /// 
 /// Right now this is just the type name, in the future this may include field types.
@@ -29,7 +31,7 @@ pub trait ComponentDefault: ComponentTrait + Sized {
 }
 
 /// A trait implemented by components.
-pub trait ComponentTrait: 'static + Send + Sync + Any {
+pub trait ComponentTrait: 'static + Send + Sync + Any + ComponentStorage {
     /// The name of the component type.
     /// 
     /// Called on the type.

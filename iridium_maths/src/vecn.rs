@@ -57,6 +57,12 @@ impl VecN<3> {
     pub fn z_mut(&mut self) -> &mut f32 { self.data.get_mut(2).unwrap() }
 }
 
+impl<const N: usize> std::fmt::Display for VecN<N> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.data)
+    }
+}
+
 impl<const N: usize> VecN<N> {
     /// A tiny value used when checking for equality.
     const EPSILON: f32 = 0.000001;
@@ -76,6 +82,45 @@ impl<const N: usize> VecN<N> {
             .for_each(|(index, b)| bytes[index] = b);
         
         bytes
+    }
+
+    /// Makes a new `VecN` from a string.
+    /// 
+    /// The string should be in the form `[x, y, z, ...]`.
+    /// 
+    /// Leading commas are valid.
+    pub fn from_string(mut str: &str) -> Option<Self> {
+        if !str.starts_with('[') {
+            return None;
+        }
+        str = str.trim_start_matches('[');
+
+        if !str.ends_with(']') {
+            return None;
+        }
+        str = str.trim_end_matches(']');
+
+        str = str.trim();
+
+        if str.ends_with(',') {
+            str = str.trim_end_matches(',');
+        }
+
+        let string: String = str.chars().filter(|c|
+            *c != ' '
+        ).collect();
+
+        if string.split(',').count() != N {
+            return None;
+        }
+
+        let mut data = [0.; N];
+
+        for (index, value) in string.split(',').enumerate() {
+            data[index] = value.parse::<f32>().ok()?;
+        }
+
+        Some(VecN::new(data))
     }
 
     /// The length of a vector.

@@ -17,3 +17,6 @@ pub use world::*;
 
 /// System management.
 pub mod systems;
+
+/// Storage management.
+pub mod storage;

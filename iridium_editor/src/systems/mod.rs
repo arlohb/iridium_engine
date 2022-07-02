@@ -1,13 +1,31 @@
 mod frame_history;
 pub use frame_history::*;
 
-use iridium_ecs::{*, systems::System};
+use iridium_ecs::{*, systems::System, storage::*};
 use iridium_ecs_macros::ComponentTrait;
+use iridium_map_utils::fast_map;
 
 #[derive(ComponentTrait)]
 pub struct VelocityState {
     #[drag_speed(0.001)]
     pub rotation_speed: f32,
+}
+
+impl ComponentStorage for VelocityState {
+    fn from_stored(mut stored: StoredComponent) -> Option<Self> {
+        Some(VelocityState {
+            rotation_speed: stored.get("rotation_speed")?.parse().ok()?,
+        })
+    }
+
+    fn to_stored(&self) -> StoredComponent {
+        StoredComponent {
+            type_name: "VelocityState".to_string(),
+            fields: fast_map! {
+                "rotation_speed" => StoredComponentField::NonString(self.rotation_speed.to_string()),
+            },
+        }
+    }
 }
 
 pub struct VelocitySystem;
@@ -54,6 +72,19 @@ impl System for VelocitySystem {
 #[allow(dead_code)]
 #[derive(ComponentTrait)]
 pub struct PositionLoggerState {}
+
+impl ComponentStorage for PositionLoggerState {
+    fn from_stored(_stored: StoredComponent) -> Option<Self> {
+        Some(PositionLoggerState {})
+    }
+
+    fn to_stored(&self) -> StoredComponent {
+        StoredComponent {
+            type_name: "PositionLoggerState".to_string(),
+            fields: fast_map! {},
+        }
+    }
+}
 
 // This is a system to test other things,
 // so is not always used.

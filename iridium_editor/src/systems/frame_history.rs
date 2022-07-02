@@ -1,7 +1,8 @@
 use std::{collections::VecDeque, time::SystemTime};
 
-use iridium_ecs::{*, systems::System};
+use iridium_ecs::{*, systems::System, storage::*};
 use iridium_ecs_macros::ComponentTrait;
+use iridium_map_utils::fast_map;
 
 pub struct Frame {
     pub time: SystemTime,
@@ -14,6 +15,28 @@ pub struct FrameHistoryState {
     pub frames: VecDeque<Frame>,
     pub max_frames: usize,
     pub max_age: f64,
+}
+
+impl ComponentStorage for FrameHistoryState {
+    fn from_stored(mut stored: StoredComponent) -> Option<Self> {
+        let max_frames = stored.get("max_frames")?.parse().ok()?;
+
+        Some(FrameHistoryState {
+            frames: VecDeque::with_capacity(max_frames),
+            max_frames,
+            max_age: stored.get("max_age")?.parse().ok()?,
+        })
+    }
+
+    fn to_stored(&self) -> StoredComponent {
+        StoredComponent {
+            type_name: "FrameHistoryState".to_string(),
+            fields: fast_map! {
+                "max_frames" => StoredComponentField::NonString(self.max_frames.to_string()),
+                "max_age" => StoredComponentField::NonString(self.max_age.to_string()),
+            },
+        }
+    }
 }
 
 pub struct FrameHistorySystem;

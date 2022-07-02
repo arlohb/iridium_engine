@@ -1,4 +1,6 @@
+use iridium_ecs::storage::*;
 use iridium_ecs_macros::ComponentTrait;
+use iridium_map_utils::fast_map;
 use wgpu::util::DeviceExt;
 
 use crate::*;
@@ -18,6 +20,19 @@ pub struct Renderable2D {
     /// The number of vertices.
     #[hidden]
     pub index_count: u32,
+}
+
+impl ComponentStorage for Renderable2D {
+    fn from_stored(_stored: StoredComponent) -> Option<Self> {
+        None
+    }
+
+    fn to_stored(&self) -> StoredComponent {
+        StoredComponent {
+            type_name: "Renderable2D".to_string(),
+            fields: fast_map! {},
+        }
+    }
 }
 
 impl Renderable2D {

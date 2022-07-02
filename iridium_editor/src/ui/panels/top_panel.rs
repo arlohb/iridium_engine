@@ -3,7 +3,7 @@ use crate::{ui::PanelUi, play_state::PlayState};
 pub struct TopPanel;
 
 impl PanelUi for TopPanel {
-    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, _world: &mut iridium_ecs::World) {
+    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World) {
         egui::TopBottomPanel::top("top_panel").show(context, |ui| {
             let max_y_logical = ui.max_rect().max.y + ui.spacing().item_spacing.y;
             let max_y_physical = max_y_logical * ui_state.scale_factor;
@@ -14,7 +14,11 @@ impl PanelUi for TopPanel {
             ui.columns(3, |columns| {
                 if let [menus, buttons, stats] = columns {
                     menus.horizontal(|menus| {
-                        menus.menu_button("File", |ui| { ui.label("File")});
+                        menus.menu_button("File", |ui| {
+                            if ui.button("Save").clicked() {
+                                world.save("test.json5");
+                            }
+                        });
                         menus.menu_button("Edit", |ui| { ui.label("Edit")});
                         menus.menu_button("View", |ui| { ui.label("View")});
                         menus.menu_button("About", |ui| { ui.label("About")});
