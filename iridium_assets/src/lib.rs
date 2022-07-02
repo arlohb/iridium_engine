@@ -6,3 +6,6 @@
 
 mod assets;
 pub use assets::*;
+
+mod asset;
+pub use asset::*;

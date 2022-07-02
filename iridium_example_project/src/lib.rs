@@ -1,6 +1,6 @@
 use iridium_assets::Assets;
 use iridium_ecs::{Transform, World, Component, Velocity};
-use iridium_graphics::{MaterialInstance, Renderable2D};
+use iridium_graphics::{MaterialInstance, Renderable2D, Texture, Material, Mesh};
 use iridium_maths::VecN;
 
 use rand::Rng;
@@ -42,16 +42,16 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 device,
                 MaterialInstance::new(
                     device,
-                    assets.materials["steak"].clone(),
+                    assets.get::<Material>("steak_mat").unwrap(),
                     vec![],
                     vec![],
                     vec![],
                     vec![
-                        wgpu::BindingResource::TextureView(&assets.textures["steak"].view),
-                        wgpu::BindingResource::Sampler(&assets.textures["steak"].sampler),
+                        wgpu::BindingResource::TextureView(&assets.get::<Texture>("steak_tex").unwrap().view),
+                        wgpu::BindingResource::Sampler(&assets.get::<Texture>("steak_tex").unwrap().sampler),
                     ],
                 ),
-                &assets.meshes["quad"],
+                &assets.get::<Mesh>("quad").unwrap(),
             )),
         ]);
 
@@ -84,13 +84,13 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 device,
                 MaterialInstance::new(
                     device,
-                    assets.materials["uv_test"].clone(),
+                    assets.get::<Material>("uv_test").unwrap(),
                     vec![],
                     vec![],
                     vec![],
                     vec![],
                 ),
-                &assets.meshes["quad"],
+                &assets.get::<Mesh>("quad").unwrap(),
             )),
         ]);
     }
@@ -105,13 +105,13 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
             device,
             MaterialInstance::new(
                 device,
-                assets.materials["uv_test"].clone(),
+                assets.get::<Material>("uv_test").unwrap(),
                 vec![],
                 vec![],
                 vec![],
                 vec![],
             ),
-            &assets.meshes["quad"],
+            &assets.get::<Mesh>("quad").unwrap(),
         )),
     ]);
 
@@ -125,13 +125,13 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
             device,
             MaterialInstance::new(
                 device,
-                assets.materials["uv_test"].clone(),
+                assets.get::<Material>("uv_test").unwrap(),
                 vec![],
                 vec![],
                 vec![],
                 vec![],
             ),
-            &assets.meshes["quad"],
+            &assets.get::<Mesh>("quad").unwrap(),
         )),
     ]);
 
@@ -145,13 +145,13 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
             device,
             MaterialInstance::new(
                 device,
-                assets.materials["uv_test"].clone(),
+                assets.get::<Material>("uv_test").unwrap(),
                 vec![],
                 vec![],
                 vec![],
                 vec![],
             ),
-            &assets.meshes["quad"],
+            &assets.get::<Mesh>("quad").unwrap(),
         )),
     ]);
 
@@ -165,13 +165,13 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
             device,
             MaterialInstance::new(
                 device,
-                assets.materials["uv_test"].clone(),
+                assets.get::<Material>("uv_test").unwrap(),
                 vec![],
                 vec![],
                 vec![],
                 vec![],
             ),
-            &assets.meshes["quad"],
+            &assets.get::<Mesh>("quad").unwrap(),
         )),
     ]);
 }

@@ -900,7 +900,6 @@ name = "iridium_assets"
 version = "0.1.0"
 dependencies = [
  "hashbrown 0.12.1",
- "iridium_graphics",
 ]
 
 [[package]]
@@ -909,6 +908,7 @@ version = "0.1.0"
 dependencies = [
  "egui",
  "hashbrown 0.12.1",
+ "iridium_assets",
  "iridium_ecs_macros",
  "iridium_map_utils",
  "iridium_maths",
@@ -971,6 +971,7 @@ dependencies = [
  "egui",
  "hashbrown 0.12.1",
  "image",
+ "iridium_assets",
  "iridium_ecs",
  "iridium_ecs_macros",
  "iridium_map_utils",

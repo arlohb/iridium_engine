@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use iridium_assets::Asset;
 use wgpu::util::DeviceExt;
 
 use crate::*;
@@ -7,9 +8,9 @@ use crate::*;
 /// Describes how an entity should be drawn to the screen.
 pub struct Material {
     /// The vertex shader.
-    pub vertex: Arc<Shader>,
+    pub vertex: Asset<Shader>,
     /// The fragment shader.
-    pub fragment: Arc<Shader>,
+    pub fragment: Asset<Shader>,
     /// The render pipeline to use.
     pub render_pipeline: wgpu::RenderPipeline,
 }
@@ -19,8 +20,8 @@ impl Material {
     pub fn new(
         device: &wgpu::Device,
         surface_format: wgpu::TextureFormat,
-        vertex: Arc<Shader>,
-        fragment: Arc<Shader>,
+        vertex: Asset<Shader>,
+        fragment: Asset<Shader>,
     ) -> Material {
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,
@@ -80,7 +81,7 @@ impl Material {
 /// An instance of a `Material`.
 pub struct MaterialInstance {
     /// The material ths is an instance of.
-    pub material: Arc<Material>,
+    pub material: Asset<Material>,
     /// The shader data for the vertex shader.
     pub vertex_data: ShaderData,
     /// The shader data for the fragment shader.
@@ -91,7 +92,7 @@ impl MaterialInstance {
     /// Creates a new material instance.
     pub fn new(
         device: &wgpu::Device,
-        material: Arc<Material>,
+        material: Asset<Material>,
         vertex_buffers: Vec<Arc<wgpu::Buffer>>,
         vertex_resources: Vec<wgpu::BindingResource>,
         fragment_buffer: Vec<Arc<wgpu::Buffer>>,
