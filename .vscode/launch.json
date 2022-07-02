@@ -7,16 +7,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in library 'iridium_core'",
+            "name": "Debug unit tests in library 'iridium_assets'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
                     "--lib",
-                    "--package=iridium_core"
+                    "--package=iridium_assets"
                 ],
                 "filter": {
-                    "name": "iridium_core",
+                    "name": "iridium_assets",
                     "kind": "lib"
                 }
             },

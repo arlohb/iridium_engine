@@ -1,7 +1,7 @@
 use dlopen::wrapper::{Container, WrapperApi};
 use iridium_ecs::World;
 
-use iridium_core::Assets;
+use iridium_assets::Assets;
 
 #[derive(WrapperApi)]
 pub struct ProjectApi {

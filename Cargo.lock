@@ -896,7 +896,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "iridium_core"
+name = "iridium_assets"
 version = "0.1.0"
 dependencies = [
  "hashbrown 0.12.1",
@@ -937,7 +937,7 @@ dependencies = [
  "env_logger",
  "hashbrown 0.12.1",
  "inline-spirv",
- "iridium_core",
+ "iridium_assets",
  "iridium_ecs",
  "iridium_ecs_macros",
  "iridium_graphics",
@@ -954,7 +954,7 @@ version = "0.1.0"
 dependencies = [
  "egui",
  "hashbrown 0.12.1",
- "iridium_core",
+ "iridium_assets",
  "iridium_ecs",
  "iridium_ecs_macros",
  "iridium_graphics",

@@ -15,7 +15,7 @@ mod project;
 use project::Project;
 mod play_state;
 
-use iridium_core::*;
+use iridium_assets::*;
 use iridium_ecs::*;
 use iridium_ecs::systems::*;
 use iridium_graphics::*;

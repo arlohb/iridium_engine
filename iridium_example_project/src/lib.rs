@@ -1,4 +1,4 @@
-use iridium_core::Assets;
+use iridium_assets::Assets;
 use iridium_ecs::{Transform, World, Component, Velocity};
 use iridium_graphics::{MaterialInstance, Renderable2D};
 use iridium_maths::VecN;
