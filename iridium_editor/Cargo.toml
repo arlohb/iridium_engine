@@ -29,3 +29,4 @@ hashbrown = "0.12"
 inline-spirv = { version = "0.1", features = ["build-from-source"] }
 dlopen = "0.1"
 dlopen_derive = "0.1"
+image = "0.24"

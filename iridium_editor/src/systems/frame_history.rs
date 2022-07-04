@@ -18,6 +18,20 @@ pub struct FrameHistoryState {
     pub max_age: f64,
 }
 
+impl FrameHistoryState {
+    pub fn average_delta_time(&self) -> f64 {    
+        self.frames
+            .iter()
+            .map(|frame| frame.delta_time)
+            .sum::<f64>()
+            / self.frames.len() as f64
+    }
+
+    pub fn average_fps(&self) -> f64 {
+        1000. / self.average_delta_time()
+    }
+}
+
 impl ComponentStorage for FrameHistoryState {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         let max_frames = stored.get("max_frames")?.parse().ok()?;
@@ -71,17 +85,5 @@ impl System for FrameHistorySystem {
                 break;
             }
         }
-    }
-}
-
-impl FrameHistorySystem {
-    pub fn average_delta_time(state: &FrameHistoryState) -> f64 {
-        let frames = &state.frames;
-    
-        frames
-            .iter()
-            .map(|frame| frame.delta_time)
-            .sum::<f64>()
-            / frames.len() as f64
     }
 }

@@ -129,7 +129,7 @@ impl App {
                 egui::Event::PointerMoved(position) => {
                     // If a button is being held down,
                     // I still want to be able to move controls
-                    if viewport_rect_logical.contains(*position)
+                    if viewport_rect_logical.distance_to_pos(*position) < 5.
                     && !self.egui_state.context.input().pointer.any_down() {
                         *event = egui::Event::PointerGone;
                     }

@@ -1,4 +1,6 @@
-use crate::{ui::PanelUi, play_state::PlayState};
+use iridium_ecs::query;
+
+use crate::{ui::PanelUi, play_state::PlayState, systems::FrameHistoryState};
 
 pub struct TopPanel;
 
@@ -13,46 +15,49 @@ impl PanelUi for TopPanel {
             ui.add_space(1.);
             ui.columns(3, |columns| {
                 if let [menus, buttons, stats] = columns {
-                    menus.horizontal(|menus| {
-                        menus.menu_button("File", |ui| {
+                    menus.horizontal(|ui| {
+                        ui.menu_button("File", |ui| {
                             if ui.button("Save").clicked() {
                                 world.save("test.json5");
                             }
                         });
-                        menus.menu_button("Edit", |ui| { ui.label("Edit")});
-                        menus.menu_button("View", |ui| { ui.label("View")});
-                        menus.menu_button("About", |ui| { ui.label("About")});
+                        ui.menu_button("Edit", |ui| { ui.label("Edit")});
+                        ui.menu_button("View", |ui| { ui.label("View")});
+                        ui.menu_button("About", |ui| { ui.label("About")});
                     });
 
                     egui::Frame::none()
                         .fill(buttons.style().visuals.widgets.inactive.bg_fill)
                         .rounding(3.)
-                        .show(buttons, |buttons| {
-                            buttons.horizontal(|buttons| {
-                                buttons.style_mut().spacing.button_padding = egui::vec2(0., 0.);
+                        .show(buttons, |ui| {
+                            ui.horizontal(|ui| {
+                                ui.style_mut().spacing.button_padding = egui::vec2(0., 0.);
 
-                                buttons.add_space(6.);
+                                ui.add_space(6.);
 
-                                if buttons.add_enabled(
+                                if ui.add_enabled(
                                     matches!(ui_state.play_state(), PlayState::Stop | PlayState::Pause),
                                     egui::Button::new("▶").frame(false),
                                 ).clicked() { ui_state.play(); }
-                                if buttons.add_enabled(
+                                if ui.add_enabled(
                                     matches!(ui_state.play_state(), PlayState::Play),
                                     egui::Button::new("⏸").frame(false),
                                 ).clicked() { ui_state.pause(); }
-                                if buttons.add_enabled(
+                                if ui.add_enabled(
                                     matches!(ui_state.play_state(), PlayState::Play | PlayState::Pause),
                                     egui::Button::new("■").frame(false),
                                 ).clicked() { ui_state.stop(); }
 
-                                buttons.add_space(1.);
+                                ui.add_space(1.);
                             });
                         });
 
-                    stats.horizontal(|stats| {
-                        stats.label("FPS: ");
-                        stats.label("0");
+                    stats.horizontal(|ui| {
+                        ui.label(format!("FPS: {:.1}", world.entities.get::<FrameHistoryState>().average_fps()));
+                        ui.add_space(15.);
+                        ui.label(format!("Entities: {}", query!(world.entities, [; iridium_ecs::Name]).len()));
+                        ui.add_space(15.);
+                        ui.label(format!("Sprites: {}", query!(world.entities, [; iridium_graphics::Renderable2D]).len()));
                     });
                 }
             });

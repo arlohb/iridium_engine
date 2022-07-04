@@ -6,3 +6,6 @@ pub use components_list::*;
 
 mod top_panel;
 pub use top_panel::*;
+
+mod asset_browser;
+pub use asset_browser::*;
