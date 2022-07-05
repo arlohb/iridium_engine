@@ -21,11 +21,12 @@ impl Material {
         device: &wgpu::Device,
         surface_format: wgpu::TextureFormat,
         vertex: Asset<Shader>,
+        camera_gpu_data: &CameraGpuData,
         fragment: Asset<Shader>,
     ) -> Material {
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,
-            bind_group_layouts: &[&vertex.bind_group_layout, &fragment.bind_group_layout],
+            bind_group_layouts: &[&vertex.bind_group_layout, &fragment.bind_group_layout, &camera_gpu_data.bind_group_layout],
             push_constant_ranges: &[],
         });
     

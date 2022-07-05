@@ -37,6 +37,13 @@ impl Default for Entities {
 }
 
 impl Entities {
+    /// Gets an entity id from its name.
+    pub fn entity_id_from_name(&self, name: &str) -> Option<u128> {
+        self.query_with_id([&std::any::TypeId::of::<Name>()])
+            .find(|(_, [name_component])| name_component.get::<Name>().name == name)
+            .map(|(id, _)| id)
+    }
+
     /// Gets a vec of all entity ids.
     pub fn entity_ids(&self) -> Vec<u128> {
         self.entities.keys().copied().collect()

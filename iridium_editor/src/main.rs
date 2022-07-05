@@ -41,6 +41,36 @@ fn main() {
     
     let mut app = pollster::block_on(App::new(&window));
 
+    let mut world = World::new(
+        Entities::default(),
+        Systems::new(vec![
+            SystemsStage::new(vec![
+                Box::new(VelocitySystem),
+            ]),
+            SystemsStage::new(vec![
+                // Box::new(PositionLoggerSystem),
+                Box::new(FrameHistorySystem),
+            ]),
+        ]),
+    );
+
+    let camera_gpu_data = CameraGpuData::new(&app.device);
+
+    world.entities.register_component::<Renderable2D>();
+    world.entities.register_component::<Renderer2DState>();
+    world.entities.register_component_with_default::<Camera>();
+    world.entities.add_components(
+        world.entities.entity_id_from_name("SystemState").unwrap(),
+        vec![Component::new(Renderer2DState {
+            active_camera: "".to_string(),
+            camera_gpu_data: Some(camera_gpu_data),
+        })],
+    );
+
+    world.entities.new_entity("Camera", vec![
+        Camera::create(),
+    ]);
+
     let mut assets = Assets::new();
 
     assets.add("steak_tex", Texture::from_image_bytes(
@@ -82,6 +112,7 @@ fn main() {
         &app.device,
         app.surface_config.format,
         assets.get::<Shader>("sprite_vertex").unwrap(),
+        world.entities.get::<Renderer2DState>().camera_gpu_data.as_ref().unwrap(),
         assets.get::<Shader>("sprite_fragment").unwrap(),
     ));
 
@@ -89,6 +120,7 @@ fn main() {
         &app.device,
         app.surface_config.format,
         assets.get::<Shader>("sprite_vertex").unwrap(),
+        world.entities.get::<Renderer2DState>().camera_gpu_data.as_ref().unwrap(),
         assets.get::<Shader>("uv_test_fragment").unwrap(),
     ));
 
@@ -104,21 +136,6 @@ fn main() {
             0, 2, 1,
         ],
     });
-
-    let mut world = World::new(
-        Entities::default(),
-        Systems::new(vec![
-            SystemsStage::new(vec![
-                Box::new(VelocitySystem),
-            ]),
-            SystemsStage::new(vec![
-                // Box::new(PositionLoggerSystem),
-                Box::new(FrameHistorySystem),
-            ]),
-        ]),
-    );
-
-    world.entities.register_component::<Renderable2D>();
 
     let project = Project::load("target/debug/libiridium_example_project.so");
 

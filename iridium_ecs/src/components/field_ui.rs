@@ -35,32 +35,22 @@ impl ComponentFieldUi for String {
     }
 }
 
-impl ComponentFieldUi for iridium_maths::VecN<3> {
+impl<const N: usize> ComponentFieldUi for iridium_maths::VecN<N> {
     fn ui(&mut self, ui: &mut egui::Ui, attributes: ComponentFieldAttributes) {
-        ui.horizontal(|ui| {
-            let mut x_clone = self.x();
-            let mut y_clone = self.y();
-            let mut z_clone = self.z();
+        let mut values = self.data.to_vec();
 
-            let mut x_drag = egui::DragValue::new(&mut x_clone);
-            let mut y_drag = egui::DragValue::new(&mut y_clone);
-            let mut z_drag = egui::DragValue::new(&mut z_clone);
+        ui.columns(N, |ui| {
+            for i in 0..N {
+                let mut drag_value = egui::DragValue::new(&mut values[i]);
 
-            if let Some(drag_speed) = attributes.0.get("drag_speed") {
-                x_drag = x_drag.speed(drag_speed.parse::<f32>().unwrap());
-                y_drag = y_drag.speed(drag_speed.parse::<f32>().unwrap());
-                z_drag = z_drag.speed(drag_speed.parse::<f32>().unwrap());
+                if let Some(drag_speed) = attributes.0.get("drag_speed") {
+                    drag_value = drag_value.speed(drag_speed.parse::<f32>().unwrap());
+                }
+
+                ui[i].add(drag_value);
             }
-
-            ui.columns(3, |ui| {
-                ui[0].add(x_drag);
-                ui[1].add(y_drag);
-                ui[2].add(z_drag);
-            });
-
-            *self.x_mut() = x_clone;
-            *self.y_mut() = y_clone;
-            *self.z_mut() = z_clone;
         });
+
+        self.data.copy_from_slice(&values);
     }
 }

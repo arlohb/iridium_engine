@@ -1,5 +1,5 @@
-use iridium_ecs::World;
-use iridium_graphics::Renderer2DSystem;
+use iridium_ecs::{World, query};
+use iridium_graphics::{Renderer2DSystem, Camera};
 use winit::{
     window::Window,
     event::*,
@@ -208,8 +208,14 @@ impl App {
                 1.,
             );
 
+            for (camera, )
+            in query!(world.entities, [mut Camera;]) {
+                *camera.viewport_size.x_mut() = self.ui_state.viewport_rect.width() * self.ui_state.screen_size.0 as f32;
+                *camera.viewport_size.y_mut() = self.ui_state.viewport_rect.height() * self.ui_state.screen_size.1 as f32;
+            }
+
             // Run the rendering system for the entities in the world.
-            self.renderer_2d_system.run(&world.entities, 0., &mut render_pass, &self.queue);
+            self.renderer_2d_system.run(&world.entities, 0., &self.device, &mut render_pass, &self.queue);
 
             // Set the viewport to the entire surface.
             render_pass.set_viewport(

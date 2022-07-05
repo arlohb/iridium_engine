@@ -52,8 +52,8 @@ pub struct Transform {
 impl ComponentStorage for Transform {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         Some(Self {
-            position: iridium_maths::VecN::<3>::from_string(&stored.get("position")?)?,
-            scale: iridium_maths::VecN::<3>::from_string(&stored.get("scale")?)?,
+            position: stored.get("position")?.parse().ok()?,
+            scale: stored.get("scale")?.parse().ok()?,
             rotation: stored.get("rotation")?.parse().ok()?,
         })
     }
@@ -91,7 +91,7 @@ pub struct Velocity {
 impl ComponentStorage for Velocity {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         Some(Self {
-            velocity: iridium_maths::VecN::<3>::from_string(&stored.get("velocity")?)?,
+            velocity: stored.get("velocity")?.parse().ok()?,
         })
     }
 

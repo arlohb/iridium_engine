@@ -38,6 +38,14 @@ impl ScreenRect {
             (self.min_y + self.max_y) / 2.,
         )
     }
+
+    pub fn width(&self) -> f32 {
+        self.max_x - self.min_x
+    }
+
+    pub fn height(&self) -> f32 {
+        self.max_y - self.min_y
+    }
 }
 
 impl std::fmt::Debug for ScreenRect {

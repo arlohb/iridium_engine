@@ -1,15 +1,53 @@
-use std::ops;
+use std::{ops, str::FromStr};
 
 /// Represents a Vector with N dimensions.
 #[derive(Clone, Copy)]
 pub struct VecN<const N: usize> {
     /// The components of the vector.
-    data: [f32; N],
+    pub data: [f32; N],
 }
 
 impl<const N: usize> std::fmt::Debug for VecN<N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "VecN<{}>({:?})", N, self.data)
+    }
+}
+
+impl<const N: usize> FromStr for VecN<N> {
+    type Err = ();
+
+    fn from_str(mut s: &str) -> Result<Self, Self::Err> {
+        if !s.starts_with('[') {
+            return Err(());
+        }
+        s = s.trim_start_matches('[');
+
+        if !s.ends_with(']') {
+            return Err(());
+        }
+        s = s.trim_end_matches(']');
+
+        s = s.trim();
+
+        if s.ends_with(',') {
+            s = s.trim_end_matches(',');
+        }
+
+        let string: String = s.chars().filter(|c|
+            *c != ' '
+        ).collect();
+
+        if string.split(',').count() != N {
+            return Err(());
+        }
+
+        let mut data = [0.; N];
+
+        for (index, value) in string.split(',').enumerate() {
+            data[index] = value.parse::<f32>().map_err(|_| ())?;
+        }
+
+        Ok(VecN::new(data))
     }
 }
 
@@ -82,45 +120,6 @@ impl<const N: usize> VecN<N> {
             .for_each(|(index, b)| bytes[index] = b);
         
         bytes
-    }
-
-    /// Makes a new `VecN` from a string.
-    /// 
-    /// The string should be in the form `[x, y, z, ...]`.
-    /// 
-    /// Leading commas are valid.
-    pub fn from_string(mut str: &str) -> Option<Self> {
-        if !str.starts_with('[') {
-            return None;
-        }
-        str = str.trim_start_matches('[');
-
-        if !str.ends_with(']') {
-            return None;
-        }
-        str = str.trim_end_matches(']');
-
-        str = str.trim();
-
-        if str.ends_with(',') {
-            str = str.trim_end_matches(',');
-        }
-
-        let string: String = str.chars().filter(|c|
-            *c != ' '
-        ).collect();
-
-        if string.split(',').count() != N {
-            return None;
-        }
-
-        let mut data = [0.; N];
-
-        for (index, value) in string.split(',').enumerate() {
-            data[index] = value.parse::<f32>().ok()?;
-        }
-
-        Some(VecN::new(data))
     }
 
     /// The length of a vector.
