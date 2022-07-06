@@ -52,6 +52,7 @@ pub struct Renderer2DSystem;
 
 impl Renderer2DSystem {
     /// Runs the system.
+    #[allow(clippy::too_many_arguments)]
     pub fn run(
         &mut self,
         entities: &Entities,
@@ -60,6 +61,7 @@ impl Renderer2DSystem {
         queue: &wgpu::Queue,
         viewport_rect_physical: &egui::Rect,
         size_pixels: (f32, f32),
+        editor_camera: Option<&mut Camera>,
     ) {
         puffin::profile_function!();
 
@@ -81,21 +83,31 @@ impl Renderer2DSystem {
             let camera = {
                 puffin::profile_scope!("Camera data update");
 
-                let mut active_camera = None;
+                match editor_camera {
+                    Some(camera) => {
+                        *camera.viewport_size.x_mut() = size_pixels.0;
+                        *camera.viewport_size.y_mut() = size_pixels.1;
 
-                for (camera, )
-                in query!(entities, [mut Camera;]) {
-                    *camera.viewport_size.x_mut() = size_pixels.0;
-                    *camera.viewport_size.y_mut() = size_pixels.1;
+                        camera
+                    },
+                    None => {
+                        let mut active_camera = None;
 
-                    if camera.name == state.active_camera {
-                        active_camera = Some(camera);
+                        for (camera, )
+                        in query!(entities, [mut Camera;]) {
+                            *camera.viewport_size.x_mut() = size_pixels.0;
+                            *camera.viewport_size.y_mut() = size_pixels.1;
+        
+                            if camera.name == state.active_camera {
+                                active_camera = Some(camera);
+                            }
+                        }
+        
+                        match active_camera {
+                            Some(camera) => camera,
+                            None => return,
+                        }
                     }
-                }
-
-                match active_camera {
-                    Some(camera) => camera,
-                    None => return,
                 }
             };
 

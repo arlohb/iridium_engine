@@ -5,7 +5,7 @@ use winit::{
     event::*,
 };
 
-use crate::ui::*;
+use crate::{ui::*, play_state::PlayState};
 
 /// The main application state.
 pub struct App {
@@ -129,7 +129,7 @@ impl App {
         let viewport_rect_logical = self.ui_state.viewport_rect.egui_logical(self.ui_state.screen_size.0, self.ui_state.screen_size.1, self.ui_state.scale_factor);
         let viewport_rect_physical = self.ui_state.viewport_rect.egui_logical(self.ui_state.screen_size.0, self.ui_state.screen_size.1, 1.);
 
-        let input = self.egui_state.input(window, viewport_rect_logical, self.ui_state.scale_factor);
+        let input = self.egui_state.input(window, viewport_rect_logical, self.ui_state.scale_factor, &mut self.ui_state);
 
         self.egui_state.draw(window, input, &mut self.ui_state, world);
         self.egui_state.upload_ui(&self.device, &self.queue);
@@ -174,6 +174,11 @@ impl App {
                     self.ui_state.viewport_rect.width() * self.ui_state.screen_size.0 as f32,
                     self.ui_state.viewport_rect.height() * self.ui_state.screen_size.1 as f32,
                 ),
+                if let PlayState::Play = self.ui_state.play_state() {
+                    None
+                } else {
+                    Some(&mut self.ui_state.camera)
+                }
             );
 
             self.egui_state.render(&mut render_pass, &self.ui_state);

@@ -1,3 +1,6 @@
+use iridium_graphics::Camera;
+use iridium_maths::VecN;
+
 use crate::play_state::PlayState;
 
 // Stores the editor UI state.
@@ -12,6 +15,10 @@ pub struct UiState {
     pub selected_entity: Option<u128>,
     /// The current play state.
     play_state: PlayState,
+    /// The editor camera.
+    pub camera: Camera,
+    /// The start position of the camera pan.
+    pub pan_start: Option<egui::Pos2>,
 }
 
 impl UiState {
@@ -27,6 +34,16 @@ impl UiState {
             scale_factor,
             selected_entity: None,
             play_state: PlayState::Stop,
+            camera: Camera {
+                name: "editor".to_string(),
+                position: VecN::new([0., 0.]),
+                min_depth: 0.,
+                max_depth: 1.,
+                rotation: 0.,
+                scale: 2.,
+                viewport_size: VecN::new([0., 0.]),
+            },
+            pan_start: None,
         }
     }
 

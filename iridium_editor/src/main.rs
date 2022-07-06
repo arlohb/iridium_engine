@@ -146,7 +146,7 @@ fn main() {
     let mut last_time = std::time::Instant::now();
 
     // Just while profiling.
-    app.ui_state.play();
+    // app.ui_state.play();
 
     event_loop.run(move |event, _, control_flow| match event {
         Event::WindowEvent {

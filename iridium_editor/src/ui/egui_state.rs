@@ -1,3 +1,4 @@
+use egui::PointerButton;
 use iridium_ecs::World;
 use winit::window::Window;
 
@@ -22,6 +23,7 @@ pub struct EguiState {
     pub panels: Vec<Box<dyn PanelUi>>,
 
     frame_data: FrameData,
+    mouse_pos: egui::Pos2,
 }
 
 impl EguiState {
@@ -58,6 +60,7 @@ impl EguiState {
             winit,
             panels,
             frame_data: FrameData { paint_jobs: None, screen_descriptor: None, textures_delta: None },
+            mouse_pos: egui::Pos2::new(0., 0.),
         }
     }
 
@@ -74,29 +77,94 @@ impl EguiState {
     /// Handles the input from winit.
     /// 
     /// This modifies the input before the caller sends to egui.
-    pub fn input(&mut self, window: &winit::window::Window, viewport_rect_logical: egui::Rect, scale_factor: f32) -> egui::RawInput {
+    pub fn input(
+        &mut self,
+        window: &winit::window::Window,
+        viewport_rect_logical: egui::Rect,
+        scale_factor: f32,
+        ui_state: &mut UiState,
+    ) -> egui::RawInput {
         puffin::profile_function!();
 
         let mut input = self.winit.take_egui_input(window);
         input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
-        input.events
-            .iter_mut()
-            .for_each(|event| match event {
+        input.events = input.events
+            .into_iter()
+            .filter_map(|event| match event {
                 egui::Event::PointerMoved(position) => {
+                    self.mouse_pos = position;
+
+                    if let Some(pan_start) = &mut ui_state.pan_start {
+                        let mut movement = position - *pan_start;
+                        *pan_start = position;
+
+                        movement = movement * ui_state.camera.scale / (scale_factor * 0.06);
+
+                        movement.x /= ui_state.screen_size.0 as f32;
+                        movement.y /= ui_state.screen_size.1 as f32;
+
+                        *ui_state.camera.position.x_mut() -= movement.x;
+                        *ui_state.camera.position.y_mut() += movement.y;
+                    }
+
                     // If a button is being held down,
                     // I still want to be able to move controls
-                    if viewport_rect_logical.distance_to_pos(*position) < 5.
+                    if viewport_rect_logical.distance_to_pos(position) < 5.
                     && !self.context.input().pointer.any_down() {
-                        *event = egui::Event::PointerGone;
+                        return Some(egui::Event::PointerGone);
                     }
+
+                    Some(egui::Event::PointerMoved(position))
                 },
-                egui::Event::PointerButton { pos, .. } => {
-                    if viewport_rect_logical.contains(*pos) {
-                        *event = egui::Event::PointerGone;
+                egui::Event::PointerButton {
+                    pos,
+                    button,
+                    pressed,
+                    modifiers,
+                 } => {
+                    if let PointerButton::Middle = button {
+                        if !pressed {
+                            ui_state.pan_start = None;
+                        }
                     }
+
+                    if viewport_rect_logical.contains(pos) {
+                        if let PointerButton::Middle = button {
+                            if pressed {
+                                ui_state.pan_start = Some(pos);
+                            }
+                        }
+
+                        return None;
+                    }
+
+                    Some(egui::Event::PointerButton {
+                        pos,
+                        button,
+                        pressed,
+                        modifiers,
+                    })
                 },
-                _ => (),
-            });
+                egui::Event::Scroll(scroll) => {
+                    if ui_state.pan_start.is_some() || viewport_rect_logical.contains(self.mouse_pos) {
+                        let scroll_speed = 0.05;
+
+                        if scroll.y > 0. {
+                            ui_state.camera.scale /= scroll.y * scroll_speed;
+                        } else {
+                            ui_state.camera.scale *= scroll.y.abs() * scroll_speed;
+                        }
+
+                        ui_state.camera.scale = ui_state.camera.scale.max(0.01);
+
+                        return None;
+                    }
+
+                    Some(egui::Event::Scroll(scroll))
+                },
+                event => Some(event),
+            })
+            .collect::<Vec<_>>();
 
         input
     }
