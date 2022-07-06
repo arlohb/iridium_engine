@@ -15,3 +15,4 @@ egui = "0.18.1"
 hashbrown = "0.12"
 uuid = { version = "1.0", features = ["fast-rng", "v4"] }
 rayon = "1.5"
+puffin = "0.13"

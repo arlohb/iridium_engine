@@ -52,43 +52,101 @@ pub struct Renderer2DSystem;
 
 impl Renderer2DSystem {
     /// Runs the system.
-    pub fn run(&mut self, entities: &Entities, _delta_time: f64, device: &wgpu::Device, render_pass: &mut wgpu::RenderPass, queue: &wgpu::Queue) {
-        let mut components = query!(entities, [; Transform, Renderable2D, Name]).collect::<Vec<_>>();
+    pub fn run(
+        &mut self,
+        entities: &Entities,
+        device: &wgpu::Device,
+        render_pass: &mut wgpu::RenderPass,
+        queue: &wgpu::Queue,
+        viewport_rect_physical: &egui::Rect,
+        size_pixels: (f32, f32),
+    ) {
+        puffin::profile_function!();
 
-        // Sort entities by their z position, then name if z is equal.
-        // The name shouldn't be used to order sprites, it's just to prevent z-fighting.
-        components.sort_by(|(a_t, _, a_name), (b_t, _, b_name)| {
-            // Sort by z-index.
-            let ordering = a_t.position.z().partial_cmp(&b_t.position.z()).unwrap();
+        let components = {
+            puffin::profile_scope!("Setup");
 
-            // If z-index is equal, sort by name.
-            if let std::cmp::Ordering::Equal = ordering {
-                a_name.name.cmp(&b_name.name)
-            } else {
-                ordering
+            // Set the viewport to the viewport_rect.
+            render_pass.set_viewport(
+                viewport_rect_physical.min.x,
+                viewport_rect_physical.min.y,
+                viewport_rect_physical.width(),
+                viewport_rect_physical.height(),
+                0.,
+                1.,
+            );
+
+            let state = entities.get::<Renderer2DState>();
+
+            let camera = {
+                puffin::profile_scope!("Camera data update");
+
+                let mut active_camera = None;
+
+                for (camera, )
+                in query!(entities, [mut Camera;]) {
+                    *camera.viewport_size.x_mut() = size_pixels.0;
+                    *camera.viewport_size.y_mut() = size_pixels.1;
+
+                    if camera.name == state.active_camera {
+                        active_camera = Some(camera);
+                    }
+                }
+
+                match active_camera {
+                    Some(camera) => camera,
+                    None => return,
+                }
+            };
+
+            let components = {
+                puffin::profile_scope!("Getting components");
+
+                let mut components = {
+                    puffin::profile_scope!("Query");
+
+                    query!(entities, [; Transform, Renderable2D, Name]).collect::<Vec<_>>()
+                };
+
+                {
+                    puffin::profile_scope!("Sorting");
+
+                    // Sort entities by their z position, then name if z is equal.
+                    // The name shouldn't be used to order sprites, it's just to prevent z-fighting.
+                    components.sort_by(|(a_t, _, a_name), (b_t, _, b_name)| {
+                        // Sort by z-index.
+                        let ordering = a_t.position.z().partial_cmp(&b_t.position.z()).unwrap();
+
+                        // If z-index is equal, sort by name.
+                        if let std::cmp::Ordering::Equal = ordering {
+                            a_name.name.cmp(&b_name.name)
+                        } else {
+                            ordering
+                        }
+                    });
+                }
+
+                components
+            };
+
+            {
+                puffin::profile_scope!("Write camera to GPU");
+
+                let camera_gpu_data = state.camera_gpu_data.get_or_insert_with(|| {
+                    CameraGpuData::new(device)
+                });
+
+                let camera_gpu_data = unsafe { std::mem::transmute::<&mut CameraGpuData, &mut CameraGpuData>(camera_gpu_data) };
+
+                queue.write_buffer(&camera_gpu_data.buffer, 0, &camera.as_bytes());
+
+                render_pass.set_bind_group(2, &camera_gpu_data.bind_group, &[]);
             }
-        });
 
-        let state = entities.get::<Renderer2DState>();
-
-        let camera = query!(entities, [; Camera])
-                .find(|(camera, )| camera.name == state.active_camera)
-                .map(|(camera, )| camera);
-
-        let camera = match camera {
-            Some(camera) => camera,
-            None => return,
+            components
         };
 
-        let camera_gpu_data = state.camera_gpu_data.get_or_insert_with(|| {
-            CameraGpuData::new(device)
-        });
-
-        let camera_gpu_data = unsafe { std::mem::transmute::<&mut CameraGpuData, &mut CameraGpuData>(camera_gpu_data) };
-
-        queue.write_buffer(&camera_gpu_data.buffer, 0, &camera.as_bytes());
-
-        render_pass.set_bind_group(2, &camera_gpu_data.bind_group, &[]);
+        puffin::profile_scope!("Rendering");
 
         for (transform, renderable_2d, _) in components {
             // Extend the lifetime of renderable_2d for render_pass.set_pipeline.

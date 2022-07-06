@@ -1,5 +1,5 @@
-use iridium_ecs::{World, query};
-use iridium_graphics::{Renderer2DSystem, Camera};
+use iridium_ecs::World;
+use iridium_graphics::Renderer2DSystem;
 use winit::{
     window::Window,
     event::*,
@@ -116,58 +116,16 @@ impl App {
 
     /// Render everything to the screen.
     pub fn render(&mut self, window: &Window, world: &mut World) {
+        puffin::profile_function!();
+
         // Calculate the viewport_rect in logical and physical coordinates.
         let viewport_rect_logical = self.ui_state.viewport_rect.egui_logical(self.ui_state.screen_size.0, self.ui_state.screen_size.1, self.ui_state.scale_factor);
         let viewport_rect_physical = self.ui_state.viewport_rect.egui_logical(self.ui_state.screen_size.0, self.ui_state.screen_size.1, 1.);
 
-        // Modify the input.
-        let mut input = self.egui_state.winit.take_egui_input(window);
-        input.pixels_per_point = Some(window.scale_factor() as f32 * self.ui_state.scale_factor);
-        input.events
-            .iter_mut()
-            .for_each(|event| match event {
-                egui::Event::PointerMoved(position) => {
-                    // If a button is being held down,
-                    // I still want to be able to move controls
-                    if viewport_rect_logical.distance_to_pos(*position) < 5.
-                    && !self.egui_state.context.input().pointer.any_down() {
-                        *event = egui::Event::PointerGone;
-                    }
-                },
-                egui::Event::PointerButton { pos, .. } => {
-                    if viewport_rect_logical.contains(*pos) {
-                        *event = egui::Event::PointerGone;
-                    }
-                },
-                _ => (),
-            });
+        let input = self.egui_state.input(window, viewport_rect_logical, self.ui_state.scale_factor);
 
-        // Begin the UI frame.
-        self.egui_state.context.begin_frame(input);
-
-        // Draw the UI.
-        self.egui_state.render_panels(&mut self.ui_state, world);
-
-        // End the UI frame.
-        let egui_output = self.egui_state.context.end_frame();
-
-        // Give winit the UI output.
-        self.egui_state.winit.handle_platform_output(window, &self.egui_state.context, egui_output.platform_output);
-
-        // Get the output of the UI frame.
-        let paint_jobs = self.egui_state.context.tessellate(egui_output.shapes);
-
-        // Create the screen descriptor.
-        let screen_descriptor = egui_latest_wgpu_backend::ScreenDescriptor {
-            physical_width: self.ui_state.screen_size.0,
-            physical_height: self.ui_state.screen_size.1,
-            scale_factor: window.scale_factor() as f32 * self.ui_state.scale_factor,
-        };
-
-        // Upload the resources to the GPU.
-        self.egui_state.rpass.add_textures(&self.device, &self.queue, &egui_output.textures_delta).unwrap();
-        self.egui_state.rpass.remove_textures(egui_output.textures_delta).unwrap();
-        self.egui_state.rpass.update_buffers(&self.device, &self.queue, &paint_jobs, &screen_descriptor);
+        self.egui_state.draw(window, input, &mut self.ui_state, world);
+        self.egui_state.upload_ui(&self.device, &self.queue);
 
         // Get the surface texture to render to.
         let output = self.surface.get_current_texture().unwrap();
@@ -198,42 +156,23 @@ impl App {
                 depth_stencil_attachment: None,
             });
 
-            // Set the viewport to the viewport_rect.
-            render_pass.set_viewport(
-                viewport_rect_physical.min.x,
-                viewport_rect_physical.min.y,
-                viewport_rect_physical.width(),
-                viewport_rect_physical.height(),
-                0.,
-                1.,
-            );
-
-            for (camera, )
-            in query!(world.entities, [mut Camera;]) {
-                *camera.viewport_size.x_mut() = self.ui_state.viewport_rect.width() * self.ui_state.screen_size.0 as f32;
-                *camera.viewport_size.y_mut() = self.ui_state.viewport_rect.height() * self.ui_state.screen_size.1 as f32;
-            }
-
             // Run the rendering system for the entities in the world.
-            self.renderer_2d_system.run(&world.entities, 0., &self.device, &mut render_pass, &self.queue);
-
-            // Set the viewport to the entire surface.
-            render_pass.set_viewport(
-                0.,
-                0.,
-                self.ui_state.screen_size.0 as f32,
-                self.ui_state.screen_size.1 as f32,
-                0.,
-                1.,
+            self.renderer_2d_system.run(
+                &world.entities,
+                &self.device,
+                &mut render_pass,
+                &self.queue,
+                &viewport_rect_physical,
+                (
+                    self.ui_state.viewport_rect.width() * self.ui_state.screen_size.0 as f32,
+                    self.ui_state.viewport_rect.height() * self.ui_state.screen_size.1 as f32,
+                ),
             );
 
-            // Render the UI.
-            self.egui_state.rpass.execute_with_renderpass(
-                &mut render_pass,
-                &paint_jobs,
-                &screen_descriptor,
-            ).unwrap();
+            self.egui_state.render(&mut render_pass, &self.ui_state);
         }
+
+        puffin::profile_scope!("Queue submit");
 
         // Submit the command encoder.
         self.queue.submit(std::iter::once(encoder.finish()));

@@ -30,3 +30,5 @@ inline-spirv = { version = "0.1", features = ["build-from-source"] }
 dlopen = "0.1"
 dlopen_derive = "0.1"
 image = "0.24"
+puffin = "0.13"
+puffin_egui = "0.16"

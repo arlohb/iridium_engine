@@ -32,6 +32,8 @@ fn main() {
     // std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
 
+    puffin::set_scopes_on(true);
+
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_title("Iridium Editor")
@@ -143,6 +145,9 @@ fn main() {
 
     let mut last_time = std::time::Instant::now();
 
+    // Just while profiling.
+    app.ui_state.play();
+
     event_loop.run(move |event, _, control_flow| match event {
         Event::WindowEvent {
             ref event,
@@ -168,10 +173,13 @@ fn main() {
             _ => {}
         }},
         Event::RedrawRequested(window_id) if window_id == window.id() => {
+            puffin::GlobalProfiler::lock().new_frame();
+            puffin::profile_scope!("Frame");
             let delta_time = last_time.elapsed().as_nanos() as f64 / 1_000_000.;
             last_time = std::time::Instant::now();
 
             if let PlayState::Play = app.ui_state.play_state() {
+                puffin::profile_scope!("Systems");
                 world.run_systems(delta_time);
             }
 

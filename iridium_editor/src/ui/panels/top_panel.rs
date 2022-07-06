@@ -1,10 +1,10 @@
-use iridium_ecs::query;
-
 use crate::{ui::PanelUi, play_state::PlayState, systems::FrameHistoryState};
 
 pub struct TopPanel;
 
 impl PanelUi for TopPanel {
+    fn name(&self) -> &'static str { "TopPanel" }
+
     fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World) {
         egui::TopBottomPanel::top("top_panel").show(context, |ui| {
             let max_y_logical = ui.max_rect().max.y + ui.spacing().item_spacing.y;
@@ -55,9 +55,9 @@ impl PanelUi for TopPanel {
                     stats.horizontal(|ui| {
                         ui.label(format!("FPS: {:.1}", world.entities.get::<FrameHistoryState>().average_fps()));
                         ui.add_space(15.);
-                        ui.label(format!("Entities: {}", query!(world.entities, [; iridium_ecs::Name]).len()));
+                        ui.label(format!("Entities: {}", world.entities.entity_count::<iridium_ecs::Name>()));
                         ui.add_space(15.);
-                        ui.label(format!("Sprites: {}", query!(world.entities, [; iridium_graphics::Renderable2D]).len()));
+                        ui.label(format!("Sprites: {}", world.entities.entity_count::<iridium_graphics::Renderable2D>()));
                     });
                 }
             });
