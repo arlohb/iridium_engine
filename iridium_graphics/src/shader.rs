@@ -53,7 +53,7 @@ impl Shader {
             label: None,
         });
 
-        let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: None,
             source: wgpu::ShaderSource::SpirV(std::borrow::Cow::Borrowed(spirv)),
         });

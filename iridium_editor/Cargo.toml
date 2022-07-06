@@ -14,13 +14,13 @@ iridium_maths = { path = "../iridium_maths" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 
 egui = "0.18.1"
-egui-latest_wgpu_backend = "0.18.2"
+egui-latest_wgpu_backend = "0.18.3"
 egui_demo_lib = "0.18"
 egui-winit = "0.18.0"
 
 winit = "0.26"
 env_logger = "0.9"
-wgpu = { version = "0.12", features = ["spirv"] }
+wgpu = { version = "0.13", features = ["spirv"] }
 pollster = "0.2.5"
 hashbrown = "0.12"
 # For whatever reason manjaro's shaderc stopped working,

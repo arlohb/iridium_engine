@@ -29,8 +29,13 @@ impl App {
             (size.width, size.height)
         };
 
+        // Usually the backend will be Vulkan,
+        // for some reason since wgpu 0.13 now default to GL.
+        // GL is a lot slower, so just use anything except that.
+        let backends = !wgpu::Backends::GL;
+
         // Initialize the surface.
-        let instance = wgpu::Instance::new(wgpu::Backends::all());
+        let instance = wgpu::Instance::new(backends);
         let surface = unsafe { instance.create_surface(window) };
 
         // Initialize the device.
@@ -48,10 +53,12 @@ impl App {
         // Configure the surface.
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format: surface.get_preferred_format(&adapter).unwrap(),
+            format: surface.get_supported_formats(&adapter)[0],
             width: screen_size.0,
             height: screen_size.1,
-            present_mode: wgpu::PresentMode::Mailbox,
+            // Vsync should be used in the future,
+            // but I need to see fps above 60 while debugging performance.
+            present_mode: wgpu::PresentMode::AutoNoVsync,
         };
         surface.configure(&device, &surface_config);
 
@@ -140,7 +147,7 @@ impl App {
             // Create the render pass.
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
-                color_attachments: &[wgpu::RenderPassColorAttachment {
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                     view: &view,
                     resolve_target: None,
                     ops: wgpu::Operations {
@@ -152,7 +159,7 @@ impl App {
                         }),
                         store: true,
                     },
-                }],
+                })],
                 depth_stencil_attachment: None,
             });
 
