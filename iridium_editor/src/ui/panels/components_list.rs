@@ -1,3 +1,4 @@
+use iridium_assets::Assets;
 use iridium_ecs::Name;
 
 use crate::ui::PanelUi;
@@ -7,7 +8,7 @@ pub struct ComponentsList;
 impl PanelUi for ComponentsList {
     fn name(&self) -> &'static str { "ComponentsList" }
 
-    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World) {
+    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World, _assets: &Assets) {
         egui::SidePanel::right("components_list").show(context, |ui| {
             let min_x_logical = ui.max_rect().min.x - ui.spacing().item_spacing.x;
             let min_x_physical = min_x_logical * ui_state.scale_factor;

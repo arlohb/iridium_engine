@@ -49,7 +49,7 @@ impl UiState {
 
     /// Gets the play state.
     pub fn play_state(&self) -> PlayState {
-        self.play_state
+        self.play_state.clone()
     }
 
     /// Sets the plat state to `PlayState::Play`.

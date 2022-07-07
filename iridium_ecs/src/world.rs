@@ -1,6 +1,7 @@
 use crate::*;
+use iridium_assets::Assets;
 use systems::*;
-use storage::StorageWriter;
+use storage::*;
 
 /// The world of the game.
 /// 
@@ -37,12 +38,11 @@ impl World {
 
     /// Saves the world's state to the given file.
     pub fn save(&self, file: &str) {
-        let mut writer = StorageWriter::new(file.to_string()).unwrap();
+        save_world_to_file(self, file);
+    }
 
-        writer.begin();
-        writer.save_world(self);
-        writer.end();
-
-        writer.write();
+    /// Loads the world's state from the given file.
+    pub fn load(&mut self, file: &str, assets: &Assets) -> Result<(), ReadError> {
+        load_world_from_file(file, self, assets)
     }
 }

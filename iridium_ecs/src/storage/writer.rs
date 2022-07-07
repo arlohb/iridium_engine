@@ -86,3 +86,14 @@ impl StorageWriter {
         self.write_entities(&world.entities);
     }
 }
+
+/// A simple wrapper around `StorageWriter` to save the world to a file.
+pub fn save_world_to_file(world: &World, file: &str) {
+    let mut writer = StorageWriter::new(file.to_string()).unwrap();
+
+    writer.begin();
+    writer.save_world(world);
+    writer.end();
+
+    writer.write();
+}

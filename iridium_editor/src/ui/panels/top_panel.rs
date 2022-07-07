@@ -1,3 +1,5 @@
+use iridium_assets::Assets;
+
 use crate::{ui::PanelUi, play_state::PlayState, systems::FrameHistoryState};
 
 pub struct TopPanel;
@@ -5,7 +7,7 @@ pub struct TopPanel;
 impl PanelUi for TopPanel {
     fn name(&self) -> &'static str { "TopPanel" }
 
-    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World) {
+    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World, assets: &Assets) {
         egui::TopBottomPanel::top("top_panel").show(context, |ui| {
             let max_y_logical = ui.max_rect().max.y + ui.spacing().item_spacing.y;
             let max_y_physical = max_y_logical * ui_state.scale_factor;
@@ -38,15 +40,25 @@ impl PanelUi for TopPanel {
                                 if ui.add_enabled(
                                     matches!(ui_state.play_state(), PlayState::Stop | PlayState::Pause),
                                     egui::Button::new("▶").frame(false),
-                                ).clicked() { ui_state.play(); }
+                                ).clicked() {
+                                    world.save("temp.json5");
+                                    ui_state.play();
+                                }
+
                                 if ui.add_enabled(
                                     matches!(ui_state.play_state(), PlayState::Play),
                                     egui::Button::new("⏸").frame(false),
-                                ).clicked() { ui_state.pause(); }
+                                ).clicked() {
+                                    ui_state.pause();
+                                }
+
                                 if ui.add_enabled(
                                     matches!(ui_state.play_state(), PlayState::Play | PlayState::Pause),
                                     egui::Button::new("■").frame(false),
-                                ).clicked() { ui_state.stop(); }
+                                ).clicked() {
+                                    world.load("temp.json5", assets).unwrap();
+                                    ui_state.stop();
+                                }
 
                                 ui.add_space(1.);
                             });

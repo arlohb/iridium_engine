@@ -1,6 +1,8 @@
 use hashbrown::HashMap;
 use iridium_assets::Assets;
 
+use crate::{ComponentTrait, Component};
+
 /// A field in a `StoredComponent`.
 pub enum StoredComponentField {
     /// A string field.
@@ -19,6 +21,23 @@ impl StoredComponentField {
         match self {
             StoredComponentField::String(s) => s,
             StoredComponentField::NonString(s) => s,
+        }
+    }
+
+    /// Gets a reference to the string value.
+    pub fn str(&self) -> &str {
+        match self {
+            StoredComponentField::String(s) => s,
+            StoredComponentField::NonString(s) => s,
+        }
+    }
+
+    /// Creates a `StoredComponentField` from a json5 value.
+    pub fn from_json5(value: &str) -> StoredComponentField {
+        if value.starts_with('"') && value.ends_with('"') {
+            StoredComponentField::String(value[1..value.len() - 1].to_string())
+        } else {
+            StoredComponentField::NonString(value.to_string())
         }
     }
 }
@@ -52,7 +71,15 @@ pub trait ComponentStorage {
     /// This returns an Option as the user may have corrupted save data
     /// so it may be invalid.
     fn from_stored(stored: StoredComponent, assets: &Assets) -> Option<Self>
-        where Self: Sized;
+    where Self: Sized;
+
+    /// Try to create a component from a stored component.
+    /// 
+    /// Returns a `Component` instead of `Self`.
+    fn from_stored_component(stored: StoredComponent, assets: &Assets) -> Option<Component>
+    where Self:Sized + ComponentTrait {
+        Self::from_stored(stored, assets).map(|t| Component::new(t))
+    }
 
     /// Create a stored component from a component.
     fn to_stored(&self) -> StoredComponent;

@@ -1,3 +1,4 @@
+use iridium_assets::Assets;
 use iridium_ecs::World;
 
 use super::UiState;
@@ -9,13 +10,13 @@ pub trait PanelUi {
     /// Just for profiling purposes.
     fn name(&self) -> &'static str;
     /// Renders the panel.
-    fn render(&mut self, context: &egui::Context, ui_state: &mut UiState, world: &mut World);
+    fn render(&mut self, context: &egui::Context, ui_state: &mut UiState, world: &mut World, assets: &Assets);
 }
 
 impl PanelUi for egui_demo_lib::DemoWindows {
     fn name(&self) -> &'static str { "DemoWindow" }
 
-    fn render(&mut self, context: &egui::Context, _: &mut UiState, _: &mut World) {
+    fn render(&mut self, context: &egui::Context, _: &mut UiState, _: &mut World, _: &Assets) {
         self.ui(context);
     }
 }

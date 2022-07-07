@@ -60,6 +60,8 @@ fn main() {
 
     world.entities.register_component::<Renderable2D>();
     world.entities.register_component::<Renderer2DState>();
+    world.entities.register_component::<FrameHistoryState>();
+    world.entities.register_component::<VelocityState>();
     world.entities.register_component_with_default::<Camera>();
     world.entities.add_components(
         world.entities.entity_id_from_name("SystemState").unwrap(),
@@ -183,7 +185,7 @@ fn main() {
                 world.run_systems(delta_time);
             }
 
-            app.render(&window, &mut world);
+            app.render(&window, &mut world, &assets);
         },
         Event::MainEventsCleared => {
             window.request_redraw();

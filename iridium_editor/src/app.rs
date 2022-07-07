@@ -1,3 +1,4 @@
+use iridium_assets::Assets;
 use iridium_ecs::World;
 use iridium_graphics::Renderer2DSystem;
 use winit::{
@@ -122,7 +123,7 @@ impl App {
     }
 
     /// Render everything to the screen.
-    pub fn render(&mut self, window: &Window, world: &mut World) {
+    pub fn render(&mut self, window: &Window, world: &mut World, assets: &Assets) {
         puffin::profile_function!();
 
         // Calculate the viewport_rect in logical and physical coordinates.
@@ -131,7 +132,7 @@ impl App {
 
         let input = self.egui_state.input(window, viewport_rect_logical, self.ui_state.scale_factor, &mut self.ui_state);
 
-        self.egui_state.draw(window, input, &mut self.ui_state, world);
+        self.egui_state.draw(window, input, &mut self.ui_state, world, assets);
         self.egui_state.upload_ui(&self.device, &self.queue);
 
         // Get the surface texture to render to.

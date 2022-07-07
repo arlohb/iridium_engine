@@ -1,4 +1,5 @@
 use egui::PointerButton;
+use iridium_assets::Assets;
 use iridium_ecs::World;
 use winit::window::Window;
 
@@ -65,12 +66,12 @@ impl EguiState {
     }
 
     /// Renders all the panels.
-    pub fn render_panels(&mut self, ui_state: &mut UiState, world: &mut World) {
+    pub fn render_panels(&mut self, ui_state: &mut UiState, world: &mut World, assets: &Assets) {
         puffin::profile_function!();
 
         for panel in &mut self.panels {
             puffin::profile_scope!(panel.name());
-            panel.render(&self.context, ui_state, world);
+            panel.render(&self.context, ui_state, world, assets);
         }
     }
 
@@ -170,14 +171,14 @@ impl EguiState {
     }
 
     /// Draws the UI.
-    pub fn draw(&mut self, window: &winit::window::Window, input: egui::RawInput, ui_state: &mut UiState, world: &mut World) {
+    pub fn draw(&mut self, window: &winit::window::Window, input: egui::RawInput, ui_state: &mut UiState, world: &mut World, assets: &Assets) {
         puffin::profile_function!();
 
         // Begin the UI frame.
         self.context.begin_frame(input);
 
         // Draw the UI.
-        self.render_panels(ui_state, world);
+        self.render_panels(ui_state, world, assets);
 
         puffin::profile_scope!("UI draw");
 

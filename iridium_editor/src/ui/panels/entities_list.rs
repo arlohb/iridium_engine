@@ -1,3 +1,4 @@
+use iridium_assets::Assets;
 use iridium_ecs::{World, Name};
 
 use crate::ui::{UiState, PanelUi};
@@ -17,7 +18,7 @@ impl EntitiesList {
 impl PanelUi for EntitiesList {
     fn name(&self) -> &'static str { "EntitiesList" }
 
-    fn render(&mut self, context: &egui::Context, ui_state: &mut UiState, world: &mut World) {
+    fn render(&mut self, context: &egui::Context, ui_state: &mut UiState, world: &mut World, _assets: &Assets) {
         egui::SidePanel::left("entities_list").show(context, |ui| {
             let max_x_logical = ui.max_rect().max.x + ui.spacing().item_spacing.x;
             let max_x_physical = max_x_logical * ui_state.scale_factor;

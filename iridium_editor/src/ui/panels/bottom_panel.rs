@@ -1,4 +1,5 @@
 use image::GenericImageView;
+use iridium_assets::Assets;
 
 use crate::ui::PanelUi;
 
@@ -42,7 +43,7 @@ impl BottomPanel {
 impl PanelUi for BottomPanel {
     fn name(&self) -> &'static str { "BottomPanel" }
 
-    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, _world: &mut iridium_ecs::World) {
+    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, _world: &mut iridium_ecs::World, _assets: &Assets) {
         egui::TopBottomPanel::bottom("asset_browser")
             .default_height(ui_state.screen_size.1 as f32 * ui_state.scale_factor * 0.3)
             .resizable(true)

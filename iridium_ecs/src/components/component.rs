@@ -2,7 +2,9 @@
 
 use std::{cell::UnsafeCell, any::{Any, TypeId}};
 
-use crate::storage::ComponentStorage;
+use iridium_assets::Assets;
+
+use crate::storage::{ComponentStorage, StoredComponent};
 
 /// Information about a component type when it is registered.
 /// 
@@ -10,6 +12,12 @@ use crate::storage::ComponentStorage;
 pub struct ComponentInfo {
     /// The name of the component type.
     pub type_name: &'static str,
+    /// Creates a component from within the UI.
+    /// 
+    /// Not all components implement this.
+    pub default: Option<fn() -> Component>,
+    /// Tries to create a component from a stored component.
+    pub from_stored: fn(StoredComponent, &Assets) -> Option<Component>,
 }
 
 impl ComponentInfo {
@@ -18,6 +26,20 @@ impl ComponentInfo {
     where T: ComponentTrait {
         Self {
             type_name: T::type_name(),
+            default: None,
+            from_stored: T::from_stored_component,
+        }
+    }
+
+    /// Creates a new component info from a component type.
+    /// 
+    /// Also adds the default fn.
+    pub fn new_with_default<T>() -> Self
+    where T: ComponentTrait + ComponentDefault {
+        Self {
+            type_name: T::type_name(),
+            default: Some(T::create),
+            from_stored: T::from_stored_component,
         }
     }
 }
@@ -67,6 +89,16 @@ impl Component {
     where T: ComponentTrait + 'static {
         Component {
             data: Box::new(UnsafeCell::new(component)),
+        }
+    }
+
+    /// Gets the inner component type.
+    pub fn take<T: ComponentTrait + Sized>(self) -> T {
+        unsafe {
+            let ptr = self.data.get() as *const _ as *const T;
+            let t = ptr.read();
+            std::mem::forget(self);
+            t
         }
     }
 

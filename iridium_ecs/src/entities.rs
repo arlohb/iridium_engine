@@ -13,8 +13,6 @@ pub struct Entities {
     components: HashMap<TypeId, HashMap<u128, Component>>,
     /// Stores info about components.
     component_info: HashMap<TypeId, ComponentInfo>,
-    /// Functions to create components from the UI.
-    component_defaults: HashMap<TypeId, fn() -> Component>,
 }
 
 impl Default for Entities {
@@ -24,7 +22,6 @@ impl Default for Entities {
             entities: HashMap::new(),
             components: HashMap::new(),
             component_info: HashMap::new(),
-            component_defaults: HashMap::new(),
         };
 
         // Register the default components.
@@ -37,6 +34,25 @@ impl Default for Entities {
 }
 
 impl Entities {
+    /// Deletes all entities and components from a scene.
+    pub fn clear(&mut self) {
+        self.entities.clear();
+        self.components.clear();
+    }
+
+    /// Gets `ComponentInfo` from the component type.
+    pub fn component_info<T: ComponentTrait>(&self) -> Option<&ComponentInfo> {
+        let type_id = TypeId::of::<T>();
+         self.component_info.get(&type_id)
+    }
+
+    /// Gets `ComponentInfo` from the component type name.
+    pub fn component_info_from_name(&self, name: &str) -> Option<&ComponentInfo> {
+        self.component_info.iter()
+            .find(|(_, info)| info.type_name == name)
+            .map(|(_, info)| info)
+    }
+
     /// Gets the number of entities with a given component.
     pub fn entity_count<T: ComponentTrait>(&self) -> usize {
         let type_id = TypeId::of::<T>();
@@ -70,28 +86,21 @@ impl Entities {
     /// Called instead of `register_component`
     pub fn register_component_with_default<T>(&mut self)
     where T: ComponentTrait + ComponentDefault {
-        self.register_component::<T>();
-        self.add_component_default::<T>()
-    }
-
-    /// Add a component default after the component has been registered.
-    /// 
-    /// Use `register_component_with_default` instead.
-    fn add_component_default<T>(&mut self)
-    where T: ComponentTrait + ComponentDefault {
-        self.component_defaults.insert(TypeId::of::<T>(), T::create);
+        let type_id = TypeId::of::<T>();
+        let component_info = ComponentInfo::new_with_default::<T>();
+        self.component_info.insert(type_id, component_info);
     }
 
     /// Get a vec of component names and their factories.
     #[allow(clippy::type_complexity)]
     pub fn component_defaults(&self) -> Vec<(&'static str, fn() -> Component)> {
-        self.component_defaults
+        self.component_info
             .iter()
-            .map(|(type_id, default)| {
-                (
-                    self.component_info.get(type_id).expect("Component type not registered").type_name,
-                    *default,
-                )
+            .filter_map(|(_, info)| {
+                Some((
+                    info.type_name,
+                    info.default?,
+                ))
             })
             .collect::<Vec<_>>()
     }
@@ -139,6 +148,16 @@ impl Entities {
         // Generate a new entity id.
         let id = uuid::Uuid::new_v4().as_u128();
 
+        self.new_entity_with_id(id, name, components);
+
+        // Return the id.
+        id
+    }
+
+    /// Creates a new entity with the given components and id.
+    /// 
+    /// Automatically adds the Name component with the given name.
+    pub fn new_entity_with_id(&mut self, id: u128, name: &str,  components: Vec<Component>) {
         // Add it to entities.
         self.entities.insert(id, vec![]);
 
@@ -151,9 +170,6 @@ impl Entities {
 
         // Add the other components.
         self.add_components(id, components);
-
-        // Return the id.
-        id
     }
 
     /// Get all the component types an entity has.
