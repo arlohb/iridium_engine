@@ -44,7 +44,11 @@ impl<const N: usize> ComponentFieldUi for iridium_maths::VecN<N> {
                 let mut drag_value = egui::DragValue::new(&mut values[i]);
 
                 if let Some(drag_speed) = attributes.0.get("drag_speed") {
-                    drag_value = drag_value.speed(drag_speed.parse::<f32>().unwrap());
+                    drag_value = drag_value.speed(
+                        drag_speed
+                            .parse::<f32>()
+                            .expect("Invalid drag speed attribute"),
+                    );
                 }
 
                 ui[i].add(drag_value);

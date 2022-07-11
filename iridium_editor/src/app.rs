@@ -1,9 +1,15 @@
 use iridium_assets::Assets;
 use iridium_ecs::World;
 use iridium_graphics::Renderer2DSystem;
-use winit::{event::*, window::Window};
+use winit::{
+    event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
+    window::Window,
+};
 
-use crate::{play_state::PlayState, ui::*};
+use crate::{
+    play_state::PlayState,
+    ui::{EguiState, ScreenRect, UiState},
+};
 
 /// The main application state.
 pub struct App {
@@ -14,8 +20,6 @@ pub struct App {
 
     egui_state: EguiState,
     pub ui_state: UiState,
-
-    renderer_2d_system: Renderer2DSystem,
 }
 
 impl App {
@@ -44,7 +48,7 @@ impl App {
                 force_fallback_adapter: false,
             })
             .await
-            .unwrap();
+            .expect("Failed to get adapter");
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
@@ -55,7 +59,7 @@ impl App {
                 None,
             )
             .await
-            .unwrap();
+            .expect("Failed to get device");
 
         // Configure the surface.
         let surface_config = wgpu::SurfaceConfiguration {
@@ -73,9 +77,6 @@ impl App {
         let egui_state = EguiState::new(&device, surface_config.format, window);
         let ui_state = UiState::new(ScreenRect::new(1. / 3., 0., 2. / 3., 0.6), screen_size, 1.2);
 
-        // Create the renderer 2D system.
-        let renderer_2d_system = Renderer2DSystem {};
-
         Self {
             surface,
             device,
@@ -84,8 +85,6 @@ impl App {
 
             egui_state,
             ui_state,
-
-            renderer_2d_system,
         }
     }
 
@@ -149,7 +148,10 @@ impl App {
         self.egui_state.upload_ui(&self.device, &self.queue);
 
         // Get the surface texture to render to.
-        let output = self.surface.get_current_texture().unwrap();
+        let output = self
+            .surface
+            .get_current_texture()
+            .expect("Failed to get output texture");
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
@@ -182,7 +184,7 @@ impl App {
             });
 
             // Run the rendering system for the entities in the world.
-            self.renderer_2d_system.run(
+            Renderer2DSystem::run(
                 &world.entities,
                 &self.device,
                 &mut render_pass,

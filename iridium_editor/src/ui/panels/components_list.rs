@@ -41,7 +41,12 @@ impl PanelUi for ComponentsList {
                         });
 
                         // Get the components of the entity.
-                        let mut components = world.entities.get_entity_components(id);
+                        let mut components =
+                            if let Some(components) = world.entities.get_entity_components(id) {
+                                components
+                            } else {
+                                return;
+                            };
 
                         // Sort the components by type, putting name first.
                         components.sort_by(|a, b| {

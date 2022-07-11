@@ -4,13 +4,13 @@ use iridium_assets::Assets;
 use crate::ui::PanelUi;
 
 fn load_texture(context: &egui::Context, path: &str) -> ((usize, usize), egui::TextureHandle) {
-    let reader = image::io::Reader::open(path).unwrap();
-    let dynamic_image = reader.decode().unwrap();
+    let reader = image::io::Reader::open(path).expect("Failed to open texture");
+    let dynamic_image = reader.decode().expect("Failed to decode texture");
     let size = dynamic_image.dimensions();
     let image_rgba = dynamic_image.to_rgba8();
 
     let texture = context.load_texture(
-        path.split('/').last().unwrap(),
+        path.split('/').last().unwrap_or(path),
         egui::ColorImage::from_rgba_unmultiplied([size.0 as usize, size.1 as usize], &image_rgba),
     );
 
@@ -29,8 +29,8 @@ pub struct BottomPanel {
 }
 
 impl BottomPanel {
-    pub fn new() -> BottomPanel {
-        BottomPanel {
+    pub const fn new() -> Self {
+        Self {
             texture: None,
             current_tab: CurrentTab::Profiler,
         }

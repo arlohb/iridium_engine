@@ -1,7 +1,11 @@
 use std::{collections::VecDeque, time::SystemTime};
 
 use iridium_assets::Assets;
-use iridium_ecs::{storage::*, systems::System, *};
+use iridium_ecs::{
+    storage::{ComponentStorage, StoredComponent, StoredComponentField},
+    systems::System,
+    Component, ComponentFieldUi, Entities,
+};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
@@ -36,7 +40,7 @@ impl ComponentStorage for FrameHistoryState {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         let max_frames = stored.get("max_frames")?.parse().ok()?;
 
-        Some(FrameHistoryState {
+        Some(Self {
             frames: VecDeque::with_capacity(max_frames),
             max_frames,
             max_age: stored.get("max_age")?.parse().ok()?,
@@ -81,7 +85,13 @@ impl System for FrameHistorySystem {
         }
 
         while let Some(frame) = state.frames.front() {
-            if frame.time.elapsed().unwrap().as_millis() > state.max_age as u128 {
+            if frame
+                .time
+                .elapsed()
+                .expect("Time went backwards")
+                .as_millis()
+                > state.max_age as u128
+            {
                 state.frames.pop_front();
             } else {
                 break;

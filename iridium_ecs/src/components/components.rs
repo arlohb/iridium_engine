@@ -2,7 +2,7 @@ use iridium_assets::Assets;
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
-use crate::storage::*;
+use crate::storage::{ComponentStorage, StoredComponent, StoredComponentField};
 use crate::{Component, ComponentDefault, ComponentFieldUi};
 
 use crate as iridium_ecs;
@@ -18,7 +18,7 @@ pub struct Name {
 
 impl ComponentStorage for Name {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(Name {
+        Some(Self {
             name: stored.get("name")?,
         })
     }

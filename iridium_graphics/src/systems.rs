@@ -1,10 +1,16 @@
-use iridium_ecs::{storage::*, *};
+use std::cmp::Ordering;
+
+use iridium_ecs::{
+    query,
+    storage::{ComponentStorage, StoredComponent, StoredComponentField},
+    Component, ComponentDefault, ComponentFieldUi, Entities, Name, Transform,
+};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
-use crate::*;
+use crate::{Camera, CameraGpuData, Renderable2D};
 
-/// The state for Renderer2DSystem.
+/// The state for `Renderer2DSystem`.
 #[derive(ComponentTrait)]
 pub struct Renderer2DState {
     /// The name of the active camera.
@@ -20,7 +26,7 @@ pub struct Renderer2DState {
 
 impl ComponentDefault for Renderer2DState {
     fn create() -> Component {
-        Component::new(Renderer2DState {
+        Component::new(Self {
             active_camera: "".to_string(),
             camera_gpu_data: None,
         })
@@ -29,7 +35,7 @@ impl ComponentDefault for Renderer2DState {
 
 impl ComponentStorage for Renderer2DState {
     fn from_stored(mut stored: StoredComponent, _assets: &iridium_assets::Assets) -> Option<Self> {
-        Some(Renderer2DState {
+        Some(Self {
             active_camera: stored.get("active_camera")?,
             camera_gpu_data: None,
         })
@@ -53,11 +59,12 @@ pub struct Renderer2DSystem;
 impl Renderer2DSystem {
     /// Runs the system.
     #[allow(clippy::too_many_arguments)]
+    // This should probably be changed at some point.
+    #[allow(clippy::too_many_lines)]
     pub fn run(
-        &mut self,
-        entities: &Entities,
+        entities: & /* 'entities */ Entities,
         device: &wgpu::Device,
-        render_pass: &mut wgpu::RenderPass,
+        render_pass: & /* 'rpass */ mut wgpu::RenderPass,
         queue: &wgpu::Queue,
         viewport_rect_physical: &egui::Rect,
         size_pixels: (f32, f32),
@@ -126,13 +133,18 @@ impl Renderer2DSystem {
                     // The name shouldn't be used to order sprites, it's just to prevent z-fighting.
                     components.sort_by(|(a_t, _, a_name), (b_t, _, b_name)| {
                         // Sort by z-index.
-                        let ordering = a_t.position.z().partial_cmp(&b_t.position.z()).unwrap();
+                        let ordering = a_t
+                            .position
+                            .z()
+                            .partial_cmp(&b_t.position.z())
+                            .unwrap_or(Ordering::Equal);
 
-                        // If z-index is equal, sort by name.
-                        if let std::cmp::Ordering::Equal = ordering {
-                            a_name.name.cmp(&b_name.name)
-                        } else {
-                            ordering
+                        match ordering {
+                            Ordering::Equal => {
+                                // Sort by name.
+                                a_name.name.cmp(&b_name.name)
+                            }
+                            _ => ordering,
                         }
                     });
                 }
@@ -148,7 +160,11 @@ impl Renderer2DSystem {
                     .get_or_insert_with(|| CameraGpuData::new(device));
 
                 let camera_gpu_data = unsafe {
-                    std::mem::transmute::<&mut CameraGpuData, &mut CameraGpuData>(camera_gpu_data)
+                    #[allow(clippy::useless_transmute)]
+                    std::mem::transmute::<
+                        & /* 'entities */ mut CameraGpuData,
+                        & /* 'rpass */ mut CameraGpuData,
+                    >(camera_gpu_data)
                 };
 
                 queue.write_buffer(&camera_gpu_data.buffer, 0, &camera.as_bytes());
@@ -164,8 +180,12 @@ impl Renderer2DSystem {
         for (transform, renderable_2d, _) in components {
             // Extend the lifetime of renderable_2d for render_pass.set_pipeline.
             // This is safe because it's only used as the pipeline for the duration of this function.
-            let renderable_2d =
-                unsafe { std::mem::transmute::<&Renderable2D, &Renderable2D>(renderable_2d) };
+            #[allow(clippy::useless_transmute)]
+            let renderable_2d = unsafe {
+                std::mem::transmute::<& /* 'entities */ Renderable2D, & /* 'rpass */ Renderable2D>(
+                    renderable_2d,
+                )
+            };
 
             let material = &renderable_2d.material;
 

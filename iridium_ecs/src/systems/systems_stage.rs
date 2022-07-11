@@ -1,6 +1,6 @@
 use rayon::prelude::*;
 
-use super::*;
+use super::System;
 use crate::Entities;
 
 /// A system stage.
@@ -13,8 +13,9 @@ pub struct SystemsStage {
 
 impl SystemsStage {
     /// Creates a new stage with the given systems.
-    pub fn new(systems: Vec<Box<dyn System>>) -> SystemsStage {
-        SystemsStage { systems }
+    #[must_use]
+    pub fn new(systems: Vec<Box<dyn System>>) -> Self {
+        Self { systems }
     }
 
     /// Executes the systems in this stage.

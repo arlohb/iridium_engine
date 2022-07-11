@@ -1,11 +1,14 @@
 use iridium_assets::Assets;
-use iridium_ecs::{storage::*, Component, ComponentDefault, ComponentFieldUi};
+use iridium_ecs::{
+    storage::{ComponentStorage, StoredComponent, StoredComponentField},
+    Component, ComponentDefault, ComponentFieldUi,
+};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
 use wgpu::util::DeviceExt;
 
-use crate::*;
+use crate::{MaterialInstance, Mesh, Vertex};
 
 /// Stores data about the camera to be used for the GPU.
 pub struct CameraGpuData {
@@ -19,6 +22,7 @@ pub struct CameraGpuData {
 
 impl CameraGpuData {
     /// Creates a new camera GPU data.
+    #[must_use]
     pub fn new(device: &wgpu::Device) -> Self {
         let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("Camera buffer"),
@@ -89,6 +93,7 @@ impl Camera {
     const GPU_BYTES: usize = 32;
 
     /// Converts the camera to bytes to be sent to the GPU.
+    #[must_use]
     pub fn as_bytes(&self) -> [u8; Self::GPU_BYTES] {
         let mut bytes = [0; Self::GPU_BYTES];
 
@@ -107,7 +112,7 @@ impl Camera {
 
 impl ComponentDefault for Camera {
     fn create() -> Component {
-        Component::new(Camera {
+        Component::new(Self {
             name: "".to_string(),
             position: VecN::new([0.0, 0.0]),
             min_depth: 0.0,
@@ -121,7 +126,7 @@ impl ComponentDefault for Camera {
 
 impl ComponentStorage for Camera {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(Camera {
+        Some(Self {
             name: stored.get("name")?,
             position: stored.get("position")?.parse().ok()?,
             min_depth: stored.get("min_depth")?.parse().ok()?,
@@ -178,11 +183,12 @@ impl ComponentStorage for Renderable2D {
 
 impl Renderable2D {
     /// Creates a new `Renderable2D` from a `MaterialInstance` and a `Mesh`.
+    #[must_use]
     pub fn new(device: &wgpu::Device, material_instance: MaterialInstance, mesh: &Mesh) -> Self {
         let vertices_bytes = mesh
             .vertices
             .iter()
-            .flat_map(|v| v.as_bytes())
+            .flat_map(Vertex::as_bytes)
             .collect::<Vec<u8>>();
 
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -203,9 +209,13 @@ impl Renderable2D {
             usage: wgpu::BufferUsages::INDEX,
         });
 
-        let index_count = mesh.indices.len() as u32;
+        let index_count = mesh
+            .indices
+            .len()
+            .try_into()
+            .expect("Index count too large");
 
-        Renderable2D {
+        Self {
             material: material_instance,
             vertex_buffer,
             index_buffer,

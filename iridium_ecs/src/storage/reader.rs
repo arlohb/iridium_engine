@@ -25,7 +25,7 @@ pub type ParsedEntities = Vec<(u128, Name, Vec<Component>)>;
 #[derive(Debug)]
 pub enum ErrorLocation {
     /// The error is at this line.
-    Line(u32),
+    Line(usize),
     /// The error is at the component with this id.
     Component(u128),
 }
@@ -43,6 +43,10 @@ pub enum ReadError {
     InvalidField(ErrorLocation),
     /// The entity is missing the `Name` component.
     MissingName(u128),
+    /// The id of an entity was not a valid u128.
+    ///
+    /// Returns the invalid id string.
+    InvalidId(String),
 }
 
 fn read_file(file: &str) -> Result<String, ReadError> {
@@ -82,15 +86,15 @@ fn extract_entities(src: &str) -> Result<StoredEntities, ReadError> {
                     .strip_prefix('"')
                     .and_then(|line| line.strip_suffix("\": {"))
                 {
-                    let id = id_str.parse::<u128>().unwrap();
+                    let id = id_str
+                        .parse::<u128>()
+                        .map_err(|_| ReadError::InvalidId(id_str.to_string()))?;
                     current_entity = Some((id, Vec::new()));
                     state = State::Entity;
                 } else if line.trim() != "}" || line.trim() != "}," {
                     state = State::None;
                 } else {
-                    return Err(ReadError::SyntaxError(ErrorLocation::Line(
-                        line_number as u32,
-                    )));
+                    return Err(ReadError::SyntaxError(ErrorLocation::Line(line_number)));
                 }
             }
             State::Entity => {
@@ -102,12 +106,14 @@ fn extract_entities(src: &str) -> Result<StoredEntities, ReadError> {
                     });
                     state = State::Component;
                 } else if line.trim() == "}" || line.trim() == "}," {
-                    stored_entities.push(current_entity.take().unwrap());
+                    stored_entities.push(
+                        current_entity.take().expect(
+                            "Something went very wrong in parsing. Code ran in wrong order.",
+                        ),
+                    );
                     state = State::Entities;
                 } else {
-                    return Err(ReadError::SyntaxError(ErrorLocation::Line(
-                        line_number as u32,
-                    )));
+                    return Err(ReadError::SyntaxError(ErrorLocation::Line(line_number)));
                 }
             }
             State::Component => {
@@ -118,20 +124,20 @@ fn extract_entities(src: &str) -> Result<StoredEntities, ReadError> {
 
                     current_component
                         .as_mut()
-                        .unwrap()
+                        .expect("Something went very wrong in parsing. Code ran in wrong order.")
                         .fields
                         .insert(key, value);
                 } else if line.trim() == "}" || line.trim() == "}," {
                     current_entity
                         .as_mut()
-                        .unwrap()
+                        .expect("Something went very wrong in parsing. Code ran in wrong order.")
                         .1
-                        .push(current_component.take().unwrap());
+                        .push(current_component.take().expect(
+                            "Something went very wrong in parsing. Code ran in wrong order.",
+                        ));
                     state = State::Entity;
                 } else {
-                    return Err(ReadError::SyntaxError(ErrorLocation::Line(
-                        line_number as u32,
-                    )));
+                    return Err(ReadError::SyntaxError(ErrorLocation::Line(line_number)));
                 }
             }
         }
@@ -205,6 +211,10 @@ fn write_components_to_world(parsed_entities: ParsedEntities, world: &mut World)
 ///
 /// In the future this may return a world instead of modifying an existing one,
 /// but right now it needs the existing systems as they aren't serialized.
+///
+/// # Errors
+///
+/// Will return an error if the file cannot be read, or if the file is not a valid JSON5 file.
 pub fn load_world_from_file(
     file: &str,
     world: &mut World,

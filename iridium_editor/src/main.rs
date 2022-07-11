@@ -2,12 +2,25 @@
 //!
 //! A game engine for Rust.
 
+#![warn(
+    clippy::unwrap_used,
+    clippy::pedantic,
+    clippy::nursery,
+    future_incompatible
+)]
+#![allow(
+    clippy::module_name_repetitions,
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss
+)]
+
 #[macro_use]
 extern crate dlopen_derive;
 
 mod systems;
 use play_state::PlayState;
-use systems::*;
+use systems::{FrameHistoryState, FrameHistorySystem, VelocityState, VelocitySystem};
 mod app;
 pub use app::*;
 mod project;
@@ -15,19 +28,24 @@ mod ui;
 use project::Project;
 mod play_state;
 
-use iridium_assets::*;
-use iridium_ecs::systems::*;
-use iridium_ecs::*;
-use iridium_graphics::*;
-use iridium_maths::*;
+use iridium_assets::Assets;
+use iridium_ecs::systems::{Systems, SystemsStage};
+use iridium_ecs::{Component, ComponentDefault, Entities, World};
+use iridium_graphics::{
+    Camera, CameraGpuData, Material, Mesh, Renderable2D, Renderer2DState, Shader, ShaderType,
+    Texture, Vertex,
+};
+use iridium_maths::VecN;
 
 use inline_spirv::include_spirv;
 use winit::{
-    event::*,
+    event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
 
+// This will change in the future.
+#[allow(clippy::too_many_lines)]
 fn main() {
     // std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
@@ -39,7 +57,7 @@ fn main() {
         .with_title("Iridium Editor")
         .with_maximized(false)
         .build(&event_loop)
-        .unwrap();
+        .expect("Failed to create window");
 
     let mut app = pollster::block_on(App::new(&window));
 
@@ -62,7 +80,10 @@ fn main() {
     world.entities.register_component::<VelocityState>();
     world.entities.register_component_with_default::<Camera>();
     world.entities.add_components(
-        world.entities.entity_id_from_name("SystemState").unwrap(),
+        world
+            .entities
+            .entity_id_from_name("SystemState")
+            .expect("SystemState entity not found"),
         vec![Component::new(Renderer2DState {
             active_camera: "".to_string(),
             camera_gpu_data: Some(camera_gpu_data),
@@ -89,7 +110,7 @@ fn main() {
             &app.device,
             ShaderType::Vertex,
             include_spirv!("src/vert.hlsl", vert, hlsl, entry = "vs_main"),
-            vec![wgpu::BindingType::Buffer {
+            &[wgpu::BindingType::Buffer {
                 ty: wgpu::BufferBindingType::Uniform,
                 has_dynamic_offset: false,
                 min_binding_size: None,
@@ -102,14 +123,14 @@ fn main() {
             &app.device,
             ShaderType::Fragment,
             include_spirv!("src/sprite.hlsl", frag, hlsl, entry = "fs_main"),
-            vec![
+            &[
                 assets
                     .get::<Texture>("steak_tex")
-                    .unwrap()
+                    .expect("asset 'steak_tex' not found")
                     .texture_binding_type,
                 assets
                     .get::<Texture>("steak_tex")
-                    .unwrap()
+                    .expect("asset 'steak_tex' not found")
                     .sampler_binding_type,
             ],
         ),
@@ -120,7 +141,7 @@ fn main() {
             &app.device,
             ShaderType::Fragment,
             include_spirv!("src/uv_test.hlsl", frag, hlsl, entry = "fs_main"),
-            vec![],
+            &[],
         ),
     );
 
@@ -129,14 +150,18 @@ fn main() {
         Material::new(
             &app.device,
             app.surface_config.format,
-            assets.get::<Shader>("sprite_vertex").unwrap(),
+            assets
+                .get::<Shader>("sprite_vertex")
+                .expect("asset 'sprite_vertex' not found"),
             world
                 .entities
                 .get::<Renderer2DState>()
                 .camera_gpu_data
                 .as_ref()
-                .unwrap(),
-            assets.get::<Shader>("sprite_fragment").unwrap(),
+                .expect("Camera GPU data not created yet"),
+            assets
+                .get::<Shader>("sprite_fragment")
+                .expect("asset 'sprite_fragment' not found"),
         ),
     );
 
@@ -145,14 +170,18 @@ fn main() {
         Material::new(
             &app.device,
             app.surface_config.format,
-            assets.get::<Shader>("sprite_vertex").unwrap(),
+            assets
+                .get::<Shader>("sprite_vertex")
+                .expect("asset 'sprite_vertex' not found"),
             world
                 .entities
                 .get::<Renderer2DState>()
                 .camera_gpu_data
                 .as_ref()
-                .unwrap(),
-            assets.get::<Shader>("uv_test_fragment").unwrap(),
+                .expect("Camera GPU data not created yet"),
+            assets
+                .get::<Shader>("uv_test_fragment")
+                .expect("asset 'uv_test_fragment' not found"),
         ),
     );
 
@@ -210,7 +239,11 @@ fn main() {
         Event::RedrawRequested(window_id) if window_id == window.id() => {
             puffin::GlobalProfiler::lock().new_frame();
             puffin::profile_scope!("Frame");
-            let delta_time = last_time.elapsed().as_nanos() as f64 / 1_000_000.;
+
+            let delta_time: f64 = f64::from(
+                u32::try_from(last_time.elapsed().as_nanos())
+                    .expect("Delta time nanos too big for u32"),
+            ) / 1_000_000f64;
             last_time = std::time::Instant::now();
 
             if let PlayState::Play = app.ui_state.play_state() {

@@ -13,10 +13,11 @@ pub struct Project {
 }
 
 impl Project {
-    pub fn load(path: &str) -> Project {
-        let container: Container<ProjectApi> = unsafe { Container::load(path) }.unwrap();
+    pub fn load(path: &str) -> Self {
+        let container: Container<ProjectApi> =
+            unsafe { Container::load(path) }.expect("Failed to load project");
 
-        Project { api: container }
+        Self { api: container }
     }
 
     pub fn init_system(&self, device: &wgpu::Device, world: &mut World, assets: &Assets) {

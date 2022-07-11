@@ -3,7 +3,7 @@ use std::sync::Arc;
 use iridium_assets::Asset;
 use wgpu::util::DeviceExt;
 
-use crate::*;
+use crate::{CameraGpuData, Shader, ShaderData, Vertex};
 
 /// Describes how an entity should be drawn to the screen.
 pub struct Material {
@@ -23,7 +23,7 @@ impl Material {
         vertex: Asset<Shader>,
         camera_gpu_data: &CameraGpuData,
         fragment: Asset<Shader>,
-    ) -> Material {
+    ) -> Self {
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,
             bind_group_layouts: &[
@@ -73,7 +73,7 @@ impl Material {
             multiview: None,
         });
 
-        Material {
+        Self {
             vertex,
             fragment,
             render_pipeline,
@@ -93,6 +93,7 @@ pub struct MaterialInstance {
 
 impl MaterialInstance {
     /// Creates a new material instance.
+    #[must_use]
     pub fn new(
         device: &wgpu::Device,
         material: Asset<Material>,
@@ -100,7 +101,7 @@ impl MaterialInstance {
         vertex_resources: Vec<wgpu::BindingResource>,
         fragment_buffer: Vec<Arc<wgpu::Buffer>>,
         fragment_resources: Vec<wgpu::BindingResource>,
-    ) -> MaterialInstance {
+    ) -> Self {
         let buffer = Arc::new(
             device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: None,
@@ -115,8 +116,7 @@ impl MaterialInstance {
         let vertex_resources =
             std::iter::once(buffer.as_entire_binding()).chain(vertex_resources.into_iter());
 
-        MaterialInstance {
-            material: material.clone(),
+        Self {
             vertex_data: ShaderData {
                 buffers: vertex_buffers,
                 bind_group: device.create_bind_group(&wgpu::BindGroupDescriptor {
@@ -124,7 +124,7 @@ impl MaterialInstance {
                     entries: &vertex_resources
                         .enumerate()
                         .map(|(binding, binding_resource)| wgpu::BindGroupEntry {
-                            binding: binding as u32,
+                            binding: binding.try_into().expect("Too many bindings"),
                             resource: binding_resource,
                         })
                         .collect::<Vec<_>>(),
@@ -139,13 +139,14 @@ impl MaterialInstance {
                         .into_iter()
                         .enumerate()
                         .map(|(binding, binding_resource)| wgpu::BindGroupEntry {
-                            binding: binding as u32,
+                            binding: binding.try_into().expect("Too many bindings"),
                             resource: binding_resource,
                         })
                         .collect::<Vec<_>>(),
                     label: None,
                 }),
             },
+            material,
         }
     }
 }

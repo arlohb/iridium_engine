@@ -79,7 +79,9 @@ impl PanelUi for TopPanel {
                                     )
                                     .clicked()
                                 {
-                                    world.load("temp.json5", assets).unwrap();
+                                    world
+                                        .load("temp.json5", assets)
+                                        .expect("Save file disappeared");
                                     ui_state.stop();
                                 }
 

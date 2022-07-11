@@ -18,13 +18,14 @@ pub struct Texture {
 
 impl Texture {
     /// Creates a new texture from the rgba bytes.
+    #[must_use]
     pub fn new(
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         image_rgba: &[u8],
         dimensions: (u32, u32),
         filtered: bool,
-    ) -> Texture {
+    ) -> Self {
         let texture_binding_type = wgpu::BindingType::Texture {
             sample_type: wgpu::TextureSampleType::Float {
                 filterable: filtered,
@@ -90,7 +91,7 @@ impl Texture {
             ..Default::default()
         });
 
-        Texture {
+        Self {
             texture_binding_type,
             sampler_binding_type,
             texture,
@@ -104,15 +105,18 @@ impl Texture {
     /// While this function can in theory read images of any file type, for now only the png feature of the `image` crate is enabled.
     ///
     /// In the future I hope to allow any image format supported by the `image` crate, but this would increase compile times by quite a bit.
+    #[must_use]
     pub fn from_image_bytes(
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         image_bytes: &[u8],
         filtered: bool,
-    ) -> Texture {
-        let image_rgba = image::load_from_memory(image_bytes).unwrap().to_rgba8();
+    ) -> Self {
+        let image_rgba = image::load_from_memory(image_bytes)
+            .expect("Bytes are not a valid image")
+            .to_rgba8();
         let dimensions = image_rgba.dimensions();
 
-        Texture::new(device, queue, &image_rgba, dimensions, filtered)
+        Self::new(device, queue, &image_rgba, dimensions, filtered)
     }
 }

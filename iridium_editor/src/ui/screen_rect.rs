@@ -8,9 +8,9 @@ pub struct ScreenRect {
 }
 
 impl ScreenRect {
-    /// Creates a new ScreenRect with the given values.
-    pub fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> ScreenRect {
-        ScreenRect {
+    /// Creates a new `ScreenRect` with the given values.
+    pub const fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> Self {
+        Self {
             min_x,
             min_y,
             max_x,
@@ -18,7 +18,7 @@ impl ScreenRect {
         }
     }
 
-    /// Converts to an egui::Rect in logical coordinates.
+    /// Converts to an `egui::Rect` in logical coordinates.
     pub fn egui_logical(&self, width: u32, height: u32, scale_factor: f32) -> egui::Rect {
         egui::Rect {
             min: egui::emath::pos2(

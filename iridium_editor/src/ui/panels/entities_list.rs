@@ -8,7 +8,7 @@ pub struct EntitiesList {
 }
 
 impl EntitiesList {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             name_filter: String::new(),
         }
@@ -38,7 +38,7 @@ impl PanelUi for EntitiesList {
             ui.menu_button("Add Entity", |ui| {
                 if ui.button("Empty").clicked() {
                     world.entities.new_entity("New Entity", vec![]);
-                    ui.close_menu()
+                    ui.close_menu();
                 }
             });
 

@@ -28,7 +28,7 @@ impl UiState {
         screen_size: (u32, u32),
         scale_factor: f32,
     ) -> Self {
-        UiState {
+        Self {
             viewport_rect,
             screen_size,
             scale_factor,

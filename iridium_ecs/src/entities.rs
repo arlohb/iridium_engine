@@ -2,7 +2,9 @@
 
 use std::any::TypeId;
 
-use super::*;
+use super::{
+    Component, ComponentDefault, ComponentInfo, ComponentTrait, Name, Transform, Velocity,
+};
 use hashbrown::HashMap;
 
 /// Stores all the entities in the scene.
@@ -41,12 +43,14 @@ impl Entities {
     }
 
     /// Gets `ComponentInfo` from the component type.
+    #[must_use]
     pub fn component_info<T: ComponentTrait>(&self) -> Option<&ComponentInfo> {
         let type_id = TypeId::of::<T>();
         self.component_info.get(&type_id)
     }
 
     /// Gets `ComponentInfo` from the component type name.
+    #[must_use]
     pub fn component_info_from_name(&self, name: &str) -> Option<&ComponentInfo> {
         self.component_info
             .iter()
@@ -55,15 +59,14 @@ impl Entities {
     }
 
     /// Gets the number of entities with a given component.
+    #[must_use]
     pub fn entity_count<T: ComponentTrait>(&self) -> usize {
         let type_id = TypeId::of::<T>();
-        self.components
-            .get(&type_id)
-            .map(|components| components.len())
-            .unwrap_or(0)
+        self.components.get(&type_id).map_or(0, HashMap::len)
     }
 
     /// Gets an entity id from its name.
+    #[must_use]
     pub fn entity_id_from_name(&self, name: &str) -> Option<u128> {
         self.query_with_id([&std::any::TypeId::of::<Name>()])
             .find(|(_, [name_component])| name_component.get::<Name>().name == name)
@@ -71,6 +74,7 @@ impl Entities {
     }
 
     /// Gets a vec of all entity ids.
+    #[must_use]
     pub fn entity_ids(&self) -> Vec<u128> {
         self.entities.keys().copied().collect()
     }
@@ -101,6 +105,7 @@ impl Entities {
 
     /// Get a vec of component names and their factories.
     #[allow(clippy::type_complexity)]
+    #[must_use]
     pub fn component_defaults(&self) -> Vec<(&'static str, fn() -> Component)> {
         self.component_info
             .iter()
@@ -110,17 +115,12 @@ impl Entities {
 
     /// Add components to an entity.
     pub fn add_components(&mut self, entity_id: u128, components: Vec<Component>) {
-        // If the entity doesn't exist,
-        if !self.entities.contains_key(&entity_id) {
-            // Add it.
-            self.entities.insert(entity_id, vec![]);
-        }
+        // Get the vec of components the entities has.
+        // If it doesn't exist, add it.
+        let entity = self.entities.entry(entity_id).or_insert(vec![]);
 
         // For each component to be added.
         for component in components {
-            // Get the vec of components the entities has.
-            let entity = self.entities.get_mut(&entity_id).unwrap();
-
             // If the component is already added, continue.
             if entity.contains(&component.type_id()) {
                 continue;
@@ -129,21 +129,13 @@ impl Entities {
             // Add to entities.
             entity.push(component.type_id());
 
-            // If components of this type already exists,
-            if self.components.contains_key(&component.type_id()) {
-                // Add to it.
-                self.components
-                    .get_mut(&component.type_id())
-                    .unwrap()
-                    .insert(entity_id, component);
-            } else {
-                // Create a new one.
-                let type_id = component.type_id();
-                let mut components = HashMap::new();
-                // And insert the component into it.
-                components.insert(entity_id, component);
-                self.components.insert(type_id, components);
-            }
+            // Get the hashmap of type_id => component.
+            self.components
+                .entry(component.type_id())
+                // If it doesn't exist, add it.
+                .or_insert_with(HashMap::new)
+                // Add this component to the hashmap.
+                .insert(entity_id, component);
         }
     }
 
@@ -180,30 +172,46 @@ impl Entities {
     }
 
     /// Get all the component types an entity has.
-    pub fn get_entity_component_types(&self, entity_id: u128) -> Vec<TypeId> {
+    ///
+    /// Returns None if the entity doesn't exist.
+    #[must_use]
+    pub fn get_entity_component_types(&self, entity_id: u128) -> Option<Vec<TypeId>> {
         // Do a simple look up in the entities map.
-        self.entities.get(&entity_id).unwrap().clone()
+        self.entities.get(&entity_id).cloned()
     }
 
     /// Get all the components of a given entity.
-    pub fn get_entity_components(&self, entity_id: u128) -> Vec<&Component> {
+    ///
+    /// Returns None if the entity doesn't exist.
+    #[must_use]
+    pub fn get_entity_components(&self, entity_id: u128) -> Option<Vec<&Component>> {
         // Get the component types of the entity.
-        let component_types = self.get_entity_component_types(entity_id);
+        let component_types = self.get_entity_component_types(entity_id)?;
 
         // For each component the entity has.
-        component_types
-            .into_iter()
-            .map(|component_type| {
-                // Get the map of entities => components.
-                let entities_to_components = self.components.get(&component_type).unwrap();
-                // Return the component.
-                entities_to_components.get(&entity_id).unwrap()
-                // Collect into a HashMap
-            })
-            .collect::<Vec<_>>()
+        Some(
+            component_types
+                .into_iter()
+                .map(|component_type| {
+                    // Get the map of entities => components.
+                    let entities_to_components = self
+                        .components
+                        .get(&component_type)
+                        .expect("Component type not registered.");
+                    // Return the component.
+                    entities_to_components
+                        .get(&entity_id)
+                        .expect("Component not found in entity.")
+                    // Collect into a HashMap
+                })
+                .collect::<Vec<_>>(),
+        )
     }
 
-    /// Get an iterator over components of given types, in the form (entity_id, [comp1, comp2, comp3]).
+    /// Get an iterator over components of given types, in the form (entity id, \[comp1, comp2, comp3\]).
+    ///
+    /// # Panics
+    #[must_use]
     pub fn query_with_id<const N: usize>(
         &self,
         component_types: [&TypeId; N],
@@ -214,7 +222,10 @@ impl Entities {
         // we can skip all the hard work.
         if N == 1 {
             // Get the map of entities => components.
-            let entities_to_components = self.components.get(component_types[0]).unwrap();
+            let entities_to_components = self
+                .components
+                .get(component_types[0])
+                .expect("Component type not registered.");
             // Return the iterator.
             entities_to_components
                 .iter()
@@ -237,7 +248,7 @@ impl Entities {
                             // Get entities => components for this component type.
                             .get(component_type)
                             // Do this if previous is Some.
-                            .map(|map| {
+                            .map_or_else(Vec::new, |map| {
                                 map
                                     // Only get the entity id.
                                     .keys()
@@ -246,10 +257,6 @@ impl Entities {
                                     // Into a vector.
                                     .collect::<Vec<u128>>()
                             })
-                            // If previous is None, return an empty vector.
-                            .or_else(|| Some(vec![]))
-                            // This is now definitely Some.
-                            .unwrap()
                     })
             };
 
@@ -321,6 +328,7 @@ impl Entities {
     }
 
     /// Get an iterator over components of given types, in the form [comp1, comp2, comp3].
+    #[must_use]
     pub fn query<const N: usize>(
         &self,
         component_types: [&TypeId; N],
@@ -340,13 +348,14 @@ impl Entities {
     /// This gets the first component of the given type,
     ///
     /// but should only be used when you're sure there is only one.
+    #[must_use]
     pub fn get<T: ComponentTrait>(&self) -> &mut T {
         let component_type = &TypeId::of::<T>();
 
         self.components[component_type]
             .values()
             .next()
-            .unwrap()
+            .expect("Component not found.")
             .get_mut::<T>()
     }
 }

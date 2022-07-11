@@ -1,6 +1,13 @@
-#![warn(missing_docs)]
+#![warn(
+    missing_docs,
+    clippy::unwrap_used,
+    clippy::pedantic,
+    clippy::nursery,
+    future_incompatible
+)]
+#![allow(clippy::module_name_repetitions)]
 
-//! Provides utilities for creating hashbrown's HashMap with various things applied to the values.
+//! Provides utilities for creating hashbrown's `HashMap` with various things applied to the values.
 
 /// A macro to create a `hashbrown::HashMap` with nicer syntax.
 ///

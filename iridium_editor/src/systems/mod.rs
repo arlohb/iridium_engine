@@ -2,7 +2,12 @@ mod frame_history;
 pub use frame_history::*;
 
 use iridium_assets::Assets;
-use iridium_ecs::{storage::*, systems::System, *};
+use iridium_ecs::{
+    query,
+    storage::{ComponentStorage, StoredComponent, StoredComponentField},
+    systems::System,
+    Component, ComponentFieldUi, Entities, Transform, Velocity,
+};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
@@ -14,7 +19,7 @@ pub struct VelocityState {
 
 impl ComponentStorage for VelocityState {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(VelocityState {
+        Some(Self {
             rotation_speed: stored.get("rotation_speed")?.parse().ok()?,
         })
     }
@@ -77,7 +82,7 @@ pub struct PositionLoggerState {}
 
 impl ComponentStorage for PositionLoggerState {
     fn from_stored(_stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(PositionLoggerState {})
+        Some(Self {})
     }
 
     fn to_stored(&self) -> StoredComponent {

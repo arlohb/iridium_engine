@@ -16,8 +16,8 @@ pub enum ShaderType {
 impl From<ShaderType> for wgpu::ShaderStages {
     fn from(shader_type: ShaderType) -> Self {
         match shader_type {
-            ShaderType::Vertex => wgpu::ShaderStages::VERTEX,
-            ShaderType::Fragment => wgpu::ShaderStages::FRAGMENT,
+            ShaderType::Vertex => Self::VERTEX,
+            ShaderType::Fragment => Self::FRAGMENT,
         }
     }
 }
@@ -32,18 +32,19 @@ pub struct Shader {
 
 impl Shader {
     /// Creates a new shader from the spirv bytes.
+    #[must_use]
     pub fn new(
         device: &wgpu::Device,
         shader_type: ShaderType,
         spirv: &[u32],
-        inputs: Vec<wgpu::BindingType>,
-    ) -> Shader {
+        inputs: &[wgpu::BindingType],
+    ) -> Self {
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &inputs
                 .iter()
                 .enumerate()
                 .map(|(binding, binding_type)| wgpu::BindGroupLayoutEntry {
-                    binding: binding as u32,
+                    binding: binding.try_into().expect("Too many bindings"),
                     visibility: shader_type.into(),
                     ty: *binding_type,
                     count: None,
@@ -57,7 +58,7 @@ impl Shader {
             source: wgpu::ShaderSource::SpirV(std::borrow::Cow::Borrowed(spirv)),
         });
 
-        Shader {
+        Self {
             bind_group_layout,
             shader,
         }

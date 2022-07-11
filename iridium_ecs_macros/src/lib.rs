@@ -1,4 +1,11 @@
-#![warn(missing_docs)]
+#![warn(
+    missing_docs,
+    clippy::unwrap_used,
+    clippy::pedantic,
+    clippy::nursery,
+    future_incompatible
+)]
+#![allow(clippy::module_name_repetitions)]
 
 //! This is the procedural macros to be used with the `iridium_ecs` crate.
 
@@ -23,16 +30,16 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
             if field.attrs.iter().any(|attr| attr.path.is_ident("hidden")) {
                 continue;
             }
-            let ident = field.ident.unwrap();
+            let ident = field.ident.expect("Fields must have an identifier");
             idents_strings.push(ident.to_string());
             idents.push(ident);
             types.push(field.ty);
             attrs_path.push(vec![]);
             attrs_tts.push(vec![]);
             for attr in field.attrs {
-                let last = attrs_path.len() - 1;
-                attrs_path[last].push(attr.path);
-                attrs_tts[last].push(attr.tokens);
+                let end = attrs_path.len() - 1;
+                attrs_path[end].push(attr.path);
+                attrs_tts[end].push(attr.tokens);
             }
         }
     }
@@ -74,5 +81,5 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     }
     .to_string()
     .parse()
-    .unwrap()
+    .expect("Failed to parse derive macro output")
 }

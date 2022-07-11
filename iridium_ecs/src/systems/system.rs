@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{Component, Entities};
 
 /// A system is a function that runs every frame.
 pub trait System: 'static + Send + Sync {

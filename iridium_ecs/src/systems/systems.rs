@@ -1,4 +1,4 @@
-use super::*;
+use super::SystemsStage;
 use crate::{Component, Entities};
 
 /// Stores the systems in the world.
@@ -9,13 +9,15 @@ pub struct Systems {
 
 impl Systems {
     /// Creates a new systems.
-    pub fn new(systems_stages: Vec<SystemsStage>) -> Systems {
-        Systems {
+    #[must_use]
+    pub fn new(systems_stages: Vec<SystemsStage>) -> Self {
+        Self {
             systems: systems_stages,
         }
     }
 
     /// Return all the default component states for each of the systems.
+    #[must_use]
     pub fn default_component_states(&self) -> Vec<Component> {
         self.systems
             .iter()
@@ -30,7 +32,7 @@ impl Systems {
 
     /// Executes the systems.
     pub fn run_systems(&mut self, entities: &Entities, delta_time: f64) {
-        for systems_stage in self.systems.iter_mut() {
+        for systems_stage in &mut self.systems {
             systems_stage.run_systems(entities, delta_time);
         }
     }

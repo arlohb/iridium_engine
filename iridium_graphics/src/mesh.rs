@@ -10,11 +10,13 @@ pub struct Vertex {
 
 impl Vertex {
     /// Creates a new vertex.
-    pub fn new(position: VecN<3>, uv: VecN<2>) -> Self {
+    #[must_use]
+    pub const fn new(position: VecN<3>, uv: VecN<2>) -> Self {
         Self { position, uv }
     }
 
     /// Convert to bytes to be sent to the shader.
+    #[must_use]
     pub fn as_bytes(&self) -> [u8; 20] {
         let mut bytes = [0u8; 20];
 

@@ -1,6 +1,6 @@
 use crate::{Component, Entities, World};
 
-use super::*;
+use super::StoredComponentField;
 
 /// Manages the process of saving data to a file.
 pub struct StorageWriter {
@@ -11,11 +11,12 @@ pub struct StorageWriter {
 
 impl StorageWriter {
     /// Create a new writer.
-    pub fn new(dst_path: String) -> Option<Self> {
-        Some(StorageWriter {
+    #[must_use]
+    pub const fn new(dst_path: String) -> Self {
+        Self {
             dst_path,
             buffer: String::new(),
-        })
+        }
     }
 
     /// Write a component to the file.
@@ -25,7 +26,7 @@ impl StorageWriter {
         self.buffer
             .push_str(&format!("            {}: {{\n", stored.type_name));
 
-        for (key, value) in stored.fields.into_iter() {
+        for (key, value) in stored.fields {
             self.buffer.push_str(&format!("                {}: ", key));
 
             match value {
@@ -47,7 +48,10 @@ impl StorageWriter {
     fn write_entity(&mut self, entities: &Entities, id: u128) {
         self.buffer.push_str(&format!("        \"{id}\": {{\n"));
 
-        for component in entities.get_entity_components(id) {
+        for component in entities
+            .get_entity_components(id)
+            .expect("Entity did not exist")
+        {
             self.write_component(component);
         }
 
@@ -77,7 +81,7 @@ impl StorageWriter {
 
     /// Writes the final buffer to the file.
     pub fn write(self) {
-        std::fs::write(self.dst_path, self.buffer.as_bytes()).unwrap();
+        std::fs::write(self.dst_path, self.buffer.as_bytes()).expect("Failed to write file");
     }
 
     /// Save the world to the file.
@@ -90,7 +94,7 @@ impl StorageWriter {
 
 /// A simple wrapper around `StorageWriter` to save the world to a file.
 pub fn save_world_to_file(world: &World, file: &str) {
-    let mut writer = StorageWriter::new(file.to_string()).unwrap();
+    let mut writer = StorageWriter::new(file.to_string());
 
     writer.begin();
     writer.save_world(world);

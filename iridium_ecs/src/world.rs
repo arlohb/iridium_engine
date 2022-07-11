@@ -1,7 +1,9 @@
-use crate::*;
+use crate::{
+    storage::{load_world_from_file, save_world_to_file, ReadError},
+    systems::Systems,
+    Entities,
+};
 use iridium_assets::Assets;
-use storage::*;
-use systems::*;
 
 /// The world of the game.
 ///
@@ -21,11 +23,12 @@ impl World {
     /// Creates a new world with the given entities and systems.
     ///
     /// System state is automatically added here.
-    pub fn new(mut entities: Entities, systems: Systems) -> World {
+    #[must_use]
+    pub fn new(mut entities: Entities, systems: Systems) -> Self {
         // Add the system state to the world.
         entities.new_entity("SystemState", systems.default_component_states());
 
-        World { entities, systems }
+        Self { entities, systems }
     }
 
     /// Runs the world's systems.
@@ -39,6 +42,10 @@ impl World {
     }
 
     /// Loads the world's state from the given file.
+    ///
+    /// # Errors
+    ///
+    /// Will return an error if the file cannot be read, or if the file is not a valid JSON5 file.
     pub fn load(&mut self, file: &str, assets: &Assets) -> Result<(), ReadError> {
         load_world_from_file(file, self, assets)
     }

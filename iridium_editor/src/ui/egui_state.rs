@@ -29,7 +29,7 @@ pub struct EguiState {
 
 impl EguiState {
     /// Creates a new egui state.
-    pub fn new(device: &wgpu::Device, format: wgpu::TextureFormat, window: &Window) -> EguiState {
+    pub fn new(device: &wgpu::Device, format: wgpu::TextureFormat, window: &Window) -> Self {
         // Create the egui context.
         let context = egui::Context::default();
 
@@ -47,7 +47,7 @@ impl EguiState {
             Box::new(super::panels::BottomPanel::new()),
         ];
 
-        EguiState {
+        Self {
             context,
             rpass,
             winit,
@@ -121,17 +121,13 @@ impl EguiState {
                     pressed,
                     modifiers,
                 } => {
-                    if let PointerButton::Middle = button {
-                        if !pressed {
-                            ui_state.pan_start = None;
-                        }
+                    if button == PointerButton::Middle && !pressed {
+                        ui_state.pan_start = None;
                     }
 
                     if viewport_rect_logical.contains(pos) {
-                        if let PointerButton::Middle = button {
-                            if pressed {
-                                ui_state.pan_start = Some(pos);
-                            }
+                        if button == PointerButton::Middle && pressed {
+                            ui_state.pan_start = Some(pos);
                         }
 
                         return None;
@@ -221,17 +217,31 @@ impl EguiState {
             .add_textures(
                 device,
                 queue,
-                self.frame_data.textures_delta.as_ref().unwrap(),
+                self.frame_data
+                    .textures_delta
+                    .as_ref()
+                    .expect("Textures delta has not been created yet"),
             )
-            .unwrap();
+            .expect("Failed to add texture to egui");
         self.rpass
-            .remove_textures(self.frame_data.textures_delta.take().unwrap())
-            .unwrap();
+            .remove_textures(
+                self.frame_data
+                    .textures_delta
+                    .take()
+                    .expect("Textures delta has not been created yet"),
+            )
+            .expect("Failed to remove texture from egui");
         self.rpass.update_buffers(
             device,
             queue,
-            self.frame_data.paint_jobs.as_ref().unwrap(),
-            self.frame_data.screen_descriptor.as_ref().unwrap(),
+            self.frame_data
+                .paint_jobs
+                .as_ref()
+                .expect("Paint jobs have not been created yet"),
+            self.frame_data
+                .screen_descriptor
+                .as_ref()
+                .expect("Screen descriptor has not been created yet"),
         );
     }
 
@@ -253,9 +263,15 @@ impl EguiState {
         self.rpass
             .execute_with_renderpass(
                 render_pass,
-                self.frame_data.paint_jobs.as_ref().unwrap(),
-                self.frame_data.screen_descriptor.as_ref().unwrap(),
+                self.frame_data
+                    .paint_jobs
+                    .as_ref()
+                    .expect("Paint jobs have not been created yet"),
+                self.frame_data
+                    .screen_descriptor
+                    .as_ref()
+                    .expect("Screen descriptor has not been created yet"),
             )
-            .unwrap();
+            .expect("Failed to execute egui render pass");
     }
 }

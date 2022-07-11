@@ -17,27 +17,30 @@ pub enum StoredComponentField {
 
 impl StoredComponentField {
     /// Gets the string value.
+    #[must_use]
+    // This is a false positive as destructors cannot be const.
+    #[allow(clippy::missing_const_for_fn)]
     pub fn string(self) -> String {
         match self {
-            StoredComponentField::String(s) => s,
-            StoredComponentField::NonString(s) => s,
+            Self::NonString(s) | Self::String(s) => s,
         }
     }
 
     /// Gets a reference to the string value.
+    #[must_use]
     pub fn str(&self) -> &str {
         match self {
-            StoredComponentField::String(s) => s,
-            StoredComponentField::NonString(s) => s,
+            Self::NonString(s) | Self::String(s) => s,
         }
     }
 
     /// Creates a `StoredComponentField` from a json5 value.
-    pub fn from_json5(value: &str) -> StoredComponentField {
+    #[must_use]
+    pub fn from_json5(value: &str) -> Self {
         if value.starts_with('"') && value.ends_with('"') {
-            StoredComponentField::String(value[1..value.len() - 1].to_string())
+            Self::String(value[1..value.len() - 1].to_string())
         } else {
-            StoredComponentField::NonString(value.to_string())
+            Self::NonString(value.to_string())
         }
     }
 }
@@ -77,6 +80,7 @@ pub trait ComponentStorage {
     /// Try to create a component from a stored component.
     ///
     /// Returns a `Component` instead of `Self`.
+    #[must_use]
     fn from_stored_component(stored: StoredComponent, assets: &Assets) -> Option<Component>
     where
         Self: Sized + ComponentTrait,
