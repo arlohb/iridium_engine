@@ -1,13 +1,21 @@
 use iridium_assets::Assets;
 
-use crate::{ui::PanelUi, play_state::PlayState, systems::FrameHistoryState};
+use crate::{play_state::PlayState, systems::FrameHistoryState, ui::PanelUi};
 
 pub struct TopPanel;
 
 impl PanelUi for TopPanel {
-    fn name(&self) -> &'static str { "TopPanel" }
+    fn name(&self) -> &'static str {
+        "TopPanel"
+    }
 
-    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, world: &mut iridium_ecs::World, assets: &Assets) {
+    fn render(
+        &mut self,
+        context: &egui::Context,
+        ui_state: &mut crate::ui::UiState,
+        world: &mut iridium_ecs::World,
+        assets: &Assets,
+    ) {
         egui::TopBottomPanel::top("top_panel").show(context, |ui| {
             let max_y_logical = ui.max_rect().max.y + ui.spacing().item_spacing.y;
             let max_y_physical = max_y_logical * ui_state.scale_factor;
@@ -23,9 +31,9 @@ impl PanelUi for TopPanel {
                                 world.save("test.json5");
                             }
                         });
-                        ui.menu_button("Edit", |ui| { ui.label("Edit")});
-                        ui.menu_button("View", |ui| { ui.label("View")});
-                        ui.menu_button("About", |ui| { ui.label("About")});
+                        ui.menu_button("Edit", |ui| ui.label("Edit"));
+                        ui.menu_button("View", |ui| ui.label("View"));
+                        ui.menu_button("About", |ui| ui.label("About"));
                     });
 
                     egui::Frame::none()
@@ -37,25 +45,40 @@ impl PanelUi for TopPanel {
 
                                 ui.add_space(6.);
 
-                                if ui.add_enabled(
-                                    matches!(ui_state.play_state(), PlayState::Stop | PlayState::Pause),
-                                    egui::Button::new("▶").frame(false),
-                                ).clicked() {
+                                if ui
+                                    .add_enabled(
+                                        matches!(
+                                            ui_state.play_state(),
+                                            PlayState::Stop | PlayState::Pause
+                                        ),
+                                        egui::Button::new("▶").frame(false),
+                                    )
+                                    .clicked()
+                                {
                                     world.save("temp.json5");
                                     ui_state.play();
                                 }
 
-                                if ui.add_enabled(
-                                    matches!(ui_state.play_state(), PlayState::Play),
-                                    egui::Button::new("⏸").frame(false),
-                                ).clicked() {
+                                if ui
+                                    .add_enabled(
+                                        matches!(ui_state.play_state(), PlayState::Play),
+                                        egui::Button::new("⏸").frame(false),
+                                    )
+                                    .clicked()
+                                {
                                     ui_state.pause();
                                 }
 
-                                if ui.add_enabled(
-                                    matches!(ui_state.play_state(), PlayState::Play | PlayState::Pause),
-                                    egui::Button::new("■").frame(false),
-                                ).clicked() {
+                                if ui
+                                    .add_enabled(
+                                        matches!(
+                                            ui_state.play_state(),
+                                            PlayState::Play | PlayState::Pause
+                                        ),
+                                        egui::Button::new("■").frame(false),
+                                    )
+                                    .clicked()
+                                {
                                     world.load("temp.json5", assets).unwrap();
                                     ui_state.stop();
                                 }
@@ -65,11 +88,22 @@ impl PanelUi for TopPanel {
                         });
 
                     stats.horizontal(|ui| {
-                        ui.label(format!("FPS: {:.1}", world.entities.get::<FrameHistoryState>().average_fps()));
+                        ui.label(format!(
+                            "FPS: {:.1}",
+                            world.entities.get::<FrameHistoryState>().average_fps()
+                        ));
                         ui.add_space(15.);
-                        ui.label(format!("Entities: {}", world.entities.entity_count::<iridium_ecs::Name>()));
+                        ui.label(format!(
+                            "Entities: {}",
+                            world.entities.entity_count::<iridium_ecs::Name>()
+                        ));
                         ui.add_space(15.);
-                        ui.label(format!("Sprites: {}", world.entities.entity_count::<iridium_graphics::Renderable2D>()));
+                        ui.label(format!(
+                            "Sprites: {}",
+                            world
+                                .entities
+                                .entity_count::<iridium_graphics::Renderable2D>()
+                        ));
                     });
                 }
             });

@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 /// The type of a shader.
-/// 
+///
 /// Either `Vertex` or `Fragment`.
-/// 
+///
 /// Into can be called on this type to get the corresponding `wgpu::ShaderStages`.
 #[derive(Clone, Copy)]
 pub enum ShaderType {
@@ -42,14 +42,13 @@ impl Shader {
             entries: &inputs
                 .iter()
                 .enumerate()
-                .map(|(binding, binding_type)| {
-                    wgpu::BindGroupLayoutEntry {
-                        binding: binding as u32,
-                        visibility: shader_type.into(),
-                        ty: *binding_type,
-                        count: None,
-                    }
-                }).collect::<Vec<_>>(),
+                .map(|(binding, binding_type)| wgpu::BindGroupLayoutEntry {
+                    binding: binding as u32,
+                    visibility: shader_type.into(),
+                    ty: *binding_type,
+                    count: None,
+                })
+                .collect::<Vec<_>>(),
             label: None,
         });
 

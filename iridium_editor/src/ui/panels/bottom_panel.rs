@@ -11,10 +11,7 @@ fn load_texture(context: &egui::Context, path: &str) -> ((usize, usize), egui::T
 
     let texture = context.load_texture(
         path.split('/').last().unwrap(),
-        egui::ColorImage::from_rgba_unmultiplied(
-            [size.0 as usize, size.1 as usize],
-            &image_rgba,
-        )
+        egui::ColorImage::from_rgba_unmultiplied([size.0 as usize, size.1 as usize], &image_rgba),
     );
 
     ((size.0 as usize, size.1 as usize), texture)
@@ -41,9 +38,17 @@ impl BottomPanel {
 }
 
 impl PanelUi for BottomPanel {
-    fn name(&self) -> &'static str { "BottomPanel" }
+    fn name(&self) -> &'static str {
+        "BottomPanel"
+    }
 
-    fn render(&mut self, context: &egui::Context, ui_state: &mut crate::ui::UiState, _world: &mut iridium_ecs::World, _assets: &Assets) {
+    fn render(
+        &mut self,
+        context: &egui::Context,
+        ui_state: &mut crate::ui::UiState,
+        _world: &mut iridium_ecs::World,
+        _assets: &Assets,
+    ) {
         egui::TopBottomPanel::bottom("asset_browser")
             .default_height(ui_state.screen_size.1 as f32 * ui_state.scale_factor * 0.3)
             .resizable(true)
@@ -65,9 +70,9 @@ impl PanelUi for BottomPanel {
                         let texture = self.texture.get_or_insert_with(|| {
                             load_texture(ui.ctx(), "iridium_editor/assets/FoodSprites/Food.png").1
                         });
-        
+
                         ui.label("This is the asset browser");
-        
+
                         egui::ScrollArea::new([false, true])
                             .auto_shrink([false, false])
                             .max_width(f32::INFINITY)
@@ -75,10 +80,10 @@ impl PanelUi for BottomPanel {
                             .show(ui, |ui| {
                                 ui.image(texture, (200., 200.));
                             });
-                    },
+                    }
                     CurrentTab::Profiler => {
                         puffin_egui::profiler_ui(ui);
-                    },
+                    }
                 }
             });
     }

@@ -1,5 +1,5 @@
 /// The attributes a component field has.
-/// 
+///
 /// Map is attribute name -> attribute value.
 pub struct ComponentFieldAttributes(pub hashbrown::HashMap<&'static str, &'static str>);
 

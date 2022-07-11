@@ -1,7 +1,7 @@
 /// Stores wgpu texture and sampler data.
-/// 
+///
 /// While wgpu separates textures and samplers, it makes sense for them to be one in iridium.
-/// 
+///
 /// Also stores the binding types for ease of use.
 pub struct Texture {
     /// The binding type of the texture.
@@ -26,14 +26,18 @@ impl Texture {
         filtered: bool,
     ) -> Texture {
         let texture_binding_type = wgpu::BindingType::Texture {
-            sample_type: wgpu::TextureSampleType::Float { filterable: filtered },
+            sample_type: wgpu::TextureSampleType::Float {
+                filterable: filtered,
+            },
             view_dimension: wgpu::TextureViewDimension::D2,
             multisampled: false,
         };
 
-        let sampler_binding_type = wgpu::BindingType::Sampler(
-            if filtered { wgpu::SamplerBindingType::Filtering } else { wgpu::SamplerBindingType::NonFiltering }
-        );
+        let sampler_binding_type = wgpu::BindingType::Sampler(if filtered {
+            wgpu::SamplerBindingType::Filtering
+        } else {
+            wgpu::SamplerBindingType::NonFiltering
+        });
 
         let size = wgpu::Extent3d {
             width: dimensions.0,
@@ -47,8 +51,7 @@ impl Texture {
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
             format: wgpu::TextureFormat::Rgba8UnormSrgb,
-            usage: wgpu::TextureUsages::TEXTURE_BINDING
-                | wgpu::TextureUsages::COPY_DST,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
             label: None,
         });
 
@@ -73,19 +76,33 @@ impl Texture {
             address_mode_u: wgpu::AddressMode::ClampToEdge,
             address_mode_v: wgpu::AddressMode::ClampToEdge,
             address_mode_w: wgpu::AddressMode::ClampToEdge,
-            mag_filter: if filtered { wgpu::FilterMode::Linear } else { wgpu::FilterMode::Nearest },
-            min_filter: if filtered { wgpu::FilterMode::Linear } else { wgpu::FilterMode::Nearest },
+            mag_filter: if filtered {
+                wgpu::FilterMode::Linear
+            } else {
+                wgpu::FilterMode::Nearest
+            },
+            min_filter: if filtered {
+                wgpu::FilterMode::Linear
+            } else {
+                wgpu::FilterMode::Nearest
+            },
             mipmap_filter: wgpu::FilterMode::Nearest,
             ..Default::default()
         });
 
-        Texture { texture_binding_type, sampler_binding_type, texture, view, sampler }
+        Texture {
+            texture_binding_type,
+            sampler_binding_type,
+            texture,
+            view,
+            sampler,
+        }
     }
 
     /// Creates a new texture from the raw bytes of the image file.
-    /// 
+    ///
     /// While this function can in theory read images of any file type, for now only the png feature of the `image` crate is enabled.
-    /// 
+    ///
     /// In the future I hope to allow any image format supported by the `image` crate, but this would increase compile times by quite a bit.
     pub fn from_image_bytes(
         device: &wgpu::Device,

@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, time::SystemTime};
 
 use iridium_assets::Assets;
-use iridium_ecs::{*, systems::System, storage::*};
+use iridium_ecs::{storage::*, systems::System, *};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
@@ -19,7 +19,7 @@ pub struct FrameHistoryState {
 }
 
 impl FrameHistoryState {
-    pub fn average_delta_time(&self) -> f64 {    
+    pub fn average_delta_time(&self) -> f64 {
         self.frames
             .iter()
             .map(|frame| frame.delta_time)
@@ -57,7 +57,9 @@ impl ComponentStorage for FrameHistoryState {
 pub struct FrameHistorySystem;
 
 impl System for FrameHistorySystem {
-    fn name(&self) -> &'static str { "FrameHistorySystem" }
+    fn name(&self) -> &'static str {
+        "FrameHistorySystem"
+    }
 
     fn default_state(&self) -> Component {
         Component::new(FrameHistoryState {

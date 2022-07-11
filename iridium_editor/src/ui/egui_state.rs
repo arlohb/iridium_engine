@@ -29,20 +29,12 @@ pub struct EguiState {
 
 impl EguiState {
     /// Creates a new egui state.
-    pub fn new(
-        device: &wgpu::Device,
-        format: wgpu::TextureFormat,
-        window: &Window,
-    ) -> EguiState {
+    pub fn new(device: &wgpu::Device, format: wgpu::TextureFormat, window: &Window) -> EguiState {
         // Create the egui context.
         let context = egui::Context::default();
 
         // Create the egui backend state.
-        let rpass = egui_latest_wgpu_backend::RenderPass::new(
-            device,
-            format,
-            1,
-        );
+        let rpass = egui_latest_wgpu_backend::RenderPass::new(device, format, 1);
 
         // Create the winit state.
         let winit = egui_winit::State::new(4096, window);
@@ -60,7 +52,11 @@ impl EguiState {
             rpass,
             winit,
             panels,
-            frame_data: FrameData { paint_jobs: None, screen_descriptor: None, textures_delta: None },
+            frame_data: FrameData {
+                paint_jobs: None,
+                screen_descriptor: None,
+                textures_delta: None,
+            },
             mouse_pos: egui::Pos2::new(0., 0.),
         }
     }
@@ -76,7 +72,7 @@ impl EguiState {
     }
 
     /// Handles the input from winit.
-    /// 
+    ///
     /// This modifies the input before the caller sends to egui.
     pub fn input(
         &mut self,
@@ -89,7 +85,8 @@ impl EguiState {
 
         let mut input = self.winit.take_egui_input(window);
         input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
-        input.events = input.events
+        input.events = input
+            .events
             .into_iter()
             .filter_map(|event| match event {
                 egui::Event::PointerMoved(position) => {
@@ -111,18 +108,19 @@ impl EguiState {
                     // If a button is being held down,
                     // I still want to be able to move controls
                     if viewport_rect_logical.distance_to_pos(position) < 5.
-                    && !self.context.input().pointer.any_down() {
+                        && !self.context.input().pointer.any_down()
+                    {
                         return Some(egui::Event::PointerGone);
                     }
 
                     Some(egui::Event::PointerMoved(position))
-                },
+                }
                 egui::Event::PointerButton {
                     pos,
                     button,
                     pressed,
                     modifiers,
-                 } => {
+                } => {
                     if let PointerButton::Middle = button {
                         if !pressed {
                             ui_state.pan_start = None;
@@ -145,9 +143,11 @@ impl EguiState {
                         pressed,
                         modifiers,
                     })
-                },
+                }
                 egui::Event::Scroll(scroll) => {
-                    if ui_state.pan_start.is_some() || viewport_rect_logical.contains(self.mouse_pos) {
+                    if ui_state.pan_start.is_some()
+                        || viewport_rect_logical.contains(self.mouse_pos)
+                    {
                         let scroll_speed = 0.05;
 
                         if scroll.y > 0. {
@@ -162,7 +162,7 @@ impl EguiState {
                     }
 
                     Some(egui::Event::Scroll(scroll))
-                },
+                }
                 event => Some(event),
             })
             .collect::<Vec<_>>();
@@ -171,7 +171,14 @@ impl EguiState {
     }
 
     /// Draws the UI.
-    pub fn draw(&mut self, window: &winit::window::Window, input: egui::RawInput, ui_state: &mut UiState, world: &mut World, assets: &Assets) {
+    pub fn draw(
+        &mut self,
+        window: &winit::window::Window,
+        input: egui::RawInput,
+        ui_state: &mut UiState,
+        world: &mut World,
+        assets: &Assets,
+    ) {
         puffin::profile_function!();
 
         // Begin the UI frame.
@@ -186,7 +193,8 @@ impl EguiState {
         let full_output = self.context.end_frame();
 
         // Give winit the UI output.
-        self.winit.handle_platform_output(window, &self.context, full_output.platform_output);
+        self.winit
+            .handle_platform_output(window, &self.context, full_output.platform_output);
 
         // Get the output of the UI frame.
         let paint_jobs = self.context.tessellate(full_output.shapes);
@@ -209,8 +217,16 @@ impl EguiState {
     pub fn upload_ui(&mut self, device: &wgpu::Device, queue: &wgpu::Queue) {
         puffin::profile_function!();
 
-        self.rpass.add_textures(device, queue, self.frame_data.textures_delta.as_ref().unwrap()).unwrap();
-        self.rpass.remove_textures(self.frame_data.textures_delta.take().unwrap()).unwrap();
+        self.rpass
+            .add_textures(
+                device,
+                queue,
+                self.frame_data.textures_delta.as_ref().unwrap(),
+            )
+            .unwrap();
+        self.rpass
+            .remove_textures(self.frame_data.textures_delta.take().unwrap())
+            .unwrap();
         self.rpass.update_buffers(
             device,
             queue,
@@ -234,10 +250,12 @@ impl EguiState {
         );
 
         // Render the UI.
-        self.rpass.execute_with_renderpass(
-            render_pass,
-            self.frame_data.paint_jobs.as_ref().unwrap(),
-            self.frame_data.screen_descriptor.as_ref().unwrap(),
-        ).unwrap();
+        self.rpass
+            .execute_with_renderpass(
+                render_pass,
+                self.frame_data.paint_jobs.as_ref().unwrap(),
+                self.frame_data.screen_descriptor.as_ref().unwrap(),
+            )
+            .unwrap();
     }
 }

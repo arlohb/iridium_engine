@@ -1,5 +1,5 @@
-use std::{any::Any, sync::Arc};
 use hashbrown::HashMap;
+use std::{any::Any, sync::Arc};
 
 use crate::Asset;
 
@@ -29,6 +29,8 @@ impl Assets {
 
     /// Gets an asset.
     pub fn get<T: Any + 'static>(&self, id: &str) -> Option<Asset<T>> {
-        self.assets.get(id).map(|asset| Asset::<T>::from_arc_any(asset.clone()))
+        self.assets
+            .get(id)
+            .map(|asset| Asset::<T>::from_arc_any(asset.clone()))
     }
 }

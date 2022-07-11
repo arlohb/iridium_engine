@@ -3,9 +3,9 @@
 //! Provides utilities for creating hashbrown's HashMap with various things applied to the values.
 
 /// A macro to create a `hashbrown::HashMap` with nicer syntax.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// # use iridium_map_utils::fast_map;
 /// let map = fast_map! {

@@ -33,9 +33,7 @@ impl<const N: usize> FromStr for VecN<N> {
             s = s.trim_end_matches(',');
         }
 
-        let string: String = s.chars().filter(|c|
-            *c != ' '
-        ).collect();
+        let string: String = s.chars().filter(|c| *c != ' ').collect();
 
         if string.split(',').count() != N {
             return Err(());
@@ -53,46 +51,66 @@ impl<const N: usize> FromStr for VecN<N> {
 
 impl VecN<2> {
     //// Gets the x component of the vector.
-    /// 
+    ///
     /// No point returning a reference as its just a f32.
-    pub fn x(&self) -> f32 { self.data[0] }
+    pub fn x(&self) -> f32 {
+        self.data[0]
+    }
 
     /// Gets the x component of the vector as a mutable reference.
-    pub fn x_mut(&mut self) -> &mut f32 { self.data.get_mut(0).unwrap() }
+    pub fn x_mut(&mut self) -> &mut f32 {
+        self.data.get_mut(0).unwrap()
+    }
 
     /// Gets the y component of the vector.
-    /// 
+    ///
     /// No point returning a reference as its just a f32.
-    pub fn y(&self) -> f32 { self.data[1] }
+    pub fn y(&self) -> f32 {
+        self.data[1]
+    }
 
     /// Gets the y component of the vector as a mutable reference.
-    pub fn y_mut(&mut self) -> &mut f32 { self.data.get_mut(1).unwrap() }
+    pub fn y_mut(&mut self) -> &mut f32 {
+        self.data.get_mut(1).unwrap()
+    }
 }
 
 impl VecN<3> {
     /// Gets the x component of the vector.
-    /// 
+    ///
     /// No point returning a reference as its just a f32.
-    pub fn x(&self) -> f32 { self.data[0] }
+    pub fn x(&self) -> f32 {
+        self.data[0]
+    }
 
     /// Gets the x component of the vector as a mutable reference.
-    pub fn x_mut(&mut self) -> &mut f32 { self.data.get_mut(0).unwrap() }
+    pub fn x_mut(&mut self) -> &mut f32 {
+        self.data.get_mut(0).unwrap()
+    }
 
     /// Gets the y component of the vector.
-    /// 
+    ///
     /// No point returning a reference as its just a f32.
-    pub fn y(&self) -> f32 { self.data[1] }
+    pub fn y(&self) -> f32 {
+        self.data[1]
+    }
 
     /// Gets the y component of the vector as a mutable reference.
-    pub fn y_mut(&mut self) -> &mut f32 { self.data.get_mut(1).unwrap() }
+    pub fn y_mut(&mut self) -> &mut f32 {
+        self.data.get_mut(1).unwrap()
+    }
 
     /// Gets the z component of the vector.
-    /// 
+    ///
     /// No point returning a reference as its just a f32.
-    pub fn z(&self) -> f32 { self.data[2] }
+    pub fn z(&self) -> f32 {
+        self.data[2]
+    }
 
     /// Gets the z component of the vector as a mutable reference.
-    pub fn z_mut(&mut self) -> &mut f32 { self.data.get_mut(2).unwrap() }
+    pub fn z_mut(&mut self) -> &mut f32 {
+        self.data.get_mut(2).unwrap()
+    }
 }
 
 impl<const N: usize> std::fmt::Display for VecN<N> {
@@ -114,25 +132,24 @@ impl<const N: usize> VecN<N> {
     pub fn as_bytes<const L: usize>(&self) -> [u8; L] {
         let mut bytes = [0u8; L];
 
-        self.data.iter()
+        self.data
+            .iter()
             .flat_map(|value| value.to_le_bytes())
             .enumerate()
             .for_each(|(index, b)| bytes[index] = b);
-        
+
         bytes
     }
 
     /// The length of a vector.
     pub fn length(&self) -> f32 {
-        self.data.iter()
-            .map(|x| x.powi(2))
-            .sum::<f32>()
-            .sqrt()
+        self.data.iter().map(|x| x.powi(2)).sum::<f32>().sqrt()
     }
 
     /// The dot product between self and v.
     pub fn dot(&self, v: VecN<N>) -> f32 {
-        self.data.iter()
+        self.data
+            .iter()
             .enumerate()
             .map(|(i, x)| x * v.data[i])
             .sum::<f32>()
@@ -290,11 +307,10 @@ impl<const N: usize> ops::DivAssign<f32> for VecN<N> {
 
 impl<const N: usize> PartialEq for VecN<N> {
     fn eq(&self, other: &Self) -> bool {
-        self.data.iter()
+        self.data
+            .iter()
             .enumerate()
-            .all(|(i, v)|
-                (v - other.data[i]).abs() < VecN::<N>::EPSILON
-            )
+            .all(|(i, v)| (v - other.data[i]).abs() < VecN::<N>::EPSILON)
     }
 }
 
@@ -332,7 +348,10 @@ mod tests {
     fn test_length() {
         let v = VecN::new([1., 2., 3.]);
 
-        assert_eq!(v.length(), (1f32.powi(2) + 2f32.powi(2) + 3f32.powi(2)).sqrt());
+        assert_eq!(
+            v.length(),
+            (1f32.powi(2) + 2f32.powi(2) + 3f32.powi(2)).sqrt()
+        );
     }
 
     #[test]

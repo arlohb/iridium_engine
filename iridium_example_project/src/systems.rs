@@ -1,5 +1,5 @@
 use iridium_assets::Assets;
-use iridium_ecs::{*, systems::System, storage::*};
+use iridium_ecs::{storage::*, systems::System, *};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
@@ -30,17 +30,16 @@ impl ComponentStorage for CustomState {
 pub struct CustomSystem;
 
 impl System for CustomSystem {
-    fn name(&self) -> &'static str { "CustomSystem" }
+    fn name(&self) -> &'static str {
+        "CustomSystem"
+    }
 
     fn default_state(&self) -> Component {
-        Component::new(CustomState {
-            test: 0.,
-        })
+        Component::new(CustomState { test: 0. })
     }
 
     fn system(&self, entities: &Entities, _delta_time: f64) {
-        for (custom_component, )
-        in query!(entities, [; Custom]) {
+        for (custom_component,) in query!(entities, [; Custom]) {
             println!("Custom component value: {}", custom_component.test);
         }
     }

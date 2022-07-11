@@ -11,17 +11,16 @@ pub struct Vertex {
 impl Vertex {
     /// Creates a new vertex.
     pub fn new(position: VecN<3>, uv: VecN<2>) -> Self {
-        Self {
-            position,
-            uv,
-        }
+        Self { position, uv }
     }
 
     /// Convert to bytes to be sent to the shader.
     pub fn as_bytes(&self) -> [u8; 20] {
         let mut bytes = [0u8; 20];
 
-        self.position.as_bytes::<12>().into_iter()
+        self.position
+            .as_bytes::<12>()
+            .into_iter()
             .chain(self.uv.as_bytes::<8>().into_iter())
             .enumerate()
             .for_each(|(i, b)| bytes[i] = b);

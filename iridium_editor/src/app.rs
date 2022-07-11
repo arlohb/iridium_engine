@@ -1,12 +1,9 @@
 use iridium_assets::Assets;
 use iridium_ecs::World;
 use iridium_graphics::Renderer2DSystem;
-use winit::{
-    window::Window,
-    event::*,
-};
+use winit::{event::*, window::Window};
 
-use crate::{ui::*, play_state::PlayState};
+use crate::{play_state::PlayState, ui::*};
 
 /// The main application state.
 pub struct App {
@@ -40,16 +37,25 @@ impl App {
         let surface = unsafe { instance.create_surface(window) };
 
         // Initialize the device.
-        let adapter = instance.request_adapter(&wgpu::RequestAdapterOptions {
-            power_preference: wgpu::PowerPreference::default(),
-            compatible_surface: Some(&surface),
-            force_fallback_adapter: false,
-        }).await.unwrap();
-        let (device, queue) = adapter.request_device(&wgpu::DeviceDescriptor {
-            features: wgpu::Features::empty(),
-            limits: wgpu::Limits::default(),
-            label: None,
-        }, None).await.unwrap();
+        let adapter = instance
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::default(),
+                compatible_surface: Some(&surface),
+                force_fallback_adapter: false,
+            })
+            .await
+            .unwrap();
+        let (device, queue) = adapter
+            .request_device(
+                &wgpu::DeviceDescriptor {
+                    features: wgpu::Features::empty(),
+                    limits: wgpu::Limits::default(),
+                    label: None,
+                },
+                None,
+            )
+            .await
+            .unwrap();
 
         // Configure the surface.
         let surface_config = wgpu::SurfaceConfiguration {
@@ -64,16 +70,8 @@ impl App {
         surface.configure(&device, &surface_config);
 
         // Initialize the UI state.
-        let egui_state = EguiState::new(
-            &device,
-            surface_config.format,
-            window,
-        );
-        let ui_state = UiState::new(
-            ScreenRect::new(1. / 3., 0., 2. / 3., 0.6),
-            screen_size,
-            1.2,
-        );
+        let egui_state = EguiState::new(&device, surface_config.format, window);
+        let ui_state = UiState::new(ScreenRect::new(1. / 3., 0., 2. / 3., 0.6), screen_size, 1.2);
 
         // Create the renderer 2D system.
         let renderer_2d_system = Renderer2DSystem {};
@@ -106,18 +104,19 @@ impl App {
     }
 
     pub fn input(&mut self, event: &WindowEvent) -> bool {
-        self.egui_state.winit.on_event(&self.egui_state.context, event);
+        self.egui_state
+            .winit
+            .on_event(&self.egui_state.context, event);
         match event {
             WindowEvent::KeyboardInput {
-                input: KeyboardInput {
-                    state: ElementState::Pressed,
-                    virtual_keycode: Some(key),
-                    ..
-                },
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(key),
+                        ..
+                    },
                 ..
-            } => {
-                *key != VirtualKeyCode::Escape
-            },
+            } => *key != VirtualKeyCode::Escape,
             _ => false,
         }
     }
@@ -127,22 +126,40 @@ impl App {
         puffin::profile_function!();
 
         // Calculate the viewport_rect in logical and physical coordinates.
-        let viewport_rect_logical = self.ui_state.viewport_rect.egui_logical(self.ui_state.screen_size.0, self.ui_state.screen_size.1, self.ui_state.scale_factor);
-        let viewport_rect_physical = self.ui_state.viewport_rect.egui_logical(self.ui_state.screen_size.0, self.ui_state.screen_size.1, 1.);
+        let viewport_rect_logical = self.ui_state.viewport_rect.egui_logical(
+            self.ui_state.screen_size.0,
+            self.ui_state.screen_size.1,
+            self.ui_state.scale_factor,
+        );
+        let viewport_rect_physical = self.ui_state.viewport_rect.egui_logical(
+            self.ui_state.screen_size.0,
+            self.ui_state.screen_size.1,
+            1.,
+        );
 
-        let input = self.egui_state.input(window, viewport_rect_logical, self.ui_state.scale_factor, &mut self.ui_state);
+        let input = self.egui_state.input(
+            window,
+            viewport_rect_logical,
+            self.ui_state.scale_factor,
+            &mut self.ui_state,
+        );
 
-        self.egui_state.draw(window, input, &mut self.ui_state, world, assets);
+        self.egui_state
+            .draw(window, input, &mut self.ui_state, world, assets);
         self.egui_state.upload_ui(&self.device, &self.queue);
 
         // Get the surface texture to render to.
         let output = self.surface.get_current_texture().unwrap();
-        let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let view = output
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
 
         // Create the command encoder to send commands to the GPU.
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Render Encoder"),
-        });
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Render Encoder"),
+            });
 
         {
             // Create the render pass.
@@ -179,7 +196,7 @@ impl App {
                     None
                 } else {
                     Some(&mut self.ui_state.camera)
-                }
+                },
             );
 
             self.egui_state.render(&mut render_pass, &self.ui_state);

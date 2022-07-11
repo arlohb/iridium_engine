@@ -26,23 +26,25 @@ impl Material {
     ) -> Material {
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,
-            bind_group_layouts: &[&vertex.bind_group_layout, &fragment.bind_group_layout, &camera_gpu_data.bind_group_layout],
+            bind_group_layouts: &[
+                &vertex.bind_group_layout,
+                &fragment.bind_group_layout,
+                &camera_gpu_data.bind_group_layout,
+            ],
             push_constant_ranges: &[],
         });
-    
+
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: None,
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &vertex.shader,
                 entry_point: "vs_main",
-                buffers: &[
-                    wgpu::VertexBufferLayout {
-                        array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-                        step_mode: wgpu::VertexStepMode::Vertex,
-                        attributes: &wgpu::vertex_attr_array![0 => Float32x3, 1 => Float32x2],
-                    }
-                ],
+                buffers: &[wgpu::VertexBufferLayout {
+                    array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+                    step_mode: wgpu::VertexStepMode::Vertex,
+                    attributes: &wgpu::vertex_attr_array![0 => Float32x3, 1 => Float32x2],
+                }],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &fragment.shader,
@@ -99,18 +101,19 @@ impl MaterialInstance {
         fragment_buffer: Vec<Arc<wgpu::Buffer>>,
         fragment_resources: Vec<wgpu::BindingResource>,
     ) -> MaterialInstance {
-        let buffer = Arc::new(device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: None,
-            contents: &[0u8; 32],
-            usage: wgpu::BufferUsages::UNIFORM
-                | wgpu::BufferUsages::COPY_DST,
-        }));
+        let buffer = Arc::new(
+            device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: None,
+                contents: &[0u8; 32],
+                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            }),
+        );
 
         let vertex_buffers = std::iter::once(buffer.clone())
             .chain(vertex_buffers.into_iter())
             .collect();
-        let vertex_resources = std::iter::once(buffer.as_entire_binding())
-            .chain(vertex_resources.into_iter());
+        let vertex_resources =
+            std::iter::once(buffer.as_entire_binding()).chain(vertex_resources.into_iter());
 
         MaterialInstance {
             material: material.clone(),
@@ -120,12 +123,11 @@ impl MaterialInstance {
                     layout: &material.vertex.bind_group_layout,
                     entries: &vertex_resources
                         .enumerate()
-                        .map(|(binding, binding_resource)| {
-                            wgpu::BindGroupEntry {
-                                binding: binding as u32,
-                                resource: binding_resource,
-                            }
-                        }).collect::<Vec<_>>(),
+                        .map(|(binding, binding_resource)| wgpu::BindGroupEntry {
+                            binding: binding as u32,
+                            resource: binding_resource,
+                        })
+                        .collect::<Vec<_>>(),
                     label: None,
                 }),
             },
@@ -136,12 +138,11 @@ impl MaterialInstance {
                     entries: &fragment_resources
                         .into_iter()
                         .enumerate()
-                        .map(|(binding, binding_resource)| {
-                            wgpu::BindGroupEntry {
-                                binding: binding as u32,
-                                resource: binding_resource,
-                            }
-                        }).collect::<Vec<_>>(),
+                        .map(|(binding, binding_resource)| wgpu::BindGroupEntry {
+                            binding: binding as u32,
+                            resource: binding_resource,
+                        })
+                        .collect::<Vec<_>>(),
                     label: None,
                 }),
             },

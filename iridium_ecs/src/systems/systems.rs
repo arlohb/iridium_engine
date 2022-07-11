@@ -1,5 +1,5 @@
-use crate::{Entities, Component};
 use super::*;
+use crate::{Component, Entities};
 
 /// Stores the systems in the world.
 pub struct Systems {
@@ -17,11 +17,14 @@ impl Systems {
 
     /// Return all the default component states for each of the systems.
     pub fn default_component_states(&self) -> Vec<Component> {
-        self.systems.iter()
-            .flat_map(|systems_stage| systems_stage.systems
-                .iter()
-                .map(|system| system.default_state())
-            )
+        self.systems
+            .iter()
+            .flat_map(|systems_stage| {
+                systems_stage
+                    .systems
+                    .iter()
+                    .map(|system| system.default_state())
+            })
             .collect()
     }
 

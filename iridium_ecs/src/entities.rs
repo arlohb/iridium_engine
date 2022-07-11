@@ -43,12 +43,13 @@ impl Entities {
     /// Gets `ComponentInfo` from the component type.
     pub fn component_info<T: ComponentTrait>(&self) -> Option<&ComponentInfo> {
         let type_id = TypeId::of::<T>();
-         self.component_info.get(&type_id)
+        self.component_info.get(&type_id)
     }
 
     /// Gets `ComponentInfo` from the component type name.
     pub fn component_info_from_name(&self, name: &str) -> Option<&ComponentInfo> {
-        self.component_info.iter()
+        self.component_info
+            .iter()
             .find(|(_, info)| info.type_name == name)
             .map(|(_, info)| info)
     }
@@ -56,7 +57,10 @@ impl Entities {
     /// Gets the number of entities with a given component.
     pub fn entity_count<T: ComponentTrait>(&self) -> usize {
         let type_id = TypeId::of::<T>();
-        self.components.get(&type_id).map(|components| components.len()).unwrap_or(0)
+        self.components
+            .get(&type_id)
+            .map(|components| components.len())
+            .unwrap_or(0)
     }
 
     /// Gets an entity id from its name.
@@ -72,20 +76,24 @@ impl Entities {
     }
 
     /// Registers a component type.
-    /// 
+    ///
     /// This stores info about the component.
     pub fn register_component<T>(&mut self)
-    where T: ComponentTrait {
+    where
+        T: ComponentTrait,
+    {
         let type_id = TypeId::of::<T>();
         let component_info = ComponentInfo::new::<T>();
         self.component_info.insert(type_id, component_info);
     }
 
     /// Registers a component type with a default implementation.
-    /// 
+    ///
     /// Called instead of `register_component`
     pub fn register_component_with_default<T>(&mut self)
-    where T: ComponentTrait + ComponentDefault {
+    where
+        T: ComponentTrait + ComponentDefault,
+    {
         let type_id = TypeId::of::<T>();
         let component_info = ComponentInfo::new_with_default::<T>();
         self.component_info.insert(type_id, component_info);
@@ -96,12 +104,7 @@ impl Entities {
     pub fn component_defaults(&self) -> Vec<(&'static str, fn() -> Component)> {
         self.component_info
             .iter()
-            .filter_map(|(_, info)| {
-                Some((
-                    info.type_name,
-                    info.default?,
-                ))
-            })
+            .filter_map(|(_, info)| Some((info.type_name, info.default?)))
             .collect::<Vec<_>>()
     }
 
@@ -129,7 +132,10 @@ impl Entities {
             // If components of this type already exists,
             if self.components.contains_key(&component.type_id()) {
                 // Add to it.
-                self.components.get_mut(&component.type_id()).unwrap().insert(entity_id, component);
+                self.components
+                    .get_mut(&component.type_id())
+                    .unwrap()
+                    .insert(entity_id, component);
             } else {
                 // Create a new one.
                 let type_id = component.type_id();
@@ -142,7 +148,7 @@ impl Entities {
     }
 
     /// Create a new entity with the given components.
-    /// 
+    ///
     /// Automatically adds the Name component with the given name.
     pub fn new_entity(&mut self, name: &str, components: Vec<Component>) -> u128 {
         // Generate a new entity id.
@@ -155,18 +161,19 @@ impl Entities {
     }
 
     /// Creates a new entity with the given components and id.
-    /// 
+    ///
     /// Automatically adds the Name component with the given name.
-    pub fn new_entity_with_id(&mut self, id: u128, name: &str,  components: Vec<Component>) {
+    pub fn new_entity_with_id(&mut self, id: u128, name: &str, components: Vec<Component>) {
         // Add it to entities.
         self.entities.insert(id, vec![]);
 
         // Add the name component.
-        self.add_components(id, vec![
-            Component::new(Name {
+        self.add_components(
+            id,
+            vec![Component::new(Name {
                 name: name.to_owned(),
-            }),
-        ]);
+            })],
+        );
 
         // Add the other components.
         self.add_components(id, components);
@@ -184,18 +191,22 @@ impl Entities {
         let component_types = self.get_entity_component_types(entity_id);
 
         // For each component the entity has.
-        component_types.into_iter().map(|component_type| {
-            // Get the map of entities => components.
-            let entities_to_components = self.components.get(&component_type).unwrap();
-            // Return the component.
-            entities_to_components.get(&entity_id).unwrap()
-        // Collect into a HashMap
-        }).collect::<Vec<_>>()
+        component_types
+            .into_iter()
+            .map(|component_type| {
+                // Get the map of entities => components.
+                let entities_to_components = self.components.get(&component_type).unwrap();
+                // Return the component.
+                entities_to_components.get(&entity_id).unwrap()
+                // Collect into a HashMap
+            })
+            .collect::<Vec<_>>()
     }
 
     /// Get an iterator over components of given types, in the form (entity_id, [comp1, comp2, comp3]).
     pub fn query_with_id<const N: usize>(
-        &self, component_types: [&TypeId; N]
+        &self,
+        component_types: [&TypeId; N],
     ) -> std::vec::IntoIter<(u128, [&Component; N])> {
         puffin::profile_function!();
 
@@ -205,10 +216,12 @@ impl Entities {
             // Get the map of entities => components.
             let entities_to_components = self.components.get(component_types[0]).unwrap();
             // Return the iterator.
-            entities_to_components.iter().map(|(&entity_id, component)| {
-                // Return the entity id and the component.
-                (entity_id, [component; N])
-            })
+            entities_to_components
+                .iter()
+                .map(|(&entity_id, component)| {
+                    // Return the entity id and the component.
+                    (entity_id, [component; N])
+                })
                 .collect::<Vec<_>>()
                 .into_iter()
         } else {
@@ -216,25 +229,28 @@ impl Entities {
             let entities_with_each_component = {
                 puffin::profile_scope!("entities_with_each_component");
 
-                component_types.into_iter()
+                component_types
+                    .into_iter()
                     // Get all the entities that have each component.
-                    .map(|component_type| self.components
-                        // Get entities => components for this component type.
-                        .get(component_type)
-                        // Do this if previous is Some.
-                        .map(|map| map
-                            // Only get the entity id.
-                            .keys()
-                            // From &u128 -> u128
-                            .copied()
-                            // Into a vector.
-                            .collect::<Vec<u128>>()
-                        )
-                        // If previous is None, return an empty vector.
-                        .or_else(|| Some(vec![]))
-                        // This is now definitely Some.
-                        .unwrap()
-                    )
+                    .map(|component_type| {
+                        self.components
+                            // Get entities => components for this component type.
+                            .get(component_type)
+                            // Do this if previous is Some.
+                            .map(|map| {
+                                map
+                                    // Only get the entity id.
+                                    .keys()
+                                    // From &u128 -> u128
+                                    .copied()
+                                    // Into a vector.
+                                    .collect::<Vec<u128>>()
+                            })
+                            // If previous is None, return an empty vector.
+                            .or_else(|| Some(vec![]))
+                            // This is now definitely Some.
+                            .unwrap()
+                    })
             };
 
             // Find the intersection of the previous.
@@ -242,10 +258,11 @@ impl Entities {
             let entities_with_all_components = {
                 puffin::profile_scope!("entities_with_all_components");
 
-                let mut entities_with_each_component = entities_with_each_component.collect::<Vec<_>>();
+                let mut entities_with_each_component =
+                    entities_with_each_component.collect::<Vec<_>>();
 
                 let mut ids = vec![];
-                
+
                 for id in entities_with_each_component.remove(0) {
                     let mut in_all = true;
 
@@ -257,7 +274,7 @@ impl Entities {
                             None => {
                                 in_all = false;
                                 break;
-                            },
+                            }
                         };
                     }
 
@@ -272,11 +289,13 @@ impl Entities {
             puffin::profile_scope!("components_from_ids");
 
             // Create the final return value for each entity previously found.
-            entities_with_all_components.into_iter()
+            entities_with_all_components
+                .into_iter()
                 // For each entity id.
                 .map(|id| {
                     // Get the given components for the entity.
-                    let components_vec = component_types.into_iter()
+                    let components_vec = component_types
+                        .into_iter()
                         // For each component type.
                         .map(|component_type| {
                             // Get the map of entities => components.
@@ -288,13 +307,11 @@ impl Entities {
                         .collect::<Vec<_>>();
 
                     // This converts a vector to a sized array.
-                    let components_array: [&Component; N] = components_vec.try_into().unwrap_or_else(|_| panic!());
+                    let components_array: [&Component; N] =
+                        components_vec.try_into().unwrap_or_else(|_| panic!());
 
                     // Join with the id in a tuple.
-                    (
-                        id,
-                        components_array,
-                    )
+                    (id, components_array)
                 })
                 // Into a vector to evaluate everything.
                 .collect::<Vec<(u128, [_; N])>>()
@@ -305,7 +322,8 @@ impl Entities {
 
     /// Get an iterator over components of given types, in the form [comp1, comp2, comp3].
     pub fn query<const N: usize>(
-        &self, component_types: [&TypeId; N]
+        &self,
+        component_types: [&TypeId; N],
     ) -> std::vec::IntoIter<[&Component; N]> {
         // Do the usual query.
         self.query_with_id(component_types)
@@ -318,28 +336,29 @@ impl Entities {
     }
 
     /// Get a single component of a given type.
-    /// 
+    ///
     /// This gets the first component of the given type,
-    /// 
+    ///
     /// but should only be used when you're sure there is only one.
     pub fn get<T: ComponentTrait>(&self) -> &mut T {
         let component_type = &TypeId::of::<T>();
 
         self.components[component_type]
             .values()
-            .next().unwrap()
+            .next()
+            .unwrap()
             .get_mut::<T>()
     }
 }
 
 /// Queries the entities that have a set of components.
-/// 
+///
 /// Used as `query(&Entities, [mut Component1, mut Component2 etc ; Component3, Component4 etc])`.
-/// 
+///
 /// Returns an iterator of tuples of the form (Component1, Component2 etc).
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// # use iridium_ecs::*;
 /// # let entities = Entities::default();

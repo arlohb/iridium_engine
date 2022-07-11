@@ -50,6 +50,10 @@ impl ScreenRect {
 
 impl std::fmt::Debug for ScreenRect {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "[[{:.1} {:.1}] - [{:.1} {:.1}]]", self.min_x, self.min_y, self.max_x, self.max_y)
+        write!(
+            f,
+            "[[{:.1} {:.1}] - [{:.1} {:.1}]]",
+            self.min_x, self.min_y, self.max_x, self.max_y
+        )
     }
 }

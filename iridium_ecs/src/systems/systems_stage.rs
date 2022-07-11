@@ -1,10 +1,10 @@
 use rayon::prelude::*;
 
-use crate::Entities;
 use super::*;
+use crate::Entities;
 
 /// A system stage.
-/// 
+///
 /// The systems in a stage are executed in parallel.
 pub struct SystemsStage {
     /// The systems in this stage.
@@ -14,9 +14,7 @@ pub struct SystemsStage {
 impl SystemsStage {
     /// Creates a new stage with the given systems.
     pub fn new(systems: Vec<Box<dyn System>>) -> SystemsStage {
-        SystemsStage {
-            systems,
-        }
+        SystemsStage { systems }
     }
 
     /// Executes the systems in this stage.

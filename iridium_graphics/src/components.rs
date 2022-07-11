@@ -1,5 +1,5 @@
 use iridium_assets::Assets;
-use iridium_ecs::{ComponentFieldUi, storage::*, ComponentDefault, Component};
+use iridium_ecs::{storage::*, Component, ComponentDefault, ComponentFieldUi};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
@@ -29,29 +29,25 @@ impl CameraGpuData {
 
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("Camera bind group layout"),
-            entries: &[
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
-                    },
-                    count: None,
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
                 },
-            ],
+                count: None,
+            }],
         });
 
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Camera bind group"),
             layout: &bind_group_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: buffer.as_entire_binding(),
-                },
-            ],
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: buffer.as_entire_binding(),
+            }],
         });
 
         Self {
@@ -63,7 +59,7 @@ impl CameraGpuData {
 }
 
 /// Describes the camera used to render the scene.
-/// 
+///
 /// This is just a simple orthographic camera.
 #[derive(ComponentTrait)]
 pub struct Camera {
@@ -77,7 +73,7 @@ pub struct Camera {
     /// The maximum depth to render.
     pub max_depth: f32,
     /// The rotation.
-    /// 
+    ///
     /// In radians.
     #[drag_speed(0.05)]
     pub rotation: f32,
@@ -101,7 +97,9 @@ impl Camera {
         bytes[12..16].copy_from_slice(&self.max_depth.to_le_bytes());
         bytes[16..20].copy_from_slice(&self.rotation.to_le_bytes());
         bytes[20..24].copy_from_slice(&self.scale.to_le_bytes());
-        bytes[24..28].copy_from_slice(&(self.viewport_size.x() as f32 / self.viewport_size.y() as f32).to_le_bytes());
+        bytes[24..28].copy_from_slice(
+            &(self.viewport_size.x() as f32 / self.viewport_size.y() as f32).to_le_bytes(),
+        );
 
         bytes
     }
@@ -135,7 +133,7 @@ impl ComponentStorage for Camera {
     }
 
     fn to_stored(&self) -> StoredComponent {
-        StoredComponent { 
+        StoredComponent {
             type_name: "Camera".to_string(),
             fields: fast_map! {
                 "position" => StoredComponentField::NonString(self.position.to_string()),
@@ -180,12 +178,9 @@ impl ComponentStorage for Renderable2D {
 
 impl Renderable2D {
     /// Creates a new `Renderable2D` from a `MaterialInstance` and a `Mesh`.
-    pub fn new(
-        device: &wgpu::Device,
-        material_instance: MaterialInstance,
-        mesh: &Mesh,
-    ) -> Self {
-        let vertices_bytes = mesh.vertices
+    pub fn new(device: &wgpu::Device, material_instance: MaterialInstance, mesh: &Mesh) -> Self {
+        let vertices_bytes = mesh
+            .vertices
             .iter()
             .flat_map(|v| v.as_bytes())
             .collect::<Vec<u8>>();
@@ -196,7 +191,8 @@ impl Renderable2D {
             usage: wgpu::BufferUsages::VERTEX,
         });
 
-        let index_bytes = mesh.indices
+        let index_bytes = mesh
+            .indices
             .iter()
             .flat_map(|v: &u32| v.to_le_bytes())
             .collect::<Vec<u8>>();

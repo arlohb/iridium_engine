@@ -22,7 +22,8 @@ impl StorageWriter {
     fn write_component(&mut self, component: &Component) {
         let stored = component.get_trait().to_stored();
 
-        self.buffer.push_str(&format!("            {}: {{\n", stored.type_name));
+        self.buffer
+            .push_str(&format!("            {}: {{\n", stored.type_name));
 
         for (key, value) in stored.fields.into_iter() {
             self.buffer.push_str(&format!("                {}: ", key));
@@ -30,10 +31,10 @@ impl StorageWriter {
             match value {
                 StoredComponentField::String(string) => {
                     self.buffer.push_str(&format!("\"{string}\""));
-                },
+                }
                 StoredComponentField::NonString(string) => {
                     self.buffer.push_str(&string);
-                },
+                }
             }
 
             self.buffer.push_str(",\n");
@@ -80,7 +81,7 @@ impl StorageWriter {
     }
 
     /// Save the world to the file.
-    /// 
+    ///
     /// Should be called in-between `begin` and `end`.
     pub fn save_world(&mut self, world: &World) {
         self.write_entities(&world.entities);

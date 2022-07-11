@@ -1,6 +1,6 @@
 use iridium_assets::Assets;
+use iridium_ecs::{storage::*, ComponentFieldUi};
 use iridium_ecs_macros::ComponentTrait;
-use iridium_ecs::{ComponentFieldUi, storage::*};
 use iridium_map_utils::fast_map;
 
 #[derive(ComponentTrait)]

@@ -3,12 +3,12 @@ use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
 use crate::storage::*;
-use crate::{ComponentFieldUi, ComponentDefault, Component};
+use crate::{Component, ComponentDefault, ComponentFieldUi};
 
 use crate as iridium_ecs;
 
 /// The name of an entity.
-/// 
+///
 /// Added by default to all entities on creation.
 #[derive(ComponentTrait)]
 pub struct Name {
@@ -43,7 +43,7 @@ pub struct Transform {
     #[drag_speed(0.05)]
     pub scale: iridium_maths::VecN<3>,
     /// The rotation.
-    /// 
+    ///
     /// This is in radians.
     #[drag_speed(0.05)]
     pub rotation: f32,

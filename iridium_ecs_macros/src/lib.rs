@@ -3,8 +3,8 @@
 //! This is the procedural macros to be used with the `iridium_ecs` crate.
 
 use proc_macro::TokenStream;
-use syn::parse_macro_input;
 use quote::quote;
+use syn::parse_macro_input;
 
 /// Derive macro generating an impl of the trait `ComponentTrait`.
 #[proc_macro_derive(ComponentTrait, attributes(hidden, drag_speed))]
@@ -71,5 +71,8 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
                 )*
             }
         }
-    }.to_string().parse().unwrap()
+    }
+    .to_string()
+    .parse()
+    .unwrap()
 }

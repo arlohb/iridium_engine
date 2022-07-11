@@ -14,9 +14,7 @@ pub struct Project {
 
 impl Project {
     pub fn load(path: &str) -> Project {
-        let container: Container<ProjectApi> = unsafe {
-            Container::load(path)
-        }.unwrap();
+        let container: Container<ProjectApi> = unsafe { Container::load(path) }.unwrap();
 
         Project { api: container }
     }

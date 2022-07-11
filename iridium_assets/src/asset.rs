@@ -1,4 +1,4 @@
-use std::{sync::Arc, any::Any, ops::Deref};
+use std::{any::Any, ops::Deref, sync::Arc};
 
 /// An asset.
 pub struct Asset<T: 'static> {

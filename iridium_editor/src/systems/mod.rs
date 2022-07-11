@@ -2,7 +2,7 @@ mod frame_history;
 pub use frame_history::*;
 
 use iridium_assets::Assets;
-use iridium_ecs::{*, systems::System, storage::*};
+use iridium_ecs::{storage::*, systems::System, *};
 use iridium_ecs_macros::ComponentTrait;
 use iridium_map_utils::fast_map;
 
@@ -32,7 +32,9 @@ impl ComponentStorage for VelocityState {
 pub struct VelocitySystem;
 
 impl System for VelocitySystem {
-    fn name(&self) -> &'static str { "VelocitySystem" }
+    fn name(&self) -> &'static str {
+        "VelocitySystem"
+    }
 
     fn default_state(&self) -> Component {
         Component::new(VelocityState {
@@ -41,8 +43,7 @@ impl System for VelocitySystem {
     }
 
     fn system(&self, entities: &Entities, delta_time: f64) {
-        for (transform, velocity)
-        in query!(entities, [mut Transform, mut Velocity;]) {
+        for (transform, velocity) in query!(entities, [mut Transform, mut Velocity;]) {
             let state = entities.get::<VelocityState>();
             transform.rotation += state.rotation_speed * delta_time as f32;
 
@@ -93,15 +94,16 @@ impl ComponentStorage for PositionLoggerState {
 pub struct PositionLoggerSystem;
 
 impl System for PositionLoggerSystem {
-    fn name(&self) -> &'static str { "PositionLoggerSystem" }
+    fn name(&self) -> &'static str {
+        "PositionLoggerSystem"
+    }
 
     fn default_state(&self) -> Component {
         Component::new(PositionLoggerState {})
     }
 
     fn system(&self, entities: &Entities, _delta_time: f64) {
-        for (transform, )
-        in query!(entities, [; Transform]) {
+        for (transform,) in query!(entities, [; Transform]) {
             let position = transform.position;
             println!("{} {} {}", position.x(), position.y(), position.z());
         }

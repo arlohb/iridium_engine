@@ -1,7 +1,7 @@
 use iridium_assets::Assets;
-use iridium_ecs::{World, Name};
+use iridium_ecs::{Name, World};
 
-use crate::ui::{UiState, PanelUi};
+use crate::ui::{PanelUi, UiState};
 
 pub struct EntitiesList {
     name_filter: String,
@@ -16,9 +16,17 @@ impl EntitiesList {
 }
 
 impl PanelUi for EntitiesList {
-    fn name(&self) -> &'static str { "EntitiesList" }
+    fn name(&self) -> &'static str {
+        "EntitiesList"
+    }
 
-    fn render(&mut self, context: &egui::Context, ui_state: &mut UiState, world: &mut World, _assets: &Assets) {
+    fn render(
+        &mut self,
+        context: &egui::Context,
+        ui_state: &mut UiState,
+        world: &mut World,
+        _assets: &Assets,
+    ) {
         egui::SidePanel::left("entities_list").show(context, |ui| {
             let max_x_logical = ui.max_rect().max.x + ui.spacing().item_spacing.x;
             let max_x_physical = max_x_logical * ui_state.scale_factor;
@@ -47,12 +55,17 @@ impl PanelUi for EntitiesList {
                 .show(ui, |ui| {
                     ui.add_space(10.);
 
-                    for (id, [name])
-                    in world.entities.query_with_id([&std::any::TypeId::of::<Name>()]) {
+                    for (id, [name]) in world
+                        .entities
+                        .query_with_id([&std::any::TypeId::of::<Name>()])
+                    {
                         let name = name.get::<Name>();
                         let name = &name.name;
 
-                        if !name.to_lowercase().contains(&self.name_filter.to_lowercase()) {
+                        if !name
+                            .to_lowercase()
+                            .contains(&self.name_filter.to_lowercase())
+                        {
                             continue;
                         }
 
@@ -64,7 +77,10 @@ impl PanelUi for EntitiesList {
                             }
                         }
 
-                        if ui.add(egui::Label::new(rich_text).sense(egui::Sense::click())).clicked() {
+                        if ui
+                            .add(egui::Label::new(rich_text).sense(egui::Sense::click()))
+                            .clicked()
+                        {
                             ui_state.selected_entity = Some(id);
                         }
                     }
