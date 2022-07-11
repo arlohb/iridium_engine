@@ -41,15 +41,20 @@ impl System for VelocitySystem {
         "VelocitySystem"
     }
 
+    fn state_type_id(&self) -> std::any::TypeId {
+        std::any::TypeId::of::<VelocityState>()
+    }
+
     fn default_state(&self) -> Component {
         Component::new(VelocityState {
             rotation_speed: 0.002,
         })
     }
 
-    fn system(&self, entities: &Entities, delta_time: f64) {
+    fn system(&self, state: &Component, entities: &Entities, delta_time: f64) {
+        let state = state.get_mut::<VelocityState>();
+
         for (transform, velocity) in query!(entities, [mut Transform, mut Velocity;]) {
-            let state = entities.get::<VelocityState>();
             transform.rotation += state.rotation_speed * delta_time as f32;
 
             let position = &mut transform.position;
@@ -103,11 +108,17 @@ impl System for PositionLoggerSystem {
         "PositionLoggerSystem"
     }
 
+    fn state_type_id(&self) -> std::any::TypeId {
+        std::any::TypeId::of::<PositionLoggerState>()
+    }
+
     fn default_state(&self) -> Component {
         Component::new(PositionLoggerState {})
     }
 
-    fn system(&self, entities: &Entities, _delta_time: f64) {
+    fn system(&self, state: &Component, entities: &Entities, _delta_time: f64) {
+        let _state = state.get_mut::<PositionLoggerState>();
+
         for (transform,) in query!(entities, [; Transform]) {
             let position = transform.position;
             println!("{} {} {}", position.x(), position.y(), position.z());

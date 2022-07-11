@@ -21,7 +21,10 @@ impl SystemsStage {
     /// Executes the systems in this stage.
     pub fn run_systems(&mut self, entities: &Entities, delta_time: f64) {
         self.systems.par_iter_mut().for_each(|system| {
-            system.system(entities, delta_time);
+            let state_type_id = system.state_type_id();
+            let state = entities.get_by_type_id(&state_type_id);
+
+            system.system(state, entities, delta_time);
         });
     }
 }

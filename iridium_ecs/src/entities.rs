@@ -358,6 +358,19 @@ impl Entities {
             .expect("Component not found.")
             .get_mut::<T>()
     }
+
+    /// Get a single component with a given type id.
+    ///
+    /// This gets the first component of the given type,
+    ///
+    /// but should only be used when you're sure there is only one.
+    #[must_use]
+    pub fn get_by_type_id(&self, component_type: &TypeId) -> &Component {
+        self.components[component_type]
+            .values()
+            .next()
+            .expect("Component not found.")
+    }
 }
 
 /// Queries the entities that have a set of components.

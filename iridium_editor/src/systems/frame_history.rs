@@ -65,6 +65,10 @@ impl System for FrameHistorySystem {
         "FrameHistorySystem"
     }
 
+    fn state_type_id(&self) -> std::any::TypeId {
+        std::any::TypeId::of::<FrameHistoryState>()
+    }
+
     fn default_state(&self) -> Component {
         Component::new(FrameHistoryState {
             frames: VecDeque::with_capacity(500_000),
@@ -73,8 +77,8 @@ impl System for FrameHistorySystem {
         })
     }
 
-    fn system(&self, entities: &Entities, delta_time: f64) {
-        let state = entities.get::<FrameHistoryState>();
+    fn system(&self, state: &Component, _entities: &Entities, delta_time: f64) {
+        let state = state.get_mut::<FrameHistoryState>();
 
         state.frames.push_back(Frame {
             time: std::time::SystemTime::now(),
