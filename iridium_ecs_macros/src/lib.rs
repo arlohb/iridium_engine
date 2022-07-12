@@ -11,7 +11,53 @@
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::parse_macro_input;
+use syn::{parse_macro_input, Type};
+
+/// This macro simplifies the creation of a system.
+///
+/// # Panics
+///
+/// Will panic if the input is invalid.
+#[proc_macro_attribute]
+pub fn system_helper(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let ast = parse_macro_input!(item as syn::ItemImpl);
+
+    let self_type = if let Type::Path(path) = &*ast.self_ty {
+        path
+    } else {
+        panic!("`system` must be implemented for a struct");
+    };
+
+    let state_type = if let Type::Path(path) = parse_macro_input!(attr as syn::Type) {
+        path
+    } else {
+        panic!("The state type must be a path.");
+    };
+
+    quote! {
+        impl System for #self_type {
+            fn name(&self) -> &'static str {
+                stringify!(#self_type)
+            }
+
+            fn state_type_id(&self) -> std::any::TypeId {
+                std::any::TypeId::of::<#state_type>()
+            }
+
+            fn default_state(&self) -> Component {
+                Component::new(#state_type::default())
+            }
+
+            fn system(&self, state: &Component, entities: &Entities, delta_time: f64) {
+                let state = state.get_mut::<#state_type>();
+                #self_type::system(state, entities, delta_time);
+            }
+        }
+    }
+    .to_string()
+    .parse()
+    .expect("Failed to parse the generated code.")
+}
 
 /// Derive macro generating an impl of the trait `ComponentTrait`.
 #[proc_macro_derive(ComponentTrait, attributes(hidden, drag_speed))]

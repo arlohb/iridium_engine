@@ -8,7 +8,7 @@ use iridium_ecs::{
     systems::System,
     Component, ComponentFieldUi, Entities, Transform, Velocity,
 };
-use iridium_ecs_macros::ComponentTrait;
+use iridium_ecs_macros::{system_helper, ComponentTrait};
 use iridium_map_utils::fast_map;
 
 #[derive(ComponentTrait)]
@@ -34,26 +34,18 @@ impl ComponentStorage for VelocityState {
     }
 }
 
+impl Default for VelocityState {
+    fn default() -> Self {
+        Self {
+            rotation_speed: 0.002,
+        }
+    }
+}
+
 pub struct VelocitySystem;
 
-impl System for VelocitySystem {
-    fn name(&self) -> &'static str {
-        "VelocitySystem"
-    }
-
-    fn state_type_id(&self) -> std::any::TypeId {
-        std::any::TypeId::of::<VelocityState>()
-    }
-
-    fn default_state(&self) -> Component {
-        Component::new(VelocityState {
-            rotation_speed: 0.002,
-        })
-    }
-
-    fn system(&self, state: &Component, entities: &Entities, delta_time: f64) {
-        let state = state.get_mut::<VelocityState>();
-
+impl VelocitySystem {
+    fn system(state: &mut VelocityState, entities: &Entities, delta_time: f64) {
         for (transform, velocity) in query!(entities, [mut Transform, mut Velocity;]) {
             transform.rotation += state.rotation_speed * delta_time as f32;
 
@@ -80,6 +72,9 @@ impl System for VelocitySystem {
         }
     }
 }
+
+#[system_helper(VelocityState)]
+impl System for VelocitySystem {}
 
 #[allow(dead_code)]
 #[derive(ComponentTrait)]
