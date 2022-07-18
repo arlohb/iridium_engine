@@ -33,6 +33,6 @@ impl Assets {
     pub fn get<T: Any + Send + Sync + 'static>(&self, id: &str) -> Option<Asset<T>> {
         self.assets
             .get(id)
-            .map(|asset| Asset::<T>::from_arc_any(asset.clone()))
+            .map(|asset| Asset::<T>::from_arc_any(id.to_string(), asset.clone()))
     }
 }
