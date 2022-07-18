@@ -24,7 +24,7 @@ impl StorageWriter {
     fn write_component(&mut self, component: &Component) {
         let stored = component.get_trait().to_stored();
 
-        writeln!(&mut self.buffer, "            {}: {{\n", stored.type_name).unwrap();
+        writeln!(&mut self.buffer, "            {}: {{", stored.type_name).unwrap();
 
         for (key, value) in stored.fields {
             write!(&mut self.buffer, "                {key}: ").unwrap();
