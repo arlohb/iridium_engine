@@ -82,6 +82,8 @@ impl PanelUi for TopPanel {
                                     world
                                         .load("temp.json5", assets)
                                         .expect("Save file disappeared");
+                                    std::fs::remove_file("temp.json5")
+                                        .expect("Failed to remove temp file");
                                     ui_state.stop();
                                 }
 
