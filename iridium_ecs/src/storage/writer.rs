@@ -1,4 +1,5 @@
 use crate::{Component, Entities, World};
+use std::fmt::Write;
 
 use super::StoredComponentField;
 
@@ -23,15 +24,14 @@ impl StorageWriter {
     fn write_component(&mut self, component: &Component) {
         let stored = component.get_trait().to_stored();
 
-        self.buffer
-            .push_str(&format!("            {}: {{\n", stored.type_name));
+        writeln!(&mut self.buffer, "            {}: {{\n", stored.type_name).unwrap();
 
         for (key, value) in stored.fields {
-            self.buffer.push_str(&format!("                {}: ", key));
+            write!(&mut self.buffer, "                {key}: ").unwrap();
 
             match value {
                 StoredComponentField::String(string) => {
-                    self.buffer.push_str(&format!("\"{string}\""));
+                    write!(&mut self.buffer, "\"{string}\"").unwrap();
                 }
                 StoredComponentField::NonString(string) => {
                     self.buffer.push_str(&string);
@@ -46,7 +46,7 @@ impl StorageWriter {
 
     /// Write an entity to the file.
     fn write_entity(&mut self, entities: &Entities, id: u128) {
-        self.buffer.push_str(&format!("        \"{id}\": {{\n"));
+        writeln!(&mut self.buffer, "        \"{id}\": {{").unwrap();
 
         for component in entities
             .get_entity_components(id)
