@@ -1,10 +1,14 @@
-use std::{any::Any, ops::Deref, sync::Arc};
+use std::{
+    any::Any,
+    ops::Deref,
+    sync::{Arc, RwLock},
+};
 
 /// An asset.
 pub struct Asset<T: Send + Sync + 'static> {
     /// The ID of the asset.
     pub id: String,
-    asset: Arc<dyn Any + Send + Sync>,
+    asset: Arc<RwLock<dyn Any + Send + Sync>>,
     phantom: std::marker::PhantomData<*const T>,
 }
 
@@ -32,7 +36,7 @@ impl<T: Send + Sync + 'static> Deref for Asset<T> {
 impl<T: Send + Sync + 'static> Asset<T> {
     /// Creates a new asset.
     #[must_use]
-    pub fn from_arc_any(id: String, asset: Arc<dyn Any + Send + Sync>) -> Self {
+    pub fn from_inner(id: String, asset: Arc<RwLock<dyn Any + Send + Sync>>) -> Self {
         Self {
             id,
             asset,
@@ -44,11 +48,38 @@ impl<T: Send + Sync + 'static> Asset<T> {
     ///
     /// # Panics
     ///
-    /// Panics if the asset is not of the expected type.
+    /// Panics if the asset is not of the expected type,
+    /// or the inner `RwLock` has been poisoned.
     #[must_use]
-    pub fn get(&self) -> &T {
-        self.asset
-            .downcast_ref::<T>()
-            .expect("Asset is not of the expected type")
+    pub fn get<'a>(&'a self) -> &T {
+        let dyn_guard = self.asset.read().expect("Asset RwLock poisoned");
+        let dyn_ptr = std::ptr::addr_of!(*dyn_guard);
+        let t_ptr = dyn_ptr.cast::<T>();
+
+        unsafe {
+            t_ptr
+                .as_ref::<'a>()
+                .expect("My horrible pointer manipulation failed")
+        }
+    }
+
+    /// Mutably gets the asset.
+    /// This will block the current thread until the asset is available.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the asset is not of the expected type,
+    /// or the inner `RwLock` has been poisoned.
+    #[must_use]
+    pub fn get_mut<'a>(&'a self) -> &mut T {
+        let mut dyn_guard = self.asset.write().expect("Asset RwLock poisoned");
+        let dyn_ptr = std::ptr::addr_of_mut!(*dyn_guard);
+        let t_ptr = dyn_ptr.cast::<T>();
+
+        unsafe {
+            t_ptr
+                .as_mut::<'a>()
+                .expect("My horrible pointer manipulation failed")
+        }
     }
 }

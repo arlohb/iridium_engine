@@ -1,11 +1,14 @@
 use hashbrown::HashMap;
-use std::{any::Any, sync::Arc};
+use std::{
+    any::Any,
+    sync::{Arc, RwLock},
+};
 
 use crate::Asset;
 
 /// The asset manager to store all assets such as textures, shaders, etc.
 pub struct Assets {
-    assets: HashMap<String, Arc<dyn Any + Send + Sync>>,
+    assets: HashMap<String, Arc<RwLock<dyn Any + Send + Sync>>>,
 }
 
 impl Default for Assets {
@@ -25,7 +28,8 @@ impl Assets {
 
     /// Adds an asset.
     pub fn add<T: Any + Send + Sync + 'static>(&mut self, id: &str, asset: T) {
-        self.assets.insert(id.to_string(), Arc::new(asset));
+        self.assets
+            .insert(id.to_string(), Arc::new(RwLock::new(asset)));
     }
 
     /// Gets an asset.
@@ -33,6 +37,6 @@ impl Assets {
     pub fn get<T: Any + Send + Sync + 'static>(&self, id: &str) -> Option<Asset<T>> {
         self.assets
             .get(id)
-            .map(|asset| Asset::<T>::from_arc_any(id.to_string(), asset.clone()))
+            .map(|asset| Asset::<T>::from_inner(id.to_string(), asset.clone()))
     }
 }
