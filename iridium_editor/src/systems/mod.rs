@@ -6,12 +6,12 @@ use iridium_ecs::{
     query,
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     systems::System,
-    Component, ComponentFieldUi, Entities, Transform, Velocity,
+    Component, Entities, Transform, Velocity,
 };
-use iridium_ecs_macros::{system_helper, ComponentTrait};
+use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct VelocityState {
     #[drag_speed(0.001)]
     pub rotation_speed: f32,
@@ -77,7 +77,7 @@ impl VelocitySystem {
 impl System for VelocitySystem {}
 
 #[allow(dead_code)]
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct PositionLoggerState {}
 
 impl ComponentStorage for PositionLoggerState {

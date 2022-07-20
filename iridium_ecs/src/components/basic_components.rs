@@ -1,16 +1,16 @@
 use iridium_assets::Assets;
-use iridium_ecs_macros::ComponentTrait;
+use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
+use super::{Component, ComponentDefault};
 use crate::storage::{ComponentStorage, StoredComponent, StoredComponentField};
-use crate::{Component, ComponentDefault, ComponentFieldUi};
 
 use crate as iridium_ecs;
 
 /// The name of an entity.
 ///
 /// Added by default to all entities on creation.
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct Name {
     /// The name of the entity.
     pub name: String,
@@ -34,7 +34,7 @@ impl ComponentStorage for Name {
 }
 
 /// The position, scale and rotation of an entity.
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct Transform {
     /// The position.
     #[drag_speed(0.05)]
@@ -81,7 +81,7 @@ impl ComponentDefault for Transform {
 }
 
 /// The velocity of an entity.
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct Velocity {
     #[drag_speed(0.0001)]
     /// The velocity.

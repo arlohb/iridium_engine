@@ -1,9 +1,9 @@
 use iridium_assets::Assets;
-use iridium_ecs::{storage::*, ComponentFieldUi};
-use iridium_ecs_macros::ComponentTrait;
+use iridium_ecs::storage::*;
+use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct Custom {
     pub test: f64,
 }

@@ -1,83 +1,8 @@
 #![allow(clippy::mut_from_ref)]
 
-use std::{
-    any::{Any, TypeId},
-    cell::UnsafeCell,
-};
+use std::{any::TypeId, cell::UnsafeCell};
 
-use iridium_assets::Assets;
-
-use crate::storage::{ComponentStorage, StoredComponent};
-
-/// Information about a component type when it is registered.
-///
-/// Right now this is just the type name, in the future this may include field types.
-pub struct ComponentInfo {
-    /// The name of the component type.
-    pub type_name: &'static str,
-    /// Creates a component from within the UI.
-    ///
-    /// Not all components implement this.
-    pub default: Option<fn() -> Component>,
-    /// Tries to create a component from a stored component.
-    pub from_stored: fn(StoredComponent, &Assets) -> Option<Component>,
-}
-
-impl ComponentInfo {
-    /// Creates a new component info from a component type.
-    #[must_use]
-    pub fn new<T>() -> Self
-    where
-        T: ComponentTrait,
-    {
-        Self {
-            type_name: T::type_name(),
-            default: None,
-            from_stored: T::from_stored_component,
-        }
-    }
-
-    /// Creates a new component info from a component type.
-    ///
-    /// Also adds the default fn.
-    #[must_use]
-    pub fn new_with_default<T>() -> Self
-    where
-        T: ComponentTrait + ComponentDefault,
-    {
-        Self {
-            type_name: T::type_name(),
-            default: Some(T::create),
-            from_stored: T::from_stored_component,
-        }
-    }
-}
-
-/// A trait implemented by components that can be created from the UI without any inputs.
-pub trait ComponentDefault: ComponentTrait + Sized {
-    /// Creates a new component from the default values.
-    ///
-    /// This is returned as a Component, not Self.
-    fn create() -> Component;
-}
-
-/// A trait implemented by components.
-pub trait ComponentTrait: 'static + Send + Sync + Any + ComponentStorage {
-    /// The name of the component type.
-    ///
-    /// Called on the type.
-    fn type_name() -> &'static str
-    where
-        Self: Sized;
-    /// The name of the component type.
-    ///
-    /// Called on an instance of the type.
-    fn dyn_type_name(&self) -> &'static str;
-    /// A vec of the field name and the type.
-    fn field_types(&self) -> Vec<(&'static str, &'static str)>;
-    /// Draws the component field to the UI.
-    fn ui(&mut self, ui: &mut egui::Ui);
-}
+use super::ComponentTrait;
 
 /// A component.
 ///

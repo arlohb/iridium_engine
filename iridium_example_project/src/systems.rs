@@ -1,11 +1,11 @@
 use iridium_assets::Assets;
 use iridium_ecs::{storage::*, systems::System, *};
-use iridium_ecs_macros::ComponentTrait;
+use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 use crate::components::Custom;
 
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct CustomState {
     pub test: f64,
 }

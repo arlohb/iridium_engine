@@ -22,6 +22,11 @@ pub use entities::*;
 mod world;
 pub use world::*;
 
+/// Ui interfaces.
+///
+/// Widely used for components, but could be used for anything else.
+pub mod ui;
+
 /// System management.
 pub mod systems;
 

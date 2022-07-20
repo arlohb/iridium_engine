@@ -3,15 +3,15 @@ use std::cmp::Ordering;
 use iridium_ecs::{
     query,
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
-    Component, ComponentDefault, ComponentFieldUi, Entities, Name, Transform,
+    Component, ComponentDefault, Entities, Name, Transform,
 };
-use iridium_ecs_macros::ComponentTrait;
+use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 use crate::{Camera, CameraGpuData, Renderable2D};
 
 /// The state for `Renderer2DSystem`.
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct Renderer2DState {
     /// The name of the active camera.
     ///

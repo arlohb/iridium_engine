@@ -3,8 +3,14 @@
 mod component;
 pub use component::*;
 
-mod components;
-pub use components::*;
+mod basic_components;
+pub use basic_components::*;
 
-mod field_ui;
-pub use field_ui::*;
+mod component_info;
+pub use component_info::*;
+
+mod component_default;
+pub use component_default::*;
+
+mod component_trait;
+pub use component_trait::*;

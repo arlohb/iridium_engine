@@ -65,6 +65,27 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
 
+    quote! {
+        impl iridium_ecs::ComponentTrait for #struct_name {
+            fn type_name() -> &'static str {
+                stringify!(#struct_name)
+            }
+            fn dyn_type_name(&self) -> &'static str {
+                stringify!(#struct_name)
+            }
+        }
+    }
+    .to_string()
+    .parse()
+    .expect("Failed to parse derive macro output")
+}
+
+/// Derive macro generating an impl of the trait `InspectorUi`.
+#[proc_macro_derive(InspectorUi, attributes(hidden, drag_speed))]
+pub fn derive_inspector_ui(tokens: TokenStream) -> TokenStream {
+    let ast = parse_macro_input!(tokens as syn::DeriveInput);
+    let struct_name = &ast.ident;
+
     let mut idents = vec![];
     let mut idents_strings = vec![];
     let mut types = vec![];
@@ -91,21 +112,10 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     }
 
     quote! {
-        impl iridium_ecs::ComponentTrait for #struct_name {
-            fn type_name() -> &'static str {
-                stringify!(#struct_name)
-            }
-            fn dyn_type_name(&self) -> &'static str {
-                stringify!(#struct_name)
-            }
-            fn field_types(&self) -> Vec<(&'static str, &'static str)> {
-                let mut fields = vec![];
-                #(
-                    fields.push((#idents_strings, stringify!(#types)));
-                )*
-                fields
-            }
+        impl iridium_ecs::ui::InspectorUi for #struct_name {
             fn ui(&mut self, ui: &mut egui::Ui) {
+                use iridium_ecs::ui::InspectorUiField;
+
                 #(
                     let attributes = {
                         let mut attributes = hashbrown::HashMap::new();
@@ -115,7 +125,7 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
                             let tts = &tts[1..tts.len() - 1];
                             attributes.insert(stringify!(#attrs_path), tts);
                         )*
-                        iridium_ecs::ComponentFieldAttributes(attributes)
+                        iridium_ecs::ui::InspectorUiFieldAttributes::from_inner(attributes)
                     };
 
                     ui.label(#idents_strings);
