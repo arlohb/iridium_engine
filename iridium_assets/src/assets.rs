@@ -39,4 +39,13 @@ impl Assets {
             .get(id)
             .map(|asset| Asset::<T>::from_inner(id.to_string(), asset.clone()))
     }
+
+    /// Gets all assets.
+    #[must_use]
+    pub fn get_all(&self) -> Vec<(String, Arc<RwLock<dyn Any + Send + Sync>>)> {
+        self.assets
+            .iter()
+            .map(|(id, asset)| (id.clone(), asset.clone()))
+            .collect()
+    }
 }

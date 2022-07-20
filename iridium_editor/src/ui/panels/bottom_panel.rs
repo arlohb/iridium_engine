@@ -32,7 +32,7 @@ impl BottomPanel {
     pub const fn new() -> Self {
         Self {
             texture: None,
-            current_tab: CurrentTab::Profiler,
+            current_tab: CurrentTab::Assets,
         }
     }
 }
@@ -47,7 +47,7 @@ impl PanelUi for BottomPanel {
         context: &egui::Context,
         ui_state: &mut crate::ui::UiState,
         _world: &mut iridium_ecs::World,
-        _assets: &Assets,
+        assets: &Assets,
     ) {
         egui::TopBottomPanel::bottom("asset_browser")
             .default_height(ui_state.screen_size.1 as f32 * ui_state.scale_factor * 0.3)
@@ -67,18 +67,35 @@ impl PanelUi for BottomPanel {
 
                 match self.current_tab {
                     CurrentTab::Assets => {
-                        let texture = self.texture.get_or_insert_with(|| {
+                        let icon_size = 40.;
+
+                        let icons_in_row = (ui.available_width() / icon_size).trunc() as u32;
+
+                        let all_assets = assets.get_all();
+
+                        let texture = &*self.texture.get_or_insert_with(|| {
                             load_texture(ui.ctx(), "iridium_editor/assets/FoodSprites/Food.png").1
                         });
-
-                        ui.label("This is the asset browser");
 
                         egui::ScrollArea::new([false, true])
                             .auto_shrink([false, false])
                             .max_width(f32::INFINITY)
                             .always_show_scroll(true)
                             .show(ui, |ui| {
-                                ui.image(texture, (200., 200.));
+                                egui::Grid::new("Asset grid").show(ui, |ui| {
+                                    for (index, (id, _asset)) in
+                                        (0_u32..).zip(all_assets.into_iter())
+                                    {
+                                        if index % icons_in_row == 0 {
+                                            ui.end_row();
+                                        }
+
+                                        ui.vertical(|ui| {
+                                            ui.image(texture, (icon_size, icon_size));
+                                            ui.label(id);
+                                        });
+                                    }
+                                });
                             });
                     }
                     CurrentTab::Profiler => {

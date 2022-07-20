@@ -1,3 +1,5 @@
+use iridium_assets::Asset;
+
 /// The attributes a component field has.
 ///
 /// Map is attribute name -> attribute value.
@@ -56,5 +58,14 @@ impl<const N: usize> ComponentFieldUi for iridium_maths::VecN<N> {
         });
 
         self.data.copy_from_slice(&values);
+    }
+}
+
+impl<T> ComponentFieldUi for Asset<T>
+where
+    T: ComponentFieldUi + Send + Sync,
+{
+    fn ui(&mut self, ui: &mut egui::Ui, attributes: ComponentFieldAttributes) {
+        self.get_mut().ui(ui, attributes);
     }
 }
