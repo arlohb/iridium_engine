@@ -60,7 +60,7 @@ pub fn system_helper(attr: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 /// Derive macro generating an impl of the trait `ComponentTrait`.
-#[proc_macro_derive(ComponentTrait, attributes(hidden, drag_speed))]
+#[proc_macro_derive(ComponentTrait)]
 pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
