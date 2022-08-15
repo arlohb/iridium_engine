@@ -84,13 +84,13 @@ fn main() {
             .entities
             .entity_id_from_name("SystemState")
             .expect("SystemState entity not found"),
-        vec![Component::new(Renderer2DState {
+        [Component::new(Renderer2DState {
             active_camera: "".to_string(),
             camera_gpu_data: Some(camera_gpu_data),
         })],
     );
 
-    world.entities.new_entity("Camera", vec![Camera::create()]);
+    world.entities.new_entity("Camera", [Camera::create()]);
 
     let mut assets = Assets::new();
 

@@ -15,7 +15,7 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
     for i in 0..1000 {
         world.entities.new_entity(
             &format!("Steak {i}"),
-            vec![
+            [
                 Component::new(Transform {
                     position: VecN::new([
                         rng.gen_range(-1f32..1f32),
@@ -60,7 +60,7 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
 
         world.entities.new_entity(
             &format!("Entity {i}"),
-            vec![
+            [
                 Component::new(Transform {
                     position: VecN::new([
                         rng.gen_range(-1f32..1f32),
@@ -99,7 +99,7 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
 
     world.entities.new_entity(
         "LeftWall",
-        vec![
+        [
             Component::new(Transform {
                 position: VecN::new([-1., 0., 0.]),
                 scale: VecN::new([0.05, 2., 1.]),
@@ -122,7 +122,7 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
 
     world.entities.new_entity(
         "RightWall",
-        vec![
+        [
             Component::new(Transform {
                 position: VecN::new([1., 0., 0.]),
                 scale: VecN::new([0.05, 2., 1.]),
@@ -145,7 +145,7 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
 
     world.entities.new_entity(
         "BottomWall",
-        vec![
+        [
             Component::new(Transform {
                 position: VecN::new([0., -1., 0.]),
                 scale: VecN::new([2., 0.05, 1.]),
@@ -168,7 +168,7 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
 
     world.entities.new_entity(
         "TopWall",
-        vec![
+        [
             Component::new(Transform {
                 position: VecN::new([0., 1., 0.]),
                 scale: VecN::new([2., 0.05, 1.]),
