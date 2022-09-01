@@ -17,7 +17,7 @@ fn load_texture(context: &egui::Context, path: &str) -> ((usize, usize), egui::T
     ((size.0 as usize, size.1 as usize), texture)
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub enum CurrentTab {
     Assets,
     Profiler,
