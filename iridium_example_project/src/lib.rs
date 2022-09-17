@@ -1,6 +1,6 @@
 use iridium_assets::Assets;
 use iridium_ecs::{Component, Transform, Velocity, World};
-use iridium_graphics::{Material, MaterialInstance, Mesh, Renderable2D, Texture};
+use iridium_graphics::Renderable2D;
 use iridium_maths::VecN;
 
 use rand::Rng;
@@ -9,7 +9,7 @@ pub mod components;
 pub mod systems;
 
 #[no_mangle]
-pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
+pub fn init_system(world: &mut World, assets: &Assets) {
     let mut rng = rand::thread_rng();
 
     for i in 0..1000 {
@@ -37,23 +37,8 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                     ]),
                 }),
                 Component::new(Renderable2D::new(
-                    device,
-                    MaterialInstance::new(
-                        device,
-                        assets.get::<Material>("steak_mat").unwrap(),
-                        vec![],
-                        vec![],
-                        vec![],
-                        vec![
-                            wgpu::BindingResource::TextureView(
-                                &assets.get::<Texture>("steak_tex").unwrap().view,
-                            ),
-                            wgpu::BindingResource::Sampler(
-                                &assets.get::<Texture>("steak_tex").unwrap().sampler,
-                            ),
-                        ],
-                    ),
-                    &assets.get::<Mesh>("quad").unwrap(),
+                    assets.get("quad").expect("Asset quad not found"),
+                    assets.get("steak_mat").expect("Asset steak_mat not found"),
                 )),
             ],
         );
@@ -82,16 +67,8 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                     ]),
                 }),
                 Component::new(Renderable2D::new(
-                    device,
-                    MaterialInstance::new(
-                        device,
-                        assets.get::<Material>("uv_test").unwrap(),
-                        vec![],
-                        vec![],
-                        vec![],
-                        vec![],
-                    ),
-                    &assets.get::<Mesh>("quad").unwrap(),
+                    assets.get("quad").unwrap(),
+                    assets.get("uv_test").unwrap(),
                 )),
             ],
         );
@@ -106,16 +83,8 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 rotation: 0.0f32,
             }),
             Component::new(Renderable2D::new(
-                device,
-                MaterialInstance::new(
-                    device,
-                    assets.get::<Material>("uv_test").unwrap(),
-                    vec![],
-                    vec![],
-                    vec![],
-                    vec![],
-                ),
-                &assets.get::<Mesh>("quad").unwrap(),
+                assets.get("quad").unwrap(),
+                assets.get("uv_test").unwrap(),
             )),
         ],
     );
@@ -129,16 +98,8 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 rotation: 0.0f32,
             }),
             Component::new(Renderable2D::new(
-                device,
-                MaterialInstance::new(
-                    device,
-                    assets.get::<Material>("uv_test").unwrap(),
-                    vec![],
-                    vec![],
-                    vec![],
-                    vec![],
-                ),
-                &assets.get::<Mesh>("quad").unwrap(),
+                assets.get("quad").unwrap(),
+                assets.get("uv_test").unwrap(),
             )),
         ],
     );
@@ -152,16 +113,8 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 rotation: 0.0f32,
             }),
             Component::new(Renderable2D::new(
-                device,
-                MaterialInstance::new(
-                    device,
-                    assets.get::<Material>("uv_test").unwrap(),
-                    vec![],
-                    vec![],
-                    vec![],
-                    vec![],
-                ),
-                &assets.get::<Mesh>("quad").unwrap(),
+                assets.get("quad").unwrap(),
+                assets.get("uv_test").unwrap(),
             )),
         ],
     );
@@ -175,16 +128,8 @@ pub fn init_system(device: &wgpu::Device, world: &mut World, assets: &Assets) {
                 rotation: 0.0f32,
             }),
             Component::new(Renderable2D::new(
-                device,
-                MaterialInstance::new(
-                    device,
-                    assets.get::<Material>("uv_test").unwrap(),
-                    vec![],
-                    vec![],
-                    vec![],
-                    vec![],
-                ),
-                &assets.get::<Mesh>("quad").unwrap(),
+                assets.get("quad").unwrap(),
+                assets.get("uv_test").unwrap(),
             )),
         ],
     );

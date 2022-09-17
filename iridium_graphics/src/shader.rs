@@ -1,5 +1,10 @@
 use std::sync::Arc;
 
+use iridium_assets::Asset;
+use wgpu::util::DeviceExt;
+
+use crate::Texture;
+
 /// The type of a shader.
 ///
 /// Either `Vertex` or `Fragment`.
@@ -24,6 +29,8 @@ impl From<ShaderType> for wgpu::ShaderStages {
 
 /// A shader.
 pub struct Shader {
+    /// The inputs to the shader.
+    pub inputs: Vec<ShaderInput>,
     /// The bind group layout of the inputs.
     pub bind_group_layout: wgpu::BindGroupLayout,
     /// The wgpu shader module.
@@ -37,16 +44,24 @@ impl Shader {
         device: &wgpu::Device,
         shader_type: ShaderType,
         spirv: &[u32],
-        inputs: &[wgpu::BindingType],
+        inputs: Vec<ShaderInput>,
     ) -> Self {
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &inputs
                 .iter()
                 .enumerate()
-                .map(|(binding, binding_type)| wgpu::BindGroupLayoutEntry {
+                .map(|(binding, input)| wgpu::BindGroupLayoutEntry {
                     binding: binding.try_into().expect("Too many bindings"),
                     visibility: shader_type.into(),
-                    ty: *binding_type,
+                    ty: match input {
+                        ShaderInput::Transform => wgpu::BindingType::Buffer {
+                            ty: wgpu::BufferBindingType::Uniform,
+                            has_dynamic_offset: false,
+                            min_binding_size: None,
+                        },
+                        ShaderInput::Texture(texture) => texture.texture_binding_type,
+                        ShaderInput::Sampler(texture) => texture.sampler_binding_type,
+                    },
                     count: None,
                 })
                 .collect::<Vec<_>>(),
@@ -59,16 +74,75 @@ impl Shader {
         });
 
         Self {
+            inputs,
             bind_group_layout,
             shader,
         }
     }
+
+    /// Creates data needed to render with this shader.
+    #[must_use]
+    pub fn create_live_data(
+        &self,
+        device: &wgpu::Device,
+    ) -> (Vec<Arc<wgpu::Buffer>>, wgpu::BindGroup) {
+        let transform_buffer = if self
+            .inputs
+            .iter()
+            .any(|input| matches!(input, ShaderInput::Transform))
+        {
+            Some(Arc::new(device.create_buffer_init(
+                &wgpu::util::BufferInitDescriptor {
+                    label: None,
+                    usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                    contents: &[0u8; 32],
+                },
+            )))
+        } else {
+            None
+        };
+
+        let mut buffers: Vec<Arc<wgpu::Buffer>> = vec![];
+
+        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: None,
+            layout: &self.bind_group_layout,
+            entries: &self
+                .inputs
+                .iter()
+                .enumerate()
+                .map(|(binding, input)| wgpu::BindGroupEntry {
+                    binding: binding.try_into().expect("Too many bindings"),
+                    resource: match input {
+                        ShaderInput::Transform => transform_buffer
+                            .as_ref()
+                            .unwrap_or_else(|| unreachable!())
+                            .as_entire_binding(),
+                        ShaderInput::Texture(texture) => {
+                            wgpu::BindingResource::TextureView(&texture.view)
+                        }
+                        ShaderInput::Sampler(texture) => {
+                            wgpu::BindingResource::Sampler(&texture.sampler)
+                        }
+                    },
+                })
+                .collect::<Vec<_>>(),
+        });
+
+        if let Some(transform_buffer) = transform_buffer {
+            buffers.insert(0, transform_buffer);
+        }
+
+        (buffers, bind_group)
+    }
 }
 
-/// Stores data about a shader instance to be used in a `MaterialInstance`.
-pub struct ShaderData {
-    /// The buffers to be sent to the shader.
-    pub buffers: Vec<Arc<wgpu::Buffer>>,
-    /// The bind group to be sent to the shader.
-    pub bind_group: wgpu::BindGroup,
+/// An input to a shader.
+pub enum ShaderInput {
+    /// Transform data about an object.
+    Transform,
+    /// A texture.
+    Texture(Asset<Texture>),
+    /// A texture sampler.
+    Sampler(Asset<Texture>),
 }

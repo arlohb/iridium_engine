@@ -1,4 +1,6 @@
-use iridium_assets::Assets;
+use std::sync::Arc;
+
+use iridium_assets::{Asset, Assets};
 use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     Component, ComponentDefault,
@@ -8,7 +10,7 @@ use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
 use wgpu::util::DeviceExt;
 
-use crate::{MaterialInstance, Mesh, Vertex};
+use crate::{Material, Mesh, Vertex};
 
 /// Stores data about the camera to be used for the GPU.
 pub struct CameraGpuData {
@@ -141,6 +143,7 @@ impl ComponentStorage for Camera {
         StoredComponent {
             type_name: "Camera".to_string(),
             fields: fast_map! {
+                "name" => StoredComponentField::String(self.name.clone()),
                 "position" => StoredComponentField::NonString(self.position.to_string()),
                 "min_depth" => StoredComponentField::NonString(self.min_depth.to_string()),
                 "max_depth" => StoredComponentField::NonString(self.max_depth.to_string()),
@@ -154,38 +157,108 @@ impl ComponentStorage for Camera {
 /// Describes how an entity should be drawn to the screen.
 #[derive(ComponentTrait, InspectorUi)]
 pub struct Renderable2D {
+    /// The mesh used.
+    ///
+    /// Most of the time this will just be a quad.
+    pub mesh: Asset<Mesh>,
+
     /// The material used.
     #[hidden]
-    pub material: MaterialInstance,
+    pub material: Asset<Material>,
+
+    /// The buffers used by the vertex shader.
+    #[hidden]
+    pub vertex_shader_buffers: Option<Vec<Arc<wgpu::Buffer>>>,
+    /// The bind group of the vertex shader.
+    #[hidden]
+    pub vertex_shader_bind_group: Option<wgpu::BindGroup>,
+    /// The buffers used by the fragment shader.
+    #[hidden]
+    pub fragment_shader_buffers: Option<Vec<Arc<wgpu::Buffer>>>,
+    /// The bind group of the fragment shader.
+    #[hidden]
+    pub fragment_shader_bind_group: Option<wgpu::BindGroup>,
+
     /// The vertex buffer.
     #[hidden]
-    pub vertex_buffer: wgpu::Buffer,
+    pub vertex_buffer: Option<wgpu::Buffer>,
     /// The index buffer.
     #[hidden]
-    pub index_buffer: wgpu::Buffer,
+    pub index_buffer: Option<wgpu::Buffer>,
     /// The number of vertices.
     #[hidden]
-    pub index_count: u32,
+    pub index_count: Option<u32>,
 }
 
 impl ComponentStorage for Renderable2D {
-    fn from_stored(_stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        None
+    fn from_stored(mut stored: StoredComponent, assets: &Assets) -> Option<Self> {
+        Some(Self {
+            mesh: assets.get(&stored.get("mesh")?)?,
+
+            material: assets.get(&stored.get("material")?)?,
+
+            vertex_shader_buffers: None,
+            vertex_shader_bind_group: None,
+            fragment_shader_buffers: None,
+            fragment_shader_bind_group: None,
+
+            vertex_buffer: None,
+            index_buffer: None,
+            index_count: None,
+        })
     }
 
     fn to_stored(&self) -> StoredComponent {
         StoredComponent {
             type_name: "Renderable2D".to_string(),
-            fields: fast_map! {},
+            fields: fast_map! {
+                "mesh" => StoredComponentField::String(self.mesh.id.clone()),
+                "material" => StoredComponentField::String(self.material.id.clone()),
+            },
         }
     }
 }
 
 impl Renderable2D {
-    /// Creates a new `Renderable2D` from a `MaterialInstance` and a `Mesh`.
+    /// Creates a new renderable.
     #[must_use]
-    pub fn new(device: &wgpu::Device, material_instance: MaterialInstance, mesh: &Mesh) -> Self {
-        let vertices_bytes = mesh
+    #[allow(clippy::missing_const_for_fn)]
+    pub fn new(mesh: Asset<Mesh>, material: Asset<Material>) -> Self {
+        Self {
+            mesh,
+            material,
+            vertex_shader_buffers: None,
+            vertex_shader_bind_group: None,
+            fragment_shader_buffers: None,
+            fragment_shader_bind_group: None,
+            vertex_buffer: None,
+            index_buffer: None,
+            index_count: None,
+        }
+    }
+
+    /// Creates the live data needed at runtime and in editor that isn't stored.
+    pub fn create_live_data(&mut self, device: &wgpu::Device) {
+        // The live data is all or nothing,
+        // so if vertex_buffer is none, all the other fields should be none.
+        if self.vertex_buffer.is_some() {
+            return;
+        }
+
+        {
+            let (buffers, bind_group) = self.material.vertex_shader.create_live_data(device);
+            self.vertex_shader_buffers = Some(buffers);
+            self.vertex_shader_bind_group = Some(bind_group);
+        }
+
+        {
+            let (buffers, bind_group) = self.material.fragment_shader.create_live_data(device);
+            self.fragment_shader_buffers = Some(buffers);
+            self.fragment_shader_bind_group = Some(bind_group);
+        }
+
+        let vertices_bytes = self
+            .mesh
             .vertices
             .iter()
             .flat_map(Vertex::as_bytes)
@@ -197,7 +270,8 @@ impl Renderable2D {
             usage: wgpu::BufferUsages::VERTEX,
         });
 
-        let index_bytes = mesh
+        let index_bytes = self
+            .mesh
             .indices
             .iter()
             .flat_map(|v: &u32| v.to_le_bytes())
@@ -209,17 +283,15 @@ impl Renderable2D {
             usage: wgpu::BufferUsages::INDEX,
         });
 
-        let index_count = mesh
+        let index_count = self
+            .mesh
             .indices
             .len()
             .try_into()
             .expect("Index count too large");
 
-        Self {
-            material: material_instance,
-            vertex_buffer,
-            index_buffer,
-            index_count,
-        }
+        self.vertex_buffer = Some(vertex_buffer);
+        self.index_buffer = Some(index_buffer);
+        self.index_count = Some(index_count);
     }
 }

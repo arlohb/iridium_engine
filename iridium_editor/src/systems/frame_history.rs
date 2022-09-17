@@ -77,7 +77,7 @@ impl System for FrameHistorySystem {
         })
     }
 
-    fn system(&self, state: &Component, _entities: &Entities, delta_time: f64) {
+    fn system(&self, state: &Component, _entities: &Entities, _assets: &Assets, delta_time: f64) {
         let state = state.get_mut::<FrameHistoryState>();
 
         state.frames.push_back(Frame {

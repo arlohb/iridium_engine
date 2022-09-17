@@ -34,8 +34,8 @@ impl World {
     }
 
     /// Runs the world's systems.
-    pub fn run_systems(&mut self, delta_time: f64) {
-        self.systems.run_systems(&self.entities, delta_time);
+    pub fn run_systems(&mut self, delta_time: f64, assets: &Assets) {
+        self.systems.run_systems(&self.entities, delta_time, assets);
     }
 
     /// Saves the world's state to the given file.

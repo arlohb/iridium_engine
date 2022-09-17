@@ -1,3 +1,5 @@
+use iridium_assets::Asset;
+
 use super::InspectorUiFieldAttributes;
 
 /// A trait implemented by component fields that aren't hidden.
@@ -49,5 +51,14 @@ impl<const N: usize> InspectorUiField for iridium_maths::VecN<N> {
         });
 
         self.data.copy_from_slice(&values);
+    }
+}
+
+impl<T: Send + Sync> InspectorUiField for Asset<T> {
+    fn ui(&mut self, ui: &mut egui::Ui, _attributes: InspectorUiFieldAttributes) {
+        // In the future, this will be editable.
+        // For now just show a clone.
+        let mut id = self.id.clone();
+        ui.text_edit_singleline(&mut id);
     }
 }

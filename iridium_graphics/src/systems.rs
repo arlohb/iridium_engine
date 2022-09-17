@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 
+use iridium_assets::Assets;
 use iridium_ecs::{
     query,
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
@@ -63,6 +64,7 @@ impl Renderer2DSystem {
     #[allow(clippy::too_many_lines)]
     pub fn run(
         entities: & /* 'entities */ Entities,
+        _assets: &Assets,
         device: &wgpu::Device,
         render_pass: & /* 'rpass */ mut wgpu::RenderPass,
         queue: &wgpu::Queue,
@@ -123,7 +125,7 @@ impl Renderer2DSystem {
                 let mut components = {
                     puffin::profile_scope!("Query");
 
-                    query!(entities, [; Transform, Renderable2D, Name]).collect::<Vec<_>>()
+                    query!(entities, [mut Renderable2D; Transform, Name]).collect::<Vec<_>>()
                 };
 
                 {
@@ -131,7 +133,7 @@ impl Renderer2DSystem {
 
                     // Sort entities by their z position, then name if z is equal.
                     // The name shouldn't be used to order sprites, it's just to prevent z-fighting.
-                    components.sort_by(|(a_t, _, a_name), (b_t, _, b_name)| {
+                    components.sort_by(|(_, a_t, a_name), (_, b_t, b_name)| {
                         // Sort by z-index.
                         let ordering = a_t
                             .position
@@ -177,17 +179,18 @@ impl Renderer2DSystem {
 
         puffin::profile_scope!("Rendering");
 
-        for (transform, renderable_2d, _) in components {
+        for (renderable_2d, transform, _) in components {
+            // Check if runtime data is initialised, if not, create it.
+            renderable_2d.create_live_data(device);
+
             // Extend the lifetime of renderable_2d for render_pass.set_pipeline.
             // This is safe because it's only used as the pipeline for the duration of this function.
             #[allow(clippy::useless_transmute)]
-            let renderable_2d = unsafe {
+            let r2d = unsafe {
                 std::mem::transmute::<& /* 'entities */ Renderable2D, & /* 'rpass */ Renderable2D>(
                     renderable_2d,
                 )
             };
-
-            let material = &renderable_2d.material;
 
             let transform_bytes = transform
                 .position
@@ -197,17 +200,48 @@ impl Renderer2DSystem {
                 .chain(transform.rotation.to_le_bytes().into_iter())
                 .collect::<Vec<u8>>();
 
-            queue.write_buffer(&material.vertex_data.buffers[0], 0, &transform_bytes);
+            queue.write_buffer(
+                &r2d.vertex_shader_buffers
+                    .as_ref()
+                    .unwrap_or_else(|| unreachable!())[0],
+                0,
+                &transform_bytes,
+            );
 
-            render_pass.set_pipeline(&material.material.render_pipeline);
-            render_pass.set_bind_group(0, &material.vertex_data.bind_group, &[]);
-            render_pass.set_bind_group(1, &material.fragment_data.bind_group, &[]);
-            render_pass.set_vertex_buffer(0, renderable_2d.vertex_buffer.slice(..));
+            render_pass.set_pipeline(&r2d.material.render_pipeline);
+            render_pass.set_bind_group(
+                0,
+                r2d.vertex_shader_bind_group
+                    .as_ref()
+                    .unwrap_or_else(|| unreachable!()),
+                &[],
+            );
+            render_pass.set_bind_group(
+                1,
+                r2d.fragment_shader_bind_group
+                    .as_ref()
+                    .unwrap_or_else(|| unreachable!()),
+                &[],
+            );
+            render_pass.set_vertex_buffer(
+                0,
+                r2d.vertex_buffer
+                    .as_ref()
+                    .unwrap_or_else(|| unreachable!())
+                    .slice(..),
+            );
             render_pass.set_index_buffer(
-                renderable_2d.index_buffer.slice(..),
+                r2d.index_buffer
+                    .as_ref()
+                    .unwrap_or_else(|| unreachable!())
+                    .slice(..),
                 wgpu::IndexFormat::Uint32,
             );
-            render_pass.draw_indexed(0..renderable_2d.index_count, 0, 0..1);
+            render_pass.draw_indexed(
+                0..r2d.index_count.unwrap_or_else(|| unreachable!()),
+                0,
+                0..1,
+            );
         }
     }
 }

@@ -45,7 +45,7 @@ impl Default for VelocityState {
 pub struct VelocitySystem;
 
 impl VelocitySystem {
-    fn system(state: &mut VelocityState, entities: &Entities, delta_time: f64) {
+    fn system(state: &mut VelocityState, entities: &Entities, _assets: &Assets, delta_time: f64) {
         for (transform, velocity) in query!(entities, [mut Transform, mut Velocity;]) {
             transform.rotation += state.rotation_speed * delta_time as f32;
 
@@ -111,7 +111,7 @@ impl System for PositionLoggerSystem {
         Component::new(PositionLoggerState {})
     }
 
-    fn system(&self, state: &Component, entities: &Entities, _delta_time: f64) {
+    fn system(&self, state: &Component, entities: &Entities, _assets: &Assets, _delta_time: f64) {
         let _state = state.get_mut::<PositionLoggerState>();
 
         for (transform,) in query!(entities, [; Transform]) {

@@ -1,3 +1,5 @@
+use iridium_assets::Assets;
+
 use super::SystemsStage;
 use crate::{Component, Entities};
 
@@ -31,9 +33,9 @@ impl Systems {
     }
 
     /// Executes the systems.
-    pub fn run_systems(&mut self, entities: &Entities, delta_time: f64) {
+    pub fn run_systems(&mut self, entities: &Entities, delta_time: f64, assets: &Assets) {
         for systems_stage in &mut self.systems {
-            systems_stage.run_systems(entities, delta_time);
+            systems_stage.run_systems(entities, delta_time, assets);
         }
     }
 }

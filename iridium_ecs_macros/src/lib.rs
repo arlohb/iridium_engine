@@ -48,9 +48,9 @@ pub fn system_helper(attr: TokenStream, item: TokenStream) -> TokenStream {
                 Component::new(#state_type::default())
             }
 
-            fn system(&self, state: &Component, entities: &Entities, delta_time: f64) {
+            fn system(&self, state: &Component, entities: &Entities, assets: &iridium_assets::Assets, delta_time: f64) {
                 let state = state.get_mut::<#state_type>();
-                #self_type::system(state, entities, delta_time);
+                #self_type::system(state, entities, assets, delta_time);
             }
         }
     }

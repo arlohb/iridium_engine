@@ -186,6 +186,7 @@ impl App {
             // Run the rendering system for the entities in the world.
             Renderer2DSystem::run(
                 &world.entities,
+                assets,
                 &self.device,
                 &mut render_pass,
                 &self.queue,
