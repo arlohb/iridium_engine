@@ -168,17 +168,8 @@ fn parse_components(
                 })?
                 .from_stored;
 
-            // ONLY TEMPORARY.
-            // Lots of things needs to change in `Renderable2D` to make it savable,
-            // until then we just ignore any fails.
-
-            // let component = from_stored_fn(stored, assets)
-            //     .ok_or(ReadError::InvalidField(ErrorLocation::Component(id)))?;
-
-            let component = match from_stored_fn(stored, assets) {
-                Some(component) => component,
-                None => continue,
-            };
+            let component = from_stored_fn(stored, assets)
+                .ok_or(ReadError::InvalidField(ErrorLocation::Component(id)))?;
 
             if component.type_name() == "Name" {
                 name = Some(component);
