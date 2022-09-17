@@ -35,7 +35,7 @@ impl PanelUi for ComponentsList {
                                 if ui.button(type_name).clicked() {
                                     ui.close_menu();
                                     let component = default();
-                                    world.entities.add_components(id, vec![component]);
+                                    world.entities.add_components(id, [component]);
                                 }
                             }
                         });

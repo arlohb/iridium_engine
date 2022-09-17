@@ -32,8 +32,8 @@ use iridium_assets::Assets;
 use iridium_ecs::systems::{Systems, SystemsStage};
 use iridium_ecs::{Component, ComponentDefault, Entities, World};
 use iridium_graphics::{
-    Camera, CameraGpuData, Material, Mesh, Renderable2D, Renderer2DState, Shader, ShaderType,
-    Texture, Vertex,
+    Camera, CameraGpuData, Material, Mesh, Renderable2D, Renderer2DState, Shader, ShaderInput,
+    ShaderType, Texture, Vertex,
 };
 use iridium_maths::VecN;
 
@@ -84,13 +84,13 @@ fn main() {
             .entities
             .entity_id_from_name("SystemState")
             .expect("SystemState entity not found"),
-        vec![Component::new(Renderer2DState {
+        [Component::new(Renderer2DState {
             active_camera: "".to_string(),
             camera_gpu_data: Some(camera_gpu_data),
         })],
     );
 
-    world.entities.new_entity("Camera", vec![Camera::create()]);
+    world.entities.new_entity("Camera", [Camera::create()]);
 
     let mut assets = Assets::new();
 
@@ -110,11 +110,7 @@ fn main() {
             &app.device,
             ShaderType::Vertex,
             include_spirv!("src/vert.hlsl", vert, hlsl, entry = "vs_main"),
-            &[wgpu::BindingType::Buffer {
-                ty: wgpu::BufferBindingType::Uniform,
-                has_dynamic_offset: false,
-                min_binding_size: None,
-            }],
+            vec![ShaderInput::Transform],
         ),
     );
     assets.add(
@@ -123,15 +119,17 @@ fn main() {
             &app.device,
             ShaderType::Fragment,
             include_spirv!("src/sprite.hlsl", frag, hlsl, entry = "fs_main"),
-            &[
-                assets
-                    .get::<Texture>("steak_tex")
-                    .expect("asset 'steak_tex' not found")
-                    .texture_binding_type,
-                assets
-                    .get::<Texture>("steak_tex")
-                    .expect("asset 'steak_tex' not found")
-                    .sampler_binding_type,
+            vec![
+                ShaderInput::Texture(
+                    assets
+                        .get::<Texture>("steak_tex")
+                        .expect("asset 'steak_tex' not found"),
+                ),
+                ShaderInput::Sampler(
+                    assets
+                        .get::<Texture>("steak_tex")
+                        .expect("asset 'steak_tex' not found"),
+                ),
             ],
         ),
     );
@@ -141,7 +139,7 @@ fn main() {
             &app.device,
             ShaderType::Fragment,
             include_spirv!("src/uv_test.hlsl", frag, hlsl, entry = "fs_main"),
-            &[],
+            vec![],
         ),
     );
 
@@ -200,7 +198,7 @@ fn main() {
 
     let project = Project::load("target/debug/libiridium_example_project.so");
 
-    project.init_system(&app.device, &mut world, &assets);
+    project.init_system(&mut world, &assets);
 
     let mut last_time = std::time::Instant::now();
 
@@ -248,7 +246,7 @@ fn main() {
 
             if let PlayState::Play = app.ui_state.play_state() {
                 puffin::profile_scope!("Systems");
-                world.run_systems(delta_time);
+                world.run_systems(delta_time, &assets);
             }
 
             app.render(&window, &mut world, &assets);

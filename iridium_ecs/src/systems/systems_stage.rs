@@ -1,3 +1,4 @@
+use iridium_assets::Assets;
 use rayon::prelude::*;
 
 use super::System;
@@ -19,12 +20,12 @@ impl SystemsStage {
     }
 
     /// Executes the systems in this stage.
-    pub fn run_systems(&mut self, entities: &Entities, delta_time: f64) {
+    pub fn run_systems(&mut self, entities: &Entities, delta_time: f64, assets: &Assets) {
         self.systems.par_iter_mut().for_each(|system| {
             let state_type_id = system.state_type_id();
             let state = entities.get_by_type_id(&state_type_id);
 
-            system.system(state, entities, delta_time);
+            system.system(state, entities, assets, delta_time);
         });
     }
 }

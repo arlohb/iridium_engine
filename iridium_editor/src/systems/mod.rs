@@ -6,12 +6,12 @@ use iridium_ecs::{
     query,
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     systems::System,
-    Component, ComponentFieldUi, Entities, Transform, Velocity,
+    Component, Entities, Transform, Velocity,
 };
-use iridium_ecs_macros::{system_helper, ComponentTrait};
+use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct VelocityState {
     #[drag_speed(0.001)]
     pub rotation_speed: f32,
@@ -45,7 +45,7 @@ impl Default for VelocityState {
 pub struct VelocitySystem;
 
 impl VelocitySystem {
-    fn system(state: &mut VelocityState, entities: &Entities, delta_time: f64) {
+    fn system(state: &mut VelocityState, entities: &Entities, _assets: &Assets, delta_time: f64) {
         for (transform, velocity) in query!(entities, [mut Transform, mut Velocity;]) {
             transform.rotation += state.rotation_speed * delta_time as f32;
 
@@ -77,7 +77,7 @@ impl VelocitySystem {
 impl System for VelocitySystem {}
 
 #[allow(dead_code)]
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct PositionLoggerState {}
 
 impl ComponentStorage for PositionLoggerState {
@@ -111,7 +111,7 @@ impl System for PositionLoggerSystem {
         Component::new(PositionLoggerState {})
     }
 
-    fn system(&self, state: &Component, entities: &Entities, _delta_time: f64) {
+    fn system(&self, state: &Component, entities: &Entities, _assets: &Assets, _delta_time: f64) {
         let _state = state.get_mut::<PositionLoggerState>();
 
         for (transform,) in query!(entities, [; Transform]) {

@@ -5,7 +5,7 @@ use iridium_assets::Assets;
 
 #[derive(WrapperApi)]
 pub struct ProjectApi {
-    init_system: fn(device: &wgpu::Device, world: &mut World, assets: &Assets) -> (),
+    init_system: fn(world: &mut World, assets: &Assets) -> (),
 }
 
 pub struct Project {
@@ -20,7 +20,7 @@ impl Project {
         Self { api: container }
     }
 
-    pub fn init_system(&self, device: &wgpu::Device, world: &mut World, assets: &Assets) {
-        (self.api.init_system)(device, world, assets);
+    pub fn init_system(&self, world: &mut World, assets: &Assets) {
+        (self.api.init_system)(world, assets);
     }
 }

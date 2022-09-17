@@ -1,11 +1,11 @@
 use iridium_assets::Assets;
 use iridium_ecs::{storage::*, systems::System, *};
-use iridium_ecs_macros::ComponentTrait;
+use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 use crate::components::Custom;
 
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct CustomState {
     pub test: f64,
 }
@@ -42,7 +42,7 @@ impl System for CustomSystem {
         Component::new(CustomState { test: 0. })
     }
 
-    fn system(&self, state: &Component, entities: &Entities, _delta_time: f64) {
+    fn system(&self, state: &Component, entities: &Entities, _assets: &Assets, _delta_time: f64) {
         let _state = state.get::<CustomState>();
 
         for (custom_component,) in query!(entities, [; Custom]) {

@@ -4,9 +4,9 @@ use iridium_assets::Assets;
 use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     systems::System,
-    Component, ComponentFieldUi, Entities,
+    Component, Entities,
 };
-use iridium_ecs_macros::ComponentTrait;
+use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 pub struct Frame {
@@ -14,7 +14,7 @@ pub struct Frame {
     pub delta_time: f64,
 }
 
-#[derive(ComponentTrait)]
+#[derive(ComponentTrait, InspectorUi)]
 pub struct FrameHistoryState {
     #[hidden]
     pub frames: VecDeque<Frame>,
@@ -77,7 +77,7 @@ impl System for FrameHistorySystem {
         })
     }
 
-    fn system(&self, state: &Component, _entities: &Entities, delta_time: f64) {
+    fn system(&self, state: &Component, _entities: &Entities, _assets: &Assets, delta_time: f64) {
         let state = state.get_mut::<FrameHistoryState>();
 
         state.frames.push_back(Frame {

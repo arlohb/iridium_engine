@@ -26,14 +26,16 @@ impl World {
     #[must_use]
     pub fn new(mut entities: Entities, systems: Systems) -> Self {
         // Add the system state to the world.
-        entities.new_entity("SystemState", systems.default_component_states());
+        let system_state = entities.new_entity("SystemState", []);
+
+        entities.add_components_dyn(system_state, systems.default_component_states());
 
         Self { entities, systems }
     }
 
     /// Runs the world's systems.
-    pub fn run_systems(&mut self, delta_time: f64) {
-        self.systems.run_systems(&self.entities, delta_time);
+    pub fn run_systems(&mut self, delta_time: f64, assets: &Assets) {
+        self.systems.run_systems(&self.entities, delta_time, assets);
     }
 
     /// Saves the world's state to the given file.
