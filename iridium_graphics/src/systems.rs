@@ -91,29 +91,26 @@ impl Renderer2DSystem {
             let camera = {
                 puffin::profile_scope!("Camera data update");
 
-                match editor_camera {
-                    Some(camera) => {
+                if let Some(camera) = editor_camera {
+                    *camera.viewport_size.x_mut() = size_pixels.0;
+                    *camera.viewport_size.y_mut() = size_pixels.1;
+
+                    camera
+                } else {
+                    let mut active_camera = None;
+
+                    for (camera,) in entities.query::<(&mut Camera,)>() {
                         *camera.viewport_size.x_mut() = size_pixels.0;
                         *camera.viewport_size.y_mut() = size_pixels.1;
 
-                        camera
+                        if camera.name == state.active_camera {
+                            active_camera = Some(camera);
+                        }
                     }
-                    None => {
-                        let mut active_camera = None;
 
-                        for (camera,) in entities.query::<(&mut Camera,)>() {
-                            *camera.viewport_size.x_mut() = size_pixels.0;
-                            *camera.viewport_size.y_mut() = size_pixels.1;
-
-                            if camera.name == state.active_camera {
-                                active_camera = Some(camera);
-                            }
-                        }
-
-                        match active_camera {
-                            Some(camera) => camera,
-                            None => return,
-                        }
+                    match active_camera {
+                        Some(camera) => camera,
+                        None => return,
                     }
                 }
             };

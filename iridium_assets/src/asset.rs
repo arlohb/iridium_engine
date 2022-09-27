@@ -70,6 +70,7 @@ impl<T: Send + Sync + 'static> Asset<T> {
     ///
     /// Panics if the asset is not of the expected type,
     /// or the inner `RwLock` has been poisoned.
+    #[allow(clippy::mut_from_ref)]
     #[must_use]
     pub fn get_mut<'a>(&'a self) -> &mut T {
         let mut dyn_guard = self.asset.write().expect("Asset RwLock poisoned");

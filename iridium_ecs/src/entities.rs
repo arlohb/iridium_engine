@@ -302,12 +302,11 @@ impl Entities {
                     for other_ids in &mut entities_with_each_component {
                         let index_option = other_ids.iter().position(|x| *x == id);
 
-                        match index_option {
-                            Some(index) => other_ids.remove(index),
-                            None => {
-                                in_all = false;
-                                break;
-                            }
+                        if let Some(index) = index_option {
+                            other_ids.remove(index);
+                        } else {
+                            in_all = false;
+                            break;
                         };
                     }
 
