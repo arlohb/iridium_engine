@@ -57,7 +57,7 @@ impl PanelUi for EntitiesList {
 
                     for (id, [name]) in world
                         .entities
-                        .query_with_id([&std::any::TypeId::of::<Name>()])
+                        .query_by_type_id_with_id([&std::any::TypeId::of::<Name>()])
                     {
                         let name = name.get::<Name>();
                         let name = &name.name;

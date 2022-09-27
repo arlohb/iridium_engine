@@ -45,7 +45,7 @@ impl System for CustomSystem {
     fn system(&self, state: &Component, entities: &Entities, _assets: &Assets, _delta_time: f64) {
         let _state = state.get::<CustomState>();
 
-        for (custom_component,) in query!(entities, [; Custom]) {
+        for (custom_component,) in entities.query::<(&mut Custom,)>() {
             println!("Custom component value: {}", custom_component.test);
         }
     }

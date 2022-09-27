@@ -3,7 +3,6 @@ pub use frame_history::*;
 
 use iridium_assets::Assets;
 use iridium_ecs::{
-    query,
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     systems::System,
     Component, Entities, Transform, Velocity,
@@ -46,7 +45,7 @@ pub struct VelocitySystem;
 
 impl VelocitySystem {
     fn system(state: &mut VelocityState, entities: &Entities, _assets: &Assets, delta_time: f64) {
-        for (transform, velocity) in query!(entities, [mut Transform, mut Velocity;]) {
+        for (transform, velocity) in entities.query::<(&mut Transform, &mut Velocity)>() {
             transform.rotation += state.rotation_speed * delta_time as f32;
 
             let position = &mut transform.position;
@@ -114,7 +113,7 @@ impl System for PositionLoggerSystem {
     fn system(&self, state: &Component, entities: &Entities, _assets: &Assets, _delta_time: f64) {
         let _state = state.get_mut::<PositionLoggerState>();
 
-        for (transform,) in query!(entities, [; Transform]) {
+        for (transform,) in entities.query::<(&Transform,)>() {
             let position = transform.position;
             println!("{} {} {}", position.x(), position.y(), position.z());
         }

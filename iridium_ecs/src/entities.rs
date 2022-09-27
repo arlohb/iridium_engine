@@ -2,6 +2,8 @@
 
 use std::any::TypeId;
 
+use crate::systems::SystemInputs;
+
 use super::{
     Component, ComponentDefault, ComponentInfo, ComponentTrait, Name, Transform, Velocity,
 };
@@ -78,7 +80,7 @@ impl Entities {
     /// Gets an entity id from its name.
     #[must_use]
     pub fn entity_id_from_name(&self, name: &str) -> Option<u128> {
-        self.query_with_id([&std::any::TypeId::of::<Name>()])
+        self.query_by_type_id_with_id([&std::any::TypeId::of::<Name>()])
             .find(|(_, [name_component])| name_component.get::<Name>().name == name)
             .map(|(id, _)| id)
     }
@@ -236,7 +238,7 @@ impl Entities {
     ///
     /// # Panics
     #[must_use]
-    pub fn query_with_id<const N: usize>(
+    pub fn query_by_type_id_with_id<const N: usize>(
         &self,
         component_types: [&TypeId; N],
     ) -> std::vec::IntoIter<(u128, [&Component; N])> {
@@ -353,18 +355,24 @@ impl Entities {
 
     /// Get an iterator over components of given types, in the form [comp1, comp2, comp3].
     #[must_use]
-    pub fn query<const N: usize>(
+    pub fn query_by_type_id<const N: usize>(
         &self,
         component_types: [&TypeId; N],
     ) -> std::vec::IntoIter<[&Component; N]> {
         // Do the usual query.
-        self.query_with_id(component_types)
+        self.query_by_type_id_with_id(component_types)
             // Remove the id.
             .map(|(_, components)| components)
             // Into a vector to evaluate everything.
             .collect::<Vec<_>>()
             // Into an iterator for ease of use in a system.
             .into_iter()
+    }
+
+    /// Get system inputs.
+    #[must_use]
+    pub fn query<'a, Inputs: SystemInputs<'a>>(&'a self) -> std::vec::IntoIter<Inputs> {
+        Inputs::from_entities(self)
     }
 
     /// Get a single component of a given type.
@@ -395,56 +403,4 @@ impl Entities {
             .next()
             .expect("Component not found.")
     }
-}
-
-/// Queries the entities that have a set of components.
-///
-/// Used as `query(&Entities, [mut Component1, mut Component2 etc ; Component3, Component4 etc])`.
-///
-/// Returns an iterator of tuples of the form (Component1, Component2 etc).
-///
-/// # Examples
-///
-/// ```
-/// # use iridium_ecs::*;
-/// # let entities = Entities::default();
-/// for (transform, velocity)
-/// in query!(&entities, [mut Transform; Velocity]) {
-///    transform.position += velocity.velocity;
-/// }
-/// ```
-#[macro_export]
-macro_rules! query {
-    ($entities:expr, [$(mut $mut_type:ty),* ; $($type:ty),* $(,)?]) => {
-        {
-            let type_ids = [
-                $(
-                    &std::any::TypeId::of::<$mut_type>(),
-                )*
-                $(
-                    &std::any::TypeId::of::<$type>(),
-                )*
-            ];
-
-            $entities.query(type_ids).map(|components| {
-                let mut index = 0;
-                (
-                    $(
-                        {
-                            #![allow(clippy::eval_order_dependence)]
-                            index += 1;
-                            components[index - 1].get_mut::<$mut_type>()
-                        },
-                    )*
-                    $(
-                        {
-                            #![allow(clippy::eval_order_dependence)]
-                            index += 1;
-                            components[index - 1].get::<$type>()
-                        },
-                    )*
-                )
-            }).collect::<Vec<_>>().into_iter()
-        }
-    };
 }
