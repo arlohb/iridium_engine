@@ -52,17 +52,17 @@ impl UiState {
         self.play_state.clone()
     }
 
-    /// Sets the plat state to `PlayState::Play`.
+    /// Sets the play state to `PlayState::Play`.
     pub fn play(&mut self) {
         self.play_state = PlayState::Play;
     }
 
-    /// Sets the plat state to `PlayState::Pause`.
+    /// Sets the play state to `PlayState::Pause`.
     pub fn pause(&mut self) {
         self.play_state = PlayState::Pause;
     }
 
-    /// Sets the plat state to `PlayState::Stop`.
+    /// Sets the play state to `PlayState::Stop`.
     pub fn stop(&mut self) {
         // Eventually this will do quite a bit more, but that comes later.
         self.play_state = PlayState::Stop;
