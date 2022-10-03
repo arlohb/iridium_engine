@@ -24,7 +24,3 @@ impl ShaderTrait for DefaultFragmentShader {
     type Stage = stages::FragmentShaderStage;
 }
 
-// Cleaning up asset.rs
-// Instead of finding the addr of the guard,
-// could I just deref the guard, then std::mem::transmute to extend the lifetime.
-// Also shouldn't the return type have the 'a lifetime too?

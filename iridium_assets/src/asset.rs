@@ -51,16 +51,12 @@ impl<T: Send + Sync + 'static> Asset<T> {
     /// Panics if the asset is not of the expected type,
     /// or the inner `RwLock` has been poisoned.
     #[must_use]
-    pub fn get<'a>(&'a self) -> &T {
+    pub fn get(&self) -> &T {
         let dyn_guard = self.asset.read().expect("Asset RwLock poisoned");
-        let dyn_ptr = std::ptr::addr_of!(*dyn_guard);
-        let t_ptr = dyn_ptr.cast::<T>();
-
-        unsafe {
-            t_ptr
-                .as_ref::<'a>()
-                .expect("My horrible pointer manipulation failed")
-        }
+        let local_ref = dyn_guard
+            .downcast_ref::<T>()
+            .expect("Asset type mismatch");
+        unsafe { std::mem::transmute::<&T, &/*'self*/ T>(local_ref) }
     }
 
     /// Mutably gets the asset.
@@ -72,15 +68,9 @@ impl<T: Send + Sync + 'static> Asset<T> {
     /// or the inner `RwLock` has been poisoned.
     #[allow(clippy::mut_from_ref)]
     #[must_use]
-    pub fn get_mut<'a>(&'a self) -> &mut T {
+    pub fn get_mut(&self) -> &mut T {
         let mut dyn_guard = self.asset.write().expect("Asset RwLock poisoned");
-        let dyn_ptr = std::ptr::addr_of_mut!(*dyn_guard);
-        let t_ptr = dyn_ptr.cast::<T>();
-
-        unsafe {
-            t_ptr
-                .as_mut::<'a>()
-                .expect("My horrible pointer manipulation failed")
-        }
+        let local_mut = dyn_guard.downcast_mut::<T>().expect("Asset type mismatch");
+        unsafe { std::mem::transmute::<&mut T, &/*'self*/ mut T>(local_mut) }
     }
 }
