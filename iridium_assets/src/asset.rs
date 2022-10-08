@@ -53,10 +53,10 @@ impl<T: Send + Sync + 'static> Asset<T> {
     #[must_use]
     pub fn get(&self) -> &T {
         let dyn_guard = self.asset.read().expect("Asset RwLock poisoned");
-        let local_ref = dyn_guard
-            .downcast_ref::<T>()
-            .expect("Asset type mismatch");
-        unsafe { std::mem::transmute::<&T, &/*'self*/ T>(local_ref) }
+        let local_ref = dyn_guard.downcast_ref::<T>().expect("Asset type mismatch");
+        unsafe {
+            std::mem::transmute::<&T, & /*'self*/ T>(local_ref)
+        }
     }
 
     /// Mutably gets the asset.
@@ -71,6 +71,8 @@ impl<T: Send + Sync + 'static> Asset<T> {
     pub fn get_mut(&self) -> &mut T {
         let mut dyn_guard = self.asset.write().expect("Asset RwLock poisoned");
         let local_mut = dyn_guard.downcast_mut::<T>().expect("Asset type mismatch");
-        unsafe { std::mem::transmute::<&mut T, &/*'self*/ mut T>(local_mut) }
+        unsafe {
+            std::mem::transmute::<&mut T, & /*'self*/ mut T>(local_mut)
+        }
     }
 }
