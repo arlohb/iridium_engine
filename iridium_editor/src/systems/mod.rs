@@ -7,7 +7,7 @@ use iridium_ecs::{
     systems::System,
     Component, Entities, Transform, Velocity,
 };
-use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, ComponentStorage, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 #[derive(ComponentTrait, InspectorUi)]
@@ -76,21 +76,8 @@ impl VelocitySystem {
 impl System for VelocitySystem {}
 
 #[allow(dead_code)]
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(ComponentTrait, InspectorUi, ComponentStorage)]
 pub struct PositionLoggerState {}
-
-impl ComponentStorage for PositionLoggerState {
-    fn from_stored(_stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(Self {})
-    }
-
-    fn to_stored(&self) -> StoredComponent {
-        StoredComponent {
-            type_name: "PositionLoggerState".to_string(),
-            fields: fast_map! {},
-        }
-    }
-}
 
 // This is a system to test other things,
 // so is not always used.

@@ -188,6 +188,83 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     .expect("Failed to parse derive macro output")
 }
 
+/// Derive macro generating an impl of the trait `ComponentStorage`.
+///
+/// For now this is quite limited, it only works for empty structs.
+#[proc_macro_derive(ComponentStorage)]
+pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
+    let ast = parse_macro_input!(tokens as syn::DeriveInput);
+    let struct_name = &ast.ident;
+
+    if let syn::Data::Struct(data) = ast.data {
+        match data.fields {
+            syn::Fields::Unit => {
+                quote! {
+                    impl iridium_ecs::storage::ComponentStorage for #struct_name {
+                        fn from_stored(
+                            _stored: iridium_ecs::storage::StoredComponent,
+                            _assets: &iridium_assets::Assets,
+                        ) -> Option<Self> {
+                            Some(Self)
+                        }
+
+                        fn to_stored(&self) -> iridium_ecs::storage::StoredComponent {
+                            iridium_ecs::storage::StoredComponent {
+                                type_name: "#struct_name".to_string(),
+                                fields: hashbrown::HashMap::new(),
+                            }
+                        }
+                    }
+                }
+            }
+            syn::Fields::Named(fields) if fields.named.is_empty() => {
+                quote! {
+                    impl iridium_ecs::storage::ComponentStorage for #struct_name {
+                        fn from_stored(
+                            _stored: iridium_ecs::storage::StoredComponent,
+                            _assets: &iridium_assets::Assets,
+                        ) -> Option<Self> {
+                            Some(Self {})
+                        }
+
+                        fn to_stored(&self) -> iridium_ecs::storage::StoredComponent {
+                            iridium_ecs::storage::StoredComponent {
+                                type_name: "#struct_name".to_string(),
+                                fields: hashbrown::HashMap::new(),
+                            }
+                        }
+                    }
+                }
+            }
+            syn::Fields::Unnamed(fields) if fields.unnamed.is_empty() => {
+                quote! {
+                    impl iridium_ecs::storage::ComponentStorage for #struct_name {
+                        fn from_stored(
+                            _stored: iridium_ecs::storage::StoredComponent,
+                            _assets: &iridium_assets::Assets,
+                        ) -> Option<Self> {
+                            Some(Self())
+                        }
+
+                        fn to_stored(&self) -> iridium_ecs::storage::StoredComponent {
+                            iridium_ecs::storage::StoredComponent {
+                                type_name: "#struct_name".to_string(),
+                                fields: hashbrown::HashMap::new(),
+                            }
+                        }
+                    }
+                }
+            }
+            _ => quote! {},
+        }
+    } else {
+        quote! {}
+    }
+    .to_string()
+    .parse()
+    .expect("Failed to parse derive macro output")
+}
+
 /// Derive macro generating an impl of the trait `InspectorUi`.
 #[proc_macro_derive(InspectorUi, attributes(hidden, drag_speed))]
 pub fn derive_inspector_ui(tokens: TokenStream) -> TokenStream {
