@@ -14,12 +14,14 @@ use iridium_map_utils::fast_map;
 pub struct VelocityState {
     #[drag_speed(0.001)]
     pub rotation_speed: f32,
+    pub enabled: bool,
 }
 
 impl ComponentStorage for VelocityState {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
         Some(Self {
             rotation_speed: stored.get("rotation_speed")?.parse().ok()?,
+            enabled: stored.get("enabled")?.parse().ok()?,
         })
     }
 
@@ -28,6 +30,7 @@ impl ComponentStorage for VelocityState {
             type_name: "VelocityState".to_string(),
             fields: fast_map! {
                 "rotation_speed" => StoredComponentField::NonString(self.rotation_speed.to_string()),
+                "enabled" => StoredComponentField::NonString(self.enabled.to_string()),
             },
         }
     }
@@ -37,6 +40,7 @@ impl Default for VelocityState {
     fn default() -> Self {
         Self {
             rotation_speed: 0.002,
+            enabled: true,
         }
     }
 }
@@ -45,6 +49,10 @@ pub struct VelocitySystem;
 
 impl VelocitySystem {
     fn system(state: &mut VelocityState, entities: &Entities, _assets: &Assets, delta_time: f64) {
+        if !state.enabled {
+            return;
+        }
+
         for (transform, velocity) in entities.query::<(&mut Transform, &mut Velocity)>() {
             transform.rotation += state.rotation_speed * delta_time as f32;
 
