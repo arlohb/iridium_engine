@@ -34,6 +34,12 @@ impl InspectorUiField for String {
     }
 }
 
+impl InspectorUiField for bool {
+    fn ui(&mut self, ui: &mut egui::Ui, _attributes: InspectorUiFieldAttributes) {
+        ui.checkbox(self, "");
+    }
+}
+
 impl<const N: usize> InspectorUiField for iridium_maths::VecN<N> {
     fn ui(&mut self, ui: &mut egui::Ui, attributes: InspectorUiFieldAttributes) {
         let mut values = self.data.to_vec();
