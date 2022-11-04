@@ -22,10 +22,7 @@ unsafe impl Sync for Component {}
 impl Component {
     /// Creates a new component from a type that implements `ComponentTrait`.
     #[must_use]
-    pub fn new<T>(component: T) -> Self
-    where
-        T: ComponentTrait + 'static,
-    {
+    pub fn new<T: ComponentTrait + 'static>(component: T) -> Self {
         Self {
             data: Box::new(UnsafeCell::new(component)),
         }

@@ -9,16 +9,6 @@ use super::{
 };
 use hashbrown::HashMap;
 
-fn move_array_to_vec<T, const N: usize>(array: [T; N]) -> Vec<T> {
-    let mut vec = Vec::with_capacity(N);
-
-    for t in array {
-        vec.push(t);
-    }
-
-    vec
-}
-
 /// Stores all the entities in the scene.
 pub struct Entities {
     /// entity_id => components
@@ -94,10 +84,7 @@ impl Entities {
     /// Registers a component type.
     ///
     /// This stores info about the component.
-    pub fn register_component<T>(&mut self)
-    where
-        T: ComponentTrait,
-    {
+    pub fn register_component<T: ComponentTrait>(&mut self) {
         let type_id = TypeId::of::<T>();
         let component_info = ComponentInfo::new::<T>();
         self.component_info.insert(type_id, component_info);
@@ -106,10 +93,7 @@ impl Entities {
     /// Registers a component type with a default implementation.
     ///
     /// Called instead of `register_component`
-    pub fn register_component_with_default<T>(&mut self)
-    where
-        T: ComponentTrait + ComponentDefault,
-    {
+    pub fn register_component_with_default<T: ComponentTrait + ComponentDefault>(&mut self) {
         let type_id = TypeId::of::<T>();
         let component_info = ComponentInfo::new_with_default::<T>();
         self.component_info.insert(type_id, component_info);
@@ -155,7 +139,15 @@ impl Entities {
 
     /// Add components to an entity.
     pub fn add_components<const N: usize>(&mut self, entity_id: u128, components: [Component; N]) {
-        self.add_components_dyn(entity_id, move_array_to_vec(components));
+        self.add_components_dyn(entity_id, {
+            let mut vec = Vec::with_capacity(N);
+
+            for t in components {
+                vec.push(t);
+            }
+
+            vec
+        });
     }
 
     /// Create a new entity with the given components.
@@ -383,11 +375,7 @@ impl Entities {
     pub fn get<T: ComponentTrait>(&self) -> &mut T {
         let component_type = &TypeId::of::<T>();
 
-        self.components[component_type]
-            .values()
-            .next()
-            .expect("Component not found.")
-            .get_mut::<T>()
+        self.get_by_type_id(component_type).get_mut::<T>()
     }
 
     /// Get a single component with a given type id.

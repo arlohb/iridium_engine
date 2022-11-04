@@ -21,10 +21,7 @@ pub struct ComponentInfo {
 impl ComponentInfo {
     /// Creates a new component info from a component type.
     #[must_use]
-    pub fn new<T>() -> Self
-    where
-        T: ComponentTrait,
-    {
+    pub fn new<T: ComponentTrait>() -> Self {
         Self {
             type_name: T::type_name(),
             default: None,
@@ -36,10 +33,7 @@ impl ComponentInfo {
     ///
     /// Also adds the default fn.
     #[must_use]
-    pub fn new_with_default<T>() -> Self
-    where
-        T: ComponentTrait + ComponentDefault,
-    {
+    pub fn new_with_default<T: ComponentTrait + ComponentDefault>() -> Self {
         Self {
             type_name: T::type_name(),
             default: Some(T::create),
