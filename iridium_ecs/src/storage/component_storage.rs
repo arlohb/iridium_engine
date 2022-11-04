@@ -4,43 +4,29 @@ use iridium_assets::Assets;
 use crate::{Component, ComponentTrait};
 
 /// A field in a `StoredComponent`.
-pub enum StoredComponentField {
-    /// A string field.
+pub struct StoredComponentField {
+    /// The data of the field.
+    pub string: String,
+    /// Whether the field is a string.
     ///
-    /// Stored in json5 as `"x"` not `x`.
-    String(String),
-    /// A non-string field.
-    ///
-    /// Stored in json5 as `x` not `"x"`.
-    NonString(String),
+    /// If true, it's stored in json as `"x"` instead of `x`.
+    pub is_string: bool,
 }
 
 impl StoredComponentField {
-    /// Gets the string value.
+    /// Creates a new `StoredComponentField`.
     #[must_use]
-    // This is a false positive as destructors cannot be const.
-    #[allow(clippy::missing_const_for_fn)]
-    pub fn string(self) -> String {
-        match self {
-            Self::NonString(s) | Self::String(s) => s,
-        }
-    }
-
-    /// Gets a reference to the string value.
-    #[must_use]
-    pub fn str(&self) -> &str {
-        match self {
-            Self::NonString(s) | Self::String(s) => s,
-        }
+    pub const fn new(string: String, is_string: bool) -> Self {
+        Self { string, is_string }
     }
 
     /// Creates a `StoredComponentField` from a json5 value.
     #[must_use]
     pub fn from_json5(value: &str) -> Self {
         if value.starts_with('"') && value.ends_with('"') {
-            Self::String(value[1..value.len() - 1].to_string())
+            Self::new(value[1..value.len() - 1].to_string(), true)
         } else {
-            Self::NonString(value.to_string())
+            Self::new(value.to_string(), false)
         }
     }
 }
@@ -63,7 +49,7 @@ impl StoredComponent {
     ///
     /// This is moved from the fields.
     pub fn get(&mut self, key: &str) -> Option<String> {
-        Some(self.fields.remove(key)?.string())
+        Some(self.fields.remove(key)?.string)
     }
 }
 

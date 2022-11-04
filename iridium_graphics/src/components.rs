@@ -143,12 +143,12 @@ impl ComponentStorage for Camera {
         StoredComponent {
             type_name: "Camera".to_string(),
             fields: fast_map! {
-                "name" => StoredComponentField::String(self.name.clone()),
-                "position" => StoredComponentField::NonString(self.position.to_string()),
-                "min_depth" => StoredComponentField::NonString(self.min_depth.to_string()),
-                "max_depth" => StoredComponentField::NonString(self.max_depth.to_string()),
-                "rotation" => StoredComponentField::NonString(self.rotation.to_string()),
-                "scale" => StoredComponentField::NonString(self.scale.to_string()),
+                "name" => StoredComponentField::new(self.name.clone(), true),
+                "position" => StoredComponentField::new(self.position.to_string(), false),
+                "min_depth" => StoredComponentField::new(self.min_depth.to_string(), false),
+                "max_depth" => StoredComponentField::new(self.max_depth.to_string(), false),
+                "rotation" => StoredComponentField::new(self.rotation.to_string(), false),
+                "scale" => StoredComponentField::new(self.scale.to_string(), false),
             },
         }
     }
@@ -212,8 +212,8 @@ impl ComponentStorage for Renderable2D {
         StoredComponent {
             type_name: "Renderable2D".to_string(),
             fields: fast_map! {
-                "mesh" => StoredComponentField::String(self.mesh.id.clone()),
-                "material" => StoredComponentField::String(self.material.id.clone()),
+                "mesh" => StoredComponentField::new(self.mesh.id.clone(), true),
+                "material" => StoredComponentField::new(self.material.id.clone(), true),
             },
         }
     }

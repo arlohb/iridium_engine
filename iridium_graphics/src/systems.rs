@@ -45,7 +45,7 @@ impl ComponentStorage for Renderer2DState {
         StoredComponent {
             type_name: "Renderer2DState".to_string(),
             fields: fast_map! {
-                "active_camera" => StoredComponentField::String(self.active_camera.to_string()),
+                "active_camera" => StoredComponentField::new(self.active_camera.to_string(), true),
             },
         }
     }

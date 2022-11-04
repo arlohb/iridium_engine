@@ -19,7 +19,7 @@ impl ComponentStorage for Custom {
         StoredComponent {
             type_name: "Custom".to_string(),
             fields: fast_map! {
-                "test" => StoredComponentField::NonString(self.test.to_string()),
+                "test" => StoredComponentField::new(self.test.to_string(), false),
             },
         }
     }

@@ -27,7 +27,7 @@ impl ComponentStorage for Name {
         StoredComponent {
             type_name: "Name".to_string(),
             fields: fast_map! {
-                "name" => StoredComponentField::String(self.name.clone()),
+                "name" => StoredComponentField::new(self.name.clone(), true),
             },
         }
     }
@@ -62,9 +62,9 @@ impl ComponentStorage for Transform {
         StoredComponent {
             type_name: "Transform".to_string(),
             fields: fast_map! {
-                "position" => StoredComponentField::NonString(self.position.to_string()),
-                "scale" => StoredComponentField::NonString(self.scale.to_string()),
-                "rotation" => StoredComponentField::NonString(self.rotation.to_string()),
+                "position" => StoredComponentField::new(self.position.to_string(), false),
+                "scale" => StoredComponentField::new(self.scale.to_string(), false),
+                "rotation" => StoredComponentField::new(self.rotation.to_string(), false),
             },
         }
     }
@@ -99,7 +99,7 @@ impl ComponentStorage for Velocity {
         StoredComponent {
             type_name: "Velocity".to_string(),
             fields: fast_map! {
-                "velocity" => StoredComponentField::NonString(self.velocity.to_string()),
+                "velocity" => StoredComponentField::new(self.velocity.to_string(), false),
             },
         }
     }

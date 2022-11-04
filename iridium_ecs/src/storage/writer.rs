@@ -1,8 +1,6 @@
 use crate::{Component, Entities, World};
 use std::fmt::Write;
 
-use super::StoredComponentField;
-
 /// Manages the process of saving data to a file.
 pub struct StorageWriter {
     /// The path of the file to write to.
@@ -29,13 +27,10 @@ impl StorageWriter {
         for (key, value) in stored.fields {
             write!(&mut self.buffer, "                {key}: ").unwrap();
 
-            match value {
-                StoredComponentField::String(string) => {
-                    write!(&mut self.buffer, "\"{string}\"").unwrap();
-                }
-                StoredComponentField::NonString(string) => {
-                    self.buffer.push_str(&string);
-                }
+            if value.is_string {
+                write!(&mut self.buffer, "\"{}\"", value.string).unwrap();
+            } else {
+                self.buffer.push_str(&value.string);
             }
 
             self.buffer.push_str(",\n");

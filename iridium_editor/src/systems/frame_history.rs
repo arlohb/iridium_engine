@@ -51,8 +51,8 @@ impl ComponentStorage for FrameHistoryState {
         StoredComponent {
             type_name: "FrameHistoryState".to_string(),
             fields: fast_map! {
-                "max_frames" => StoredComponentField::NonString(self.max_frames.to_string()),
-                "max_age" => StoredComponentField::NonString(self.max_age.to_string()),
+                "max_frames" => StoredComponentField::new(self.max_frames.to_string(), false),
+                "max_age" => StoredComponentField::new(self.max_age.to_string(), false),
             },
         }
     }

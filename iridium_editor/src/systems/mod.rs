@@ -29,8 +29,8 @@ impl ComponentStorage for VelocityState {
         StoredComponent {
             type_name: "VelocityState".to_string(),
             fields: fast_map! {
-                "rotation_speed" => StoredComponentField::NonString(self.rotation_speed.to_string()),
-                "enabled" => StoredComponentField::NonString(self.enabled.to_string()),
+                "rotation_speed" => StoredComponentField::new(self.rotation_speed.to_string(), false),
+                "enabled" => StoredComponentField::new(self.enabled.to_string(), false),
             },
         }
     }
