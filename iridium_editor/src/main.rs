@@ -85,7 +85,7 @@ fn main() {
             .entity_id_from_name("SystemState")
             .expect("SystemState entity not found"),
         [Component::new(Renderer2DState {
-            active_camera: "".to_string(),
+            active_camera: String::new(),
             camera_gpu_data: Some(camera_gpu_data),
         })],
     );

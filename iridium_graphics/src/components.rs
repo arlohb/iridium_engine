@@ -115,7 +115,7 @@ impl Camera {
 impl ComponentDefault for Camera {
     fn create() -> Component {
         Component::new(Self {
-            name: "".to_string(),
+            name: String::new(),
             position: VecN::new([0.0, 0.0]),
             min_depth: 0.0,
             max_depth: 1.0,

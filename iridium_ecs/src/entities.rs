@@ -115,7 +115,7 @@ impl Entities {
     pub fn add_components_dyn(&mut self, entity_id: u128, components: Vec<Component>) {
         // Get the vec of components the entities has.
         // If it doesn't exist, add it.
-        let entity = self.entities.entry(entity_id).or_insert(vec![]);
+        let entity = self.entities.entry(entity_id).or_default();
 
         // For each component to be added.
         for component in components {

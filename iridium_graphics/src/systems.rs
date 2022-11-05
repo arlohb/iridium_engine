@@ -27,7 +27,7 @@ pub struct Renderer2DState {
 impl ComponentDefault for Renderer2DState {
     fn create() -> Component {
         Component::new(Self {
-            active_camera: "".to_string(),
+            active_camera: String::new(),
             camera_gpu_data: None,
         })
     }
