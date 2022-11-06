@@ -5,8 +5,6 @@ use iridium_map_utils::fast_map;
 use super::{Component, ComponentDefault};
 use crate::storage::{ComponentStorage, StoredComponent, StoredComponentField};
 
-use crate as iridium_ecs;
-
 /// The name of an entity.
 ///
 /// Added by default to all entities on creation.

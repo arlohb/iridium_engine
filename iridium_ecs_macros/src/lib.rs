@@ -100,9 +100,7 @@ pub fn impl_system_inputs_for_all(_input: TokenStream) -> TokenStream {
             ///
             /// # Examples
             ///
-            /// ```
-            /// # use iridium_ecs::*;
-            /// # let entities = Entities::default();
+            /// ```ignore
             /// for (transform, velocity)
             /// in query!(&entities, [mut Transform; Velocity]) {
             ///    transform.position += velocity.velocity;
@@ -173,8 +171,16 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
 
+    let ecs_crate = if std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME env var not found")
+        == "iridium_ecs"
+    {
+        quote! { crate }
+    } else {
+        quote! { iridium_ecs }
+    };
+
     quote! {
-        impl iridium_ecs::ComponentTrait for #struct_name {
+        impl #ecs_crate::ComponentTrait for #struct_name {
             fn type_name() -> &'static str {
                 stringify!(#struct_name)
             }
@@ -196,20 +202,28 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
 
+    let ecs_crate = if std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME env var not found")
+        == "iridium_ecs"
+    {
+        quote! { crate }
+    } else {
+        quote! { iridium_ecs }
+    };
+
     if let syn::Data::Struct(data) = ast.data {
         match data.fields {
             syn::Fields::Unit => {
                 quote! {
-                    impl iridium_ecs::storage::ComponentStorage for #struct_name {
+                    impl #ecs_crate::storage::ComponentStorage for #struct_name {
                         fn from_stored(
-                            _stored: iridium_ecs::storage::StoredComponent,
+                            _stored: #ecs_crate::storage::StoredComponent,
                             _assets: &iridium_assets::Assets,
                         ) -> Option<Self> {
                             Some(Self)
                         }
 
-                        fn to_stored(&self) -> iridium_ecs::storage::StoredComponent {
-                            iridium_ecs::storage::StoredComponent {
+                        fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
+                            #ecs_crate::storage::StoredComponent {
                                 type_name: "#struct_name".to_string(),
                                 fields: hashbrown::HashMap::new(),
                             }
@@ -219,16 +233,16 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
             }
             syn::Fields::Named(fields) if fields.named.is_empty() => {
                 quote! {
-                    impl iridium_ecs::storage::ComponentStorage for #struct_name {
+                    impl #ecs_crate::storage::ComponentStorage for #struct_name {
                         fn from_stored(
-                            _stored: iridium_ecs::storage::StoredComponent,
+                            _stored: #ecs_crate::storage::StoredComponent,
                             _assets: &iridium_assets::Assets,
                         ) -> Option<Self> {
                             Some(Self {})
                         }
 
-                        fn to_stored(&self) -> iridium_ecs::storage::StoredComponent {
-                            iridium_ecs::storage::StoredComponent {
+                        fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
+                            #ecs_crate::storage::StoredComponent {
                                 type_name: "#struct_name".to_string(),
                                 fields: hashbrown::HashMap::new(),
                             }
@@ -238,16 +252,16 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
             }
             syn::Fields::Unnamed(fields) if fields.unnamed.is_empty() => {
                 quote! {
-                    impl iridium_ecs::storage::ComponentStorage for #struct_name {
+                    impl #ecs_crate::storage::ComponentStorage for #struct_name {
                         fn from_stored(
-                            _stored: iridium_ecs::storage::StoredComponent,
+                            _stored: #ecs_crate::storage::StoredComponent,
                             _assets: &iridium_assets::Assets,
                         ) -> Option<Self> {
                             Some(Self())
                         }
 
-                        fn to_stored(&self) -> iridium_ecs::storage::StoredComponent {
-                            iridium_ecs::storage::StoredComponent {
+                        fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
+                            #ecs_crate::storage::StoredComponent {
                                 type_name: "#struct_name".to_string(),
                                 fields: hashbrown::HashMap::new(),
                             }
@@ -270,6 +284,14 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
 pub fn derive_inspector_ui(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
+
+    let ecs_crate = if std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME env var not found")
+        == "iridium_ecs"
+    {
+        quote! { crate }
+    } else {
+        quote! { iridium_ecs }
+    };
 
     let mut idents = vec![];
     let mut idents_strings = vec![];
@@ -297,9 +319,9 @@ pub fn derive_inspector_ui(tokens: TokenStream) -> TokenStream {
     }
 
     quote! {
-        impl iridium_ecs::ui::InspectorUi for #struct_name {
+        impl #ecs_crate::ui::InspectorUi for #struct_name {
             fn ui(&mut self, ui: &mut egui::Ui) {
-                use iridium_ecs::ui::InspectorUiField;
+                use #ecs_crate::ui::InspectorUiField;
 
                 #(
                     let attributes = {
@@ -310,7 +332,7 @@ pub fn derive_inspector_ui(tokens: TokenStream) -> TokenStream {
                             let tts = &tts[1..tts.len() - 1];
                             attributes.insert(stringify!(#attrs_path), tts);
                         )*
-                        iridium_ecs::ui::InspectorUiFieldAttributes::from_inner(attributes)
+                        #ecs_crate::ui::InspectorUiFieldAttributes::from_inner(attributes)
                     };
 
                     ui.label(#idents_strings);
