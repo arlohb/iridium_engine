@@ -18,13 +18,3 @@ pub trait PanelUi {
         assets: &Assets,
     );
 }
-
-impl PanelUi for egui_demo_lib::DemoWindows {
-    fn name(&self) -> &'static str {
-        "DemoWindow"
-    }
-
-    fn render(&mut self, context: &egui::Context, _: &mut UiState, _: &mut World, _: &Assets) {
-        self.ui(context);
-    }
-}

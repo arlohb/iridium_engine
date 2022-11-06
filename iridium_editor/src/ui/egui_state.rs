@@ -1,7 +1,7 @@
 use egui::PointerButton;
+use egui_winit::winit::{event_loop::EventLoop, window::Window};
 use iridium_assets::Assets;
 use iridium_ecs::World;
-use winit::window::Window;
 
 use super::{PanelUi, UiState};
 
@@ -29,7 +29,11 @@ pub struct EguiState {
 
 impl EguiState {
     /// Creates a new egui state.
-    pub fn new(device: &wgpu::Device, format: wgpu::TextureFormat, window: &Window) -> Self {
+    pub fn new(
+        device: &wgpu::Device,
+        format: wgpu::TextureFormat,
+        event_loop: &EventLoop<()>,
+    ) -> Self {
         // Create the egui context.
         let context = egui::Context::default();
 
@@ -37,7 +41,7 @@ impl EguiState {
         let rpass = egui_latest_wgpu_backend::RenderPass::new(device, format, 1);
 
         // Create the winit state.
-        let winit = egui_winit::State::new(4096, window);
+        let winit = egui_winit::State::new(event_loop);
 
         // Create the UI panels.
         let panels: Vec<Box<dyn PanelUi>> = vec![
@@ -76,7 +80,7 @@ impl EguiState {
     /// This modifies the input before the caller sends to egui.
     pub fn input(
         &mut self,
-        window: &winit::window::Window,
+        window: &Window,
         viewport_rect_logical: egui::Rect,
         scale_factor: f32,
         ui_state: &mut UiState,
@@ -169,7 +173,7 @@ impl EguiState {
     /// Draws the UI.
     pub fn draw(
         &mut self,
-        window: &winit::window::Window,
+        window: &Window,
         input: egui::RawInput,
         ui_state: &mut UiState,
         world: &mut World,

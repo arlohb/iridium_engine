@@ -37,12 +37,12 @@ use iridium_graphics::{
 };
 use iridium_maths::VecN;
 
-use inline_spirv::include_spirv;
-use winit::{
+use egui_winit::winit::{
     event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
+use inline_spirv::include_spirv;
 
 // This will change in the future.
 #[allow(clippy::too_many_lines)]
@@ -59,7 +59,7 @@ fn main() {
         .build(&event_loop)
         .expect("Failed to create window");
 
-    let mut app = pollster::block_on(App::new(&window));
+    let mut app = pollster::block_on(App::new(&window, &event_loop));
 
     let mut world = World::new(
         Entities::default(),

@@ -1,10 +1,11 @@
+use egui_winit::winit::{
+    event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
+    event_loop::EventLoop,
+    window::Window,
+};
 use iridium_assets::Assets;
 use iridium_ecs::World;
 use iridium_graphics::Renderer2DSystem;
-use winit::{
-    event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
-    window::Window,
-};
 
 use crate::{
     play_state::PlayState,
@@ -24,7 +25,8 @@ pub struct App {
 
 impl App {
     /// Create a new instance of App.
-    pub async fn new(window: &Window) -> Self {
+    #[allow(clippy::future_not_send)]
+    pub async fn new(window: &Window, event_loop: &EventLoop<()>) -> Self {
         // Get the size of the window.
         let screen_size = {
             let size = window.inner_size();
@@ -70,11 +72,12 @@ impl App {
             // Vsync should be used in the future,
             // but I need to see fps above 60 while debugging performance.
             present_mode: wgpu::PresentMode::AutoNoVsync,
+            alpha_mode: wgpu::CompositeAlphaMode::Auto,
         };
         surface.configure(&device, &surface_config);
 
         // Initialize the UI state.
-        let egui_state = EguiState::new(&device, surface_config.format, window);
+        let egui_state = EguiState::new(&device, surface_config.format, event_loop);
         let ui_state = UiState::new(ScreenRect::new(1. / 3., 0., 2. / 3., 0.6), screen_size, 1.2);
 
         Self {
