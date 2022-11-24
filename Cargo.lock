@@ -1141,7 +1141,6 @@ dependencies = [
  "env_logger",
  "hashbrown",
  "image",
- "inline-spirv",
  "iridium_assets",
  "iridium_ecs",
  "iridium_ecs_macros",
@@ -1160,6 +1159,7 @@ version = "0.1.0"
 dependencies = [
  "egui",
  "hashbrown",
+ "inline-spirv",
  "iridium_assets",
  "iridium_ecs",
  "iridium_ecs_macros",

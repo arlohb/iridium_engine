@@ -31,18 +31,13 @@ mod play_state;
 use iridium_assets::Assets;
 use iridium_ecs::systems::{Systems, SystemsStage};
 use iridium_ecs::{Component, ComponentDefault, Entities, World};
-use iridium_graphics::{
-    Camera, CameraGpuData, Material, Mesh, Renderable2D, Renderer2DState, Shader, ShaderInput,
-    ShaderType, Texture, Vertex,
-};
-use iridium_maths::VecN;
+use iridium_graphics::{Camera, CameraGpuData, Renderable2D, Renderer2DState};
 
 use egui_winit::winit::{
     event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
-use inline_spirv::include_spirv;
 
 // This will change in the future.
 #[allow(clippy::too_many_lines)]
@@ -94,110 +89,20 @@ fn main() {
 
     let mut assets = Assets::new();
 
-    assets.add(
-        "steak_tex",
-        Texture::from_image_bytes(
-            &app.device,
-            &app.queue,
-            include_bytes!("../assets/FoodSprites/Food/Steak.png"),
-            false,
-        ),
-    );
-
-    assets.add(
-        "sprite_vertex",
-        Shader::new(
-            &app.device,
-            ShaderType::Vertex,
-            include_spirv!("src/vert.hlsl", vert, hlsl, entry = "vs_main"),
-            vec![ShaderInput::Transform],
-        ),
-    );
-    assets.add(
-        "sprite_fragment",
-        Shader::new(
-            &app.device,
-            ShaderType::Fragment,
-            include_spirv!("src/sprite.hlsl", frag, hlsl, entry = "fs_main"),
-            vec![
-                ShaderInput::Texture(
-                    assets
-                        .get::<Texture>("steak_tex")
-                        .expect("asset 'steak_tex' not found"),
-                ),
-                ShaderInput::Sampler(
-                    assets
-                        .get::<Texture>("steak_tex")
-                        .expect("asset 'steak_tex' not found"),
-                ),
-            ],
-        ),
-    );
-    assets.add(
-        "uv_test_fragment",
-        Shader::new(
-            &app.device,
-            ShaderType::Fragment,
-            include_spirv!("src/uv_test.hlsl", frag, hlsl, entry = "fs_main"),
-            vec![],
-        ),
-    );
-
-    assets.add(
-        "steak_mat",
-        Material::new(
-            &app.device,
-            app.surface_config.format,
-            assets
-                .get::<Shader>("sprite_vertex")
-                .expect("asset 'sprite_vertex' not found"),
-            world
-                .entities
-                .get::<Renderer2DState>()
-                .camera_gpu_data
-                .as_ref()
-                .expect("Camera GPU data not created yet"),
-            assets
-                .get::<Shader>("sprite_fragment")
-                .expect("asset 'sprite_fragment' not found"),
-        ),
-    );
-
-    assets.add(
-        "uv_test",
-        Material::new(
-            &app.device,
-            app.surface_config.format,
-            assets
-                .get::<Shader>("sprite_vertex")
-                .expect("asset 'sprite_vertex' not found"),
-            world
-                .entities
-                .get::<Renderer2DState>()
-                .camera_gpu_data
-                .as_ref()
-                .expect("Camera GPU data not created yet"),
-            assets
-                .get::<Shader>("uv_test_fragment")
-                .expect("asset 'uv_test_fragment' not found"),
-        ),
-    );
-
-    assets.add(
-        "quad",
-        Mesh {
-            vertices: vec![
-                Vertex::new(VecN::new([-1., -1., 0.]), VecN::new([0., 0.])),
-                Vertex::new(VecN::new([-1., 1., 0.]), VecN::new([0., 1.])),
-                Vertex::new(VecN::new([1., 1., 0.]), VecN::new([1., 1.])),
-                Vertex::new(VecN::new([1., -1., 0.]), VecN::new([1., 0.])),
-            ],
-            indices: vec![0, 3, 2, 0, 2, 1],
-        },
-    );
-
     let project = Project::load("target/debug/libiridium_example_project.so");
 
+    project.load_assets(
+        world
+            .entities
+            .get::<Renderer2DState>()
+            .camera_gpu_data
+            .as_ref()
+            .expect("CameraGpuData not found"),
+        &app.device,
+        &app.queue,
+        app.surface_config.format,
+        &mut assets,
+    );
     project.init_system(&mut world, &assets);
 
     let mut last_time = std::time::Instant::now();

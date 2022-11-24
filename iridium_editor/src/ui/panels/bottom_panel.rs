@@ -75,7 +75,11 @@ impl PanelUi for BottomPanel {
                         let all_assets = assets.get_all();
 
                         let texture = &*self.texture.get_or_insert_with(|| {
-                            load_texture(ui.ctx(), "iridium_editor/assets/FoodSprites/Food.png").1
+                            load_texture(
+                                ui.ctx(),
+                                "iridium_example_project/assets/FoodSprites/Food.png",
+                            )
+                            .1
                         });
 
                         egui::ScrollArea::new([false, true])

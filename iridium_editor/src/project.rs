@@ -5,6 +5,13 @@ use iridium_assets::Assets;
 
 #[derive(WrapperApi)]
 pub struct ProjectApi {
+    load_assets: fn(
+        camera_gpu_data: &iridium_graphics::CameraGpuData,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        surface_format: wgpu::TextureFormat,
+        assets: &mut Assets,
+    ) -> (),
     init_system: fn(world: &mut World, assets: &Assets) -> (),
 }
 
@@ -22,5 +29,16 @@ impl Project {
 
     pub fn init_system(&self, world: &mut World, assets: &Assets) {
         (self.api.init_system)(world, assets);
+    }
+
+    pub fn load_assets(
+        &self,
+        camera_gpu_data: &iridium_graphics::CameraGpuData,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        surface_format: wgpu::TextureFormat,
+        assets: &mut Assets,
+    ) {
+        (self.api.load_assets)(camera_gpu_data, device, queue, surface_format, assets);
     }
 }
