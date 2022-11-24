@@ -42,20 +42,25 @@ use egui_winit::winit::{
 // This will change in the future.
 #[allow(clippy::too_many_lines)]
 fn main() {
-    // std::env::set_var("RUST_BACKTRACE", "1");
+    // Wgpu uses this logger.
     env_logger::init();
 
+    // Enable the puffin profiler.
     puffin::set_scopes_on(true);
 
+    // Create the event loop.
     let event_loop = EventLoop::new();
+    // Create the window.
     let window = WindowBuilder::new()
         .with_title("Iridium Editor")
         .with_maximized(false)
         .build(&event_loop)
         .expect("Failed to create window");
 
+    // Start the app.
     let mut app = pollster::block_on(App::new(&window, &event_loop));
 
+    // Create the world.
     let mut world = World::new(
         Entities::default(),
         Systems::new(vec![
@@ -67,8 +72,10 @@ fn main() {
         ]),
     );
 
+    // Create the camera data.
     let camera_gpu_data = CameraGpuData::new(&app.device);
 
+    // Register the default components.
     world.entities.register_component::<Renderable2D>();
     world.entities.register_component::<Renderer2DState>();
     world.entities.register_component::<FrameHistoryState>();
@@ -85,12 +92,16 @@ fn main() {
         })],
     );
 
+    // Create the camera.
     world.entities.new_entity("Camera", [Camera::create()]);
 
+    // Create the assets.
     let mut assets = Assets::new();
 
+    // Load the project.
     let project = Project::load("target/debug/libiridium_example_project.so");
 
+    // Load the assets.
     project.load_assets(
         world
             .entities
@@ -103,21 +114,28 @@ fn main() {
         app.surface_config.format,
         &mut assets,
     );
+
+    // Run the init system.
     project.init_system(&mut world, &assets);
 
+    // The start time of the last frame.
     let mut last_time = std::time::Instant::now();
 
     // Just while profiling.
     // app.ui_state.play();
 
     event_loop.run(move |event, _, control_flow| match event {
+        // Handle window events.
         Event::WindowEvent {
             ref event,
             window_id,
         } if window_id == window.id() => {
+            // If the app didn't handle the event itself.
             if !app.input(event) {
                 match event {
                     WindowEvent::CloseRequested
+                    // Make sure to remove this at some point,
+                    // but during dev it's really useful
                     | WindowEvent::KeyboardInput {
                         input:
                             KeyboardInput {
@@ -127,6 +145,7 @@ fn main() {
                             },
                         ..
                     } => {
+                        // Exit the app.
                         *control_flow = ControlFlow::Exit;
                     }
                     WindowEvent::Resized(physical_size) => {
@@ -139,21 +158,28 @@ fn main() {
                 }
             }
         }
+        // Redraw the window.
         Event::RedrawRequested(window_id) if window_id == window.id() => {
+            // Start a new frame.
             puffin::GlobalProfiler::lock().new_frame();
             puffin::profile_scope!("Frame");
 
+            // Get the time in ms since the last frame.
             let delta_time: f64 = f64::from(
                 u32::try_from(last_time.elapsed().as_nanos())
                     .expect("Delta time nanos too big for u32"),
             ) / 1_000_000f64;
+            // Reset the last time.
             last_time = std::time::Instant::now();
 
+            // If the game is playing.
             if let PlayState::Play = app.ui_state.play_state() {
                 puffin::profile_scope!("Systems");
+                // Run the systems.
                 world.run_systems(delta_time, &assets);
             }
 
+            // Render the app and game.
             app.render(&window, &mut world, &assets);
         }
         Event::MainEventsCleared => {
