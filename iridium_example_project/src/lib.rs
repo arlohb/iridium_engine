@@ -17,7 +17,7 @@ pub fn init_system(world: &mut World, assets: &Assets) {
 
     for i in 0..1000 {
         world.entities.new_entity(
-            &format!("Steak {i}"),
+            &format!("Steak {:03}", i),
             [
                 Component::new(Transform {
                     position: VecN::new([
@@ -47,7 +47,7 @@ pub fn init_system(world: &mut World, assets: &Assets) {
         );
 
         world.entities.new_entity(
-            &format!("Entity {i}"),
+            &format!("Entity {:03}", i),
             [
                 Component::new(Transform {
                     position: VecN::new([

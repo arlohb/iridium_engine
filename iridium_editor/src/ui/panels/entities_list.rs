@@ -55,10 +55,14 @@ impl PanelUi for EntitiesList {
                 .show(ui, |ui| {
                     ui.add_space(10.);
 
-                    for (id, [name]) in world
-                        .entities
-                        .query_by_type_id_with_id([&std::any::TypeId::of::<Name>()])
-                    {
+                    for (id, [name]) in {
+                        let mut entities = world
+                            .entities
+                            .query_by_type_id_with_id([&std::any::TypeId::of::<Name>()])
+                            .collect::<Vec<_>>();
+                        entities.sort_by_key(|(_, [name])| &name.get::<Name>().name);
+                        entities
+                    } {
                         let name = name.get::<Name>();
                         let name = &name.name;
 
