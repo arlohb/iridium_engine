@@ -12,11 +12,11 @@ pub fn load_assets(
     assets: &mut Assets,
 ) {
     assets.add(
-        "steak_tex",
+        "fish_tex",
         Texture::from_image_bytes(
             device,
             queue,
-            include_bytes!("../assets/FoodSprites/Food/Steak.png"),
+            include_bytes!("../assets/FoodSprites/Food/Fish.png"),
             false,
         ),
     );
@@ -31,7 +31,7 @@ pub fn load_assets(
         ),
     );
     assets.add(
-        "sprite_fragment",
+        "fish_frag",
         Shader::new(
             device,
             ShaderType::Fragment,
@@ -39,12 +39,12 @@ pub fn load_assets(
             vec![
                 ShaderInput::Texture(
                     assets
-                        .get::<Texture>("steak_tex")
+                        .get::<Texture>("fish_tex")
                         .expect("asset 'steak_tex' not found"),
                 ),
                 ShaderInput::Sampler(
                     assets
-                        .get::<Texture>("steak_tex")
+                        .get::<Texture>("fish_tex")
                         .expect("asset 'steak_tex' not found"),
                 ),
             ],
@@ -61,7 +61,7 @@ pub fn load_assets(
     );
 
     assets.add(
-        "steak_mat",
+        "fish_mat",
         Material::new(
             device,
             surface_format,
@@ -70,7 +70,7 @@ pub fn load_assets(
                 .expect("asset 'sprite_vertex' not found"),
             camera_gpu_data,
             assets
-                .get::<Shader>("sprite_fragment")
+                .get::<Shader>("fish_frag")
                 .expect("asset 'sprite_fragment' not found"),
         ),
     );

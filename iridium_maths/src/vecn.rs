@@ -139,6 +139,12 @@ impl<const N: usize> VecN<N> {
         Self { data }
     }
 
+    /// Creates a new `VecN` with all values set to the given value.
+    #[must_use]
+    pub const fn from_value(value: f32) -> Self {
+        Self { data: [value; N] }
+    }
+
     /// Converts to bytes with the given size.
     #[must_use]
     pub fn as_bytes<const L: usize>(&self) -> [u8; L] {
