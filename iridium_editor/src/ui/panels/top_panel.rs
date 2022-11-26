@@ -27,8 +27,13 @@ impl PanelUi for TopPanel {
                 if let [menus, buttons, stats] = columns {
                     menus.horizontal(|ui| {
                         ui.menu_button("File", |ui| {
-                            if ui.button("Save").clicked() {
-                                world.save("test.json5");
+                            if let Some(scene) = &ui_state.open_scene {
+                                if ui.button("Save").clicked() {
+                                    world.save(scene);
+                                    ui.close_menu();
+                                }
+                            } else {
+                                ui.add_enabled(false, egui::Button::new("Save"));
                             }
                         });
                         ui.menu_button("Edit", |ui| ui.label("Edit"));

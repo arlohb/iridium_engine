@@ -5,6 +5,7 @@ use iridium_assets::Assets;
 
 #[derive(WrapperApi)]
 pub struct ProjectApi {
+    default_scene: fn() -> String,
     load_assets: fn(
         camera_gpu_data: &iridium_graphics::CameraGpuData,
         device: &wgpu::Device,
@@ -40,5 +41,9 @@ impl Project {
         assets: &mut Assets,
     ) {
         (self.api.load_assets)(camera_gpu_data, device, queue, surface_format, assets);
+    }
+
+    pub fn default_scene(&self) -> String {
+        (self.api.default_scene)()
     }
 }

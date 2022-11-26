@@ -118,6 +118,12 @@ fn main() {
     // Run the init system.
     project.init_system(&mut world, &assets);
 
+    // Open the default scene.
+    let default_scene = project.default_scene();
+    if world.load(&default_scene, &assets).is_ok() {
+        app.ui_state.open_scene = Some(default_scene);
+    }
+
     // The start time of the last frame.
     let mut last_time = std::time::Instant::now();
 

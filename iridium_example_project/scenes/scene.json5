@@ -1,19 +1,17 @@
 {
     entities: {
-        "37161776037477752767738717876975443530": {
+        "285667665692892437578931008459670291972": {
             Name: {
-                name: "SystemState",
+                name: "BottomWall",
             },
-            VelocityState: {
-                enabled: true,
-                rotation_speed: 0.002,
+            Transform: {
+                position: [0.0, -1.0, 0.0],
+                rotation: 0,
+                scale: [1.0, 0.05, 1.0],
             },
-            FrameHistoryState: {
-                max_age: 5000,
-                max_frames: 500000,
-            },
-            Renderer2DState: {
-                active_camera: "",
+            Renderable2D: {
+                mesh: "quad",
+                material: "uv_test",
             },
         },
         "248093174008008437236677369105102839533": {
@@ -21,23 +19,52 @@
                 name: "TopWall",
             },
             Transform: {
-                scale: [2.0, 0.05, 1.0],
-                position: [0.0, 1.0, 0.0],
+                scale: [1.0, 0.05, 1.0],
                 rotation: 0,
+                position: [0.0, 1.0, 0.0],
             },
             Renderable2D: {
                 mesh: "quad",
                 material: "uv_test",
             },
         },
-        "285667665692892437578931008459670291972": {
+        "37161776037477752767738717876975443530": {
             Name: {
-                name: "BottomWall",
+                name: "SystemState",
+            },
+            VelocityState: {
+                rotation_speed: 0.002,
+                enabled: true,
+            },
+            FrameHistoryState: {
+                max_frames: 500000,
+                max_age: 5000,
+            },
+            Renderer2DState: {
+                active_camera: "",
+            },
+        },
+        "235060944676573309344287650051410162572": {
+            Name: {
+                name: "Camera",
+            },
+            Camera: {
+                min_depth: 0,
+                name: "",
+                max_depth: 1,
+                rotation: 0,
+                scale: 1,
+                position: [0.0, 0.0],
+            },
+        },
+        "16990649016525782792705359485876353844": {
+            Name: {
+                name: "RightWall",
             },
             Transform: {
+                scale: [0.05, 1.0, 1.0],
+                position: [1.0, 0.0, 0.0],
                 rotation: 0,
-                position: [0.0, -1.0, 0.0],
-                scale: [2.0, 0.05, 1.0],
             },
             Renderable2D: {
                 mesh: "quad",
@@ -54,21 +81,8 @@
                 rotation: -2.4,
             },
             Renderable2D: {
-                mesh: "quad",
                 material: "fish_mat",
-            },
-        },
-        "235060944676573309344287650051410162572": {
-            Name: {
-                name: "Camera",
-            },
-            Camera: {
-                max_depth: 1,
-                rotation: 0,
-                min_depth: 0,
-                position: [0.0, 0.0],
-                scale: 1,
-                name: "",
+                mesh: "quad",
             },
         },
         "106889008285392059297777203314941870676": {
@@ -77,22 +91,8 @@
             },
             Transform: {
                 rotation: 0,
-                scale: [0.05, 2.0, 1.0],
                 position: [-1.0, 0.0, 0.0],
-            },
-            Renderable2D: {
-                mesh: "quad",
-                material: "uv_test",
-            },
-        },
-        "16990649016525782792705359485876353844": {
-            Name: {
-                name: "RightWall",
-            },
-            Transform: {
-                scale: [0.05, 2.0, 1.0],
-                position: [1.0, 0.0, 0.0],
-                rotation: 0,
+                scale: [0.05, 1.0, 1.0],
             },
             Renderable2D: {
                 mesh: "quad",

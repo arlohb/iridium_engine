@@ -19,6 +19,8 @@ pub struct UiState {
     pub camera: Camera,
     /// The start position of the camera pan.
     pub pan_start: Option<egui::Pos2>,
+    /// Open scene.
+    pub open_scene: Option<String>,
 }
 
 impl UiState {
@@ -44,6 +46,7 @@ impl UiState {
                 viewport_size: VecN::new([0., 0.]),
             },
             pan_start: None,
+            open_scene: None,
         }
     }
 
