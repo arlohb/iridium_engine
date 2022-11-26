@@ -66,6 +66,10 @@ impl PanelUi for EntitiesList {
                         let name = name.get::<Name>();
                         let name = &name.name;
 
+                        if name == "SystemState" {
+                            continue;
+                        }
+
                         if !name
                             .to_lowercase()
                             .contains(&self.name_filter.to_lowercase())
