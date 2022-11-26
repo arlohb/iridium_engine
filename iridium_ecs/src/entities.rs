@@ -4,9 +4,7 @@ use std::any::TypeId;
 
 use crate::systems::SystemInputs;
 
-use super::{
-    Component, ComponentDefault, ComponentInfo, ComponentTrait, Name, Transform, Velocity,
-};
+use super::{Component, ComponentInfo, ComponentTrait, Name, Transform};
 use hashbrown::HashMap;
 
 /// Stores all the entities in the scene.
@@ -31,7 +29,6 @@ impl Default for Entities {
         // Register the default components.
         entities.register_component::<Name>();
         entities.register_component_with_default::<Transform>();
-        entities.register_component_with_default::<Velocity>();
 
         entities
     }
@@ -93,7 +90,7 @@ impl Entities {
     /// Registers a component type with a default implementation.
     ///
     /// Called instead of `register_component`
-    pub fn register_component_with_default<T: ComponentTrait + ComponentDefault>(&mut self) {
+    pub fn register_component_with_default<T: ComponentTrait + Default>(&mut self) {
         let type_id = TypeId::of::<T>();
         let component_info = ComponentInfo::new_with_default::<T>();
         self.component_info.insert(type_id, component_info);

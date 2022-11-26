@@ -18,9 +18,9 @@
 #[macro_use]
 extern crate dlopen_derive;
 
-mod systems;
+mod frame_history;
+pub use frame_history::*;
 use play_state::PlayState;
-use systems::{FrameHistoryState, FrameHistorySystem, VelocityState, VelocitySystem};
 mod app;
 pub use app::*;
 mod project;
@@ -30,7 +30,7 @@ mod play_state;
 
 use iridium_assets::Assets;
 use iridium_ecs::systems::{Systems, SystemsStage};
-use iridium_ecs::{Component, ComponentDefault, Entities, World};
+use iridium_ecs::{Component, Entities, World};
 use iridium_graphics::{Camera, CameraGpuData, Renderable2D, Renderer2DState};
 
 use egui_winit::winit::{
@@ -63,13 +63,7 @@ fn main() {
     // Create the world.
     let mut world = World::new(
         Entities::default(),
-        Systems::new(vec![
-            SystemsStage::new(vec![Box::new(VelocitySystem)]),
-            SystemsStage::new(vec![
-                // Box::new(PositionLoggerSystem),
-                Box::new(FrameHistorySystem),
-            ]),
-        ]),
+        Systems::new(vec![SystemsStage::new(vec![Box::new(FrameHistorySystem)])]),
     );
 
     // Create the camera data.
@@ -79,7 +73,6 @@ fn main() {
     world.entities.register_component::<Renderable2D>();
     world.entities.register_component::<Renderer2DState>();
     world.entities.register_component::<FrameHistoryState>();
-    world.entities.register_component::<VelocityState>();
     world.entities.register_component_with_default::<Camera>();
     world.entities.add_components(
         world
@@ -93,7 +86,9 @@ fn main() {
     );
 
     // Create the camera.
-    world.entities.new_entity("Camera", [Camera::create()]);
+    world
+        .entities
+        .new_entity("Camera", [Component::new(Camera::default())]);
 
     // Create the assets.
     let mut assets = Assets::new();
@@ -120,8 +115,9 @@ fn main() {
 
     // Open the default scene.
     let default_scene = project.default_scene();
-    if world.load(&default_scene, &assets).is_ok() {
-        app.ui_state.open_scene = Some(default_scene);
+    match world.load(&default_scene, &assets) {
+        Ok(_) => app.ui_state.open_scene = Some(default_scene),
+        Err(e) => println!("Failed to load default scene with error: {:?}", e),
     }
 
     // The start time of the last frame.

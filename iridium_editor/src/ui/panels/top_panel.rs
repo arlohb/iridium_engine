@@ -1,6 +1,6 @@
 use iridium_assets::Assets;
 
-use crate::{play_state::PlayState, systems::FrameHistoryState, ui::PanelUi};
+use crate::{play_state::PlayState, ui::PanelUi, FrameHistoryState};
 
 pub struct TopPanel;
 

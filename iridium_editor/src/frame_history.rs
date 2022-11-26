@@ -23,6 +23,7 @@ pub struct FrameHistoryState {
 }
 
 impl FrameHistoryState {
+    #[must_use]
     pub fn average_delta_time(&self) -> f64 {
         self.frames
             .iter()
@@ -31,6 +32,7 @@ impl FrameHistoryState {
             / self.frames.len() as f64
     }
 
+    #[must_use]
     pub fn average_fps(&self) -> f64 {
         1000. / self.average_delta_time()
     }

@@ -51,4 +51,11 @@ impl World {
     pub fn load(&mut self, file: &str, assets: &Assets) -> Result<(), ReadError> {
         load_world_from_file(file, self, assets)
     }
+
+    /// Replaces the world's systems with the given systems.
+    ///
+    /// A better solution will be implemented in the future.
+    pub fn replace_systems(&mut self, systems: Systems) {
+        self.systems = systems;
+    }
 }

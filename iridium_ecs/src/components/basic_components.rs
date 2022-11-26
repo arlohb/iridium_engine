@@ -2,7 +2,6 @@ use iridium_assets::Assets;
 use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
-use super::{Component, ComponentDefault};
 use crate::storage::{ComponentStorage, StoredComponent, StoredComponentField};
 
 /// The name of an entity.
@@ -68,45 +67,12 @@ impl ComponentStorage for Transform {
     }
 }
 
-impl ComponentDefault for Transform {
-    fn create() -> Component {
-        Component::new(Self {
+impl Default for Transform {
+    fn default() -> Self {
+        Self {
             position: iridium_maths::VecN::new([0.0, 0.0, 0.0]),
             scale: iridium_maths::VecN::new([1.0, 1.0, 1.0]),
             rotation: 0.0,
-        })
-    }
-}
-
-/// The velocity of an entity.
-#[derive(ComponentTrait, InspectorUi)]
-pub struct Velocity {
-    #[drag_speed(0.0001)]
-    /// The velocity.
-    pub velocity: iridium_maths::VecN<3>,
-}
-
-impl ComponentStorage for Velocity {
-    fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(Self {
-            velocity: stored.get("velocity")?.parse().ok()?,
-        })
-    }
-
-    fn to_stored(&self) -> StoredComponent {
-        StoredComponent {
-            type_name: "Velocity".to_string(),
-            fields: fast_map! {
-                "velocity" => StoredComponentField::new(self.velocity.to_string(), false),
-            },
         }
-    }
-}
-
-impl ComponentDefault for Velocity {
-    fn create() -> Component {
-        Component::new(Self {
-            velocity: iridium_maths::VecN::new([0.0, 0.0, 0.0]),
-        })
     }
 }

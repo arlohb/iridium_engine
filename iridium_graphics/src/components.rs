@@ -1,10 +1,7 @@
 use std::sync::Arc;
 
 use iridium_assets::{Asset, Assets};
-use iridium_ecs::{
-    storage::{ComponentStorage, StoredComponent, StoredComponentField},
-    Component, ComponentDefault,
-};
+use iridium_ecs::storage::{ComponentStorage, StoredComponent, StoredComponentField};
 use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
@@ -112,9 +109,9 @@ impl Camera {
     }
 }
 
-impl ComponentDefault for Camera {
-    fn create() -> Component {
-        Component::new(Self {
+impl Default for Camera {
+    fn default() -> Self {
+        Self {
             name: String::new(),
             position: VecN::new([0.0, 0.0]),
             min_depth: 0.0,
@@ -122,7 +119,7 @@ impl ComponentDefault for Camera {
             rotation: 0.0,
             scale: 1.0,
             viewport_size: VecN::new([1., 1.]),
-        })
+        }
     }
 }
 
