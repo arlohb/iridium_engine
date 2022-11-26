@@ -224,7 +224,7 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
 
                         fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
                             #ecs_crate::storage::StoredComponent {
-                                type_name: "#struct_name".to_string(),
+                                type_name: stringify!(#struct_name).to_string(),
                                 fields: hashbrown::HashMap::new(),
                             }
                         }
@@ -243,7 +243,7 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
 
                         fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
                             #ecs_crate::storage::StoredComponent {
-                                type_name: "#struct_name".to_string(),
+                                type_name: stringify!(#struct_name).to_string(),
                                 fields: hashbrown::HashMap::new(),
                             }
                         }
@@ -262,7 +262,7 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
 
                         fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
                             #ecs_crate::storage::StoredComponent {
-                                type_name: "#struct_name".to_string(),
+                                type_name: stringify!(#struct_name).to_string(),
                                 fields: hashbrown::HashMap::new(),
                             }
                         }
