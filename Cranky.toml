@@ -1,0 +1,22 @@
+warn = [
+    "missing_docs",
+    "clippy::unwrap_used",
+    "clippy::pedantic",
+    "clippy::nursery",
+    "future_incompatible",
+]
+
+allow = [
+    # I understand how rust modules work,
+    # so if I do this its on purpose.
+    "clippy::module_inception",
+    # Same as above.
+    "clippy::module_name_repetitions",
+    # Rust makes it obvious when this is happening
+    # without this lint.
+    "clippy::cast_precision_loss",
+    # Same as above.
+    "clippy::cast_possible_truncation",
+    # Same as above.
+    "clippy::cast_sign_loss",
+]

@@ -3,6 +3,7 @@ use iridium_assets::Assets;
 use iridium_graphics::{Material, Mesh, Shader, ShaderInput, ShaderType, Texture, Vertex};
 use iridium_maths::VecN;
 
+/// Load the assets needed for the game.
 #[no_mangle]
 pub fn load_assets(
     camera_gpu_data: &iridium_graphics::CameraGpuData,

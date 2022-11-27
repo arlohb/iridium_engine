@@ -1,12 +1,3 @@
-#![warn(
-    missing_docs,
-    clippy::unwrap_used,
-    clippy::pedantic,
-    clippy::nursery,
-    future_incompatible
-)]
-#![allow(clippy::module_name_repetitions)]
-
 //! This is the procedural macros to be used with the `iridium_ecs` crate.
 
 use proc_macro::TokenStream;

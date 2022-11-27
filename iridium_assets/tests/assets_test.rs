@@ -19,8 +19,22 @@ fn get_all() {
 
     all_assets.iter().all(|(key, value)| {
         match key.as_str() {
-            "a" => assert_eq!(*value.read().unwrap().downcast_ref::<i32>().unwrap(), 1),
-            "b" => assert_eq!(*value.read().unwrap().downcast_ref::<i32>().unwrap(), 2),
+            "a" => assert_eq!(
+                *value
+                    .read()
+                    .expect("Asset RwLock poisoned")
+                    .downcast_ref::<i32>()
+                    .expect("Asset is not an i32"),
+                1
+            ),
+            "b" => assert_eq!(
+                *value
+                    .read()
+                    .expect("Asset RwLock poisoned")
+                    .downcast_ref::<i32>()
+                    .expect("Asset is not an i32"),
+                2
+            ),
             _ => panic!("Unexpected key"),
         };
         true
@@ -31,7 +45,7 @@ fn get_all() {
 fn get() {
     let assets = test_assets();
 
-    let a = assets.get::<i32>("a").unwrap();
+    let a = assets.get::<i32>("a").expect("Asset not found");
 
     assert_eq!(a.id, "a".to_string());
     assert_eq!(*a.get(), 1);
@@ -41,7 +55,7 @@ fn get() {
 fn get_mut() {
     let assets = test_assets();
 
-    let a = assets.get::<i32>("a").unwrap();
+    let a = assets.get::<i32>("a").expect("Asset not found");
 
     assert_eq!(a.id, "a".to_string());
     assert_eq!(*a.get_mut(), 1);
@@ -51,7 +65,7 @@ fn get_mut() {
 fn deref() {
     let assets = test_assets();
 
-    let a = assets.get::<i32>("a").unwrap();
+    let a = assets.get::<i32>("a").expect("Asset not found");
 
     assert_eq!(a.id, "a".to_string());
     assert_eq!(*a, 1);
@@ -71,7 +85,7 @@ fn not_found() {
 fn wrong_type() {
     let assets = test_assets();
 
-    let a = assets.get::<String>("a").unwrap();
+    let a = assets.get::<String>("a").expect("Asset not found");
 
     let _ = a.get();
 }

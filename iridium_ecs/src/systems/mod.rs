@@ -1,5 +1,3 @@
-#![allow(clippy::module_inception)]
-
 mod system;
 pub use system::*;
 mod systems_stage;

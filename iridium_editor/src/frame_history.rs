@@ -9,20 +9,28 @@ use iridium_ecs::{
 use iridium_ecs_macros::{ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
+/// Data about a single frame.
 pub struct Frame {
+    /// The start time of the frame.
     pub time: SystemTime,
+    /// How long the frame lasted in ms.
     pub delta_time: f64,
 }
 
+/// The state of `FrameHistorySystem`.
 #[derive(ComponentTrait, InspectorUi)]
 pub struct FrameHistoryState {
+    /// The queue of previous frames.
     #[hidden]
     pub frames: VecDeque<Frame>,
+    /// The maximum number of frames to store.
     pub max_frames: usize,
+    /// The maximum age of frames to store.
     pub max_age: f64,
 }
 
 impl FrameHistoryState {
+    /// Calculates the average frame time in ms.
     #[must_use]
     pub fn average_delta_time(&self) -> f64 {
         self.frames
@@ -32,6 +40,7 @@ impl FrameHistoryState {
             / self.frames.len() as f64
     }
 
+    /// Calculates the average frame rate in frames per second.
     #[must_use]
     pub fn average_fps(&self) -> f64 {
         1000. / self.average_delta_time()
@@ -60,6 +69,7 @@ impl ComponentStorage for FrameHistoryState {
     }
 }
 
+/// A system to store data about previous frames.
 pub struct FrameHistorySystem;
 
 impl System for FrameHistorySystem {

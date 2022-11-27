@@ -40,9 +40,11 @@ impl Default for Velocity {
     }
 }
 
+/// The state for the `VelocitySystem`.
 #[derive(ComponentTrait, InspectorUi, ComponentStorage, Default)]
 pub struct VelocityState;
 
+/// Applies velocity to entities with the `Velocity` component.
 pub struct VelocitySystem;
 
 impl VelocitySystem {

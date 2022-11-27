@@ -1,12 +1,3 @@
-#![warn(
-    missing_docs,
-    clippy::unwrap_used,
-    clippy::pedantic,
-    clippy::nursery,
-    future_incompatible
-)]
-#![allow(clippy::module_name_repetitions)]
-
 //! # Iridium Ecs
 //!
 //! This is the entity-component-system (ECS) portion of Iridium.

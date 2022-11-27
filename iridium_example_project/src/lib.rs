@@ -1,3 +1,5 @@
+//! An example project for the iridium game engine.
+
 use iridium_assets::Assets;
 
 mod gravity;
@@ -9,11 +11,13 @@ mod assets;
 pub use assets::*;
 use iridium_ecs::World;
 
+/// The path of the default scene.
 #[no_mangle]
 pub fn default_scene() -> String {
     "iridium_example_project/scenes/scene.json5".to_string()
 }
 
+/// An init system.
 #[no_mangle]
 pub fn init_system(world: &mut World, assets: &Assets) {
     // To silence warnings.

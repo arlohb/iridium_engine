@@ -1,15 +1,22 @@
 use iridium_assets::Assets;
-use iridium_ecs::{storage::*, systems::System, *};
+use iridium_ecs::{
+    storage::{ComponentStorage, StoredComponent, StoredComponentField},
+    systems::System,
+    Component, Entities,
+};
 use iridium_ecs_macros::{system_helper, ComponentStorage, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 use crate::Velocity;
 
+/// The entity is affected by gravity.
 #[derive(ComponentTrait, InspectorUi, ComponentStorage, Default)]
 pub struct Weight;
 
+/// The state for the `GravitySystem`.
 #[derive(ComponentTrait, InspectorUi)]
 pub struct GravityState {
+    /// The acceleration down due to gravity.
     pub acceleration: f32,
 }
 
@@ -21,7 +28,7 @@ impl Default for GravityState {
 
 impl ComponentStorage for GravityState {
     fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(GravityState {
+        Some(Self {
             acceleration: stored.get("acceleration")?.parse().ok()?,
         })
     }
@@ -36,6 +43,7 @@ impl ComponentStorage for GravityState {
     }
 }
 
+/// Applies gravity to entities with the `Weight` component.
 pub struct GravitySystem;
 
 impl GravitySystem {

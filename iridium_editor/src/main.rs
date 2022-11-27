@@ -2,19 +2,6 @@
 //!
 //! A game engine for Rust.
 
-#![warn(
-    clippy::unwrap_used,
-    clippy::pedantic,
-    clippy::nursery,
-    future_incompatible
-)]
-#![allow(
-    clippy::module_name_repetitions,
-    clippy::cast_precision_loss,
-    clippy::cast_possible_truncation,
-    clippy::cast_sign_loss
-)]
-
 #[macro_use]
 extern crate dlopen_derive;
 

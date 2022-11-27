@@ -14,12 +14,18 @@ use crate::{
 
 /// The main application state.
 pub struct App {
+    /// The wgpu surface.
     surface: wgpu::Surface,
+    /// The wgpu device.
     pub device: wgpu::Device,
+    /// The wgpu queue.
     pub queue: wgpu::Queue,
+    /// The wgpu surface configuration.
     pub surface_config: wgpu::SurfaceConfiguration,
 
+    /// The egui rendering state.
     egui_state: EguiState,
+    /// The state of the UI.
     pub ui_state: UiState,
 }
 
@@ -105,6 +111,10 @@ impl App {
         }
     }
 
+    /// Handle the window input.
+    ///
+    /// Returns true if egui handled the event,
+    /// false if the event should be handled outside the app.
     pub fn input(&mut self, event: &WindowEvent) -> bool {
         self.egui_state
             .winit
