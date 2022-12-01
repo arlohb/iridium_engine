@@ -1107,6 +1107,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "iridium_core"
+version = "0.1.0"
+
+[[package]]
 name = "iridium_ecs"
 version = "0.1.0"
 dependencies = [
@@ -1142,6 +1146,7 @@ dependencies = [
  "hashbrown",
  "image",
  "iridium_assets",
+ "iridium_core",
  "iridium_ecs",
  "iridium_ecs_macros",
  "iridium_graphics",
@@ -1161,6 +1166,7 @@ dependencies = [
  "hashbrown",
  "inline-spirv",
  "iridium_assets",
+ "iridium_core",
  "iridium_ecs",
  "iridium_ecs_macros",
  "iridium_graphics",

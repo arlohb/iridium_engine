@@ -101,7 +101,7 @@ fn main() {
     project.init_system(&mut world, &assets);
 
     // Open the default scene.
-    let default_scene = project.default_scene();
+    let default_scene = project.project_settings.default_scene;
     match world.load(&default_scene, &assets) {
         Ok(_) => app.ui_state.open_scene = Some(default_scene),
         Err(e) => println!("Failed to load default scene with error: {:?}", e),

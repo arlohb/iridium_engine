@@ -1,11 +1,12 @@
 use dlopen::wrapper::{Container, WrapperApi};
+use iridium_core::ProjectSettings;
 use iridium_ecs::World;
 
 use iridium_assets::Assets;
 
 #[derive(WrapperApi)]
 pub struct ProjectApi {
-    default_scene: fn() -> String,
+    project_settings: fn() -> ProjectSettings,
     load_assets: fn(
         camera_gpu_data: &iridium_graphics::CameraGpuData,
         device: &wgpu::Device,
@@ -17,6 +18,7 @@ pub struct ProjectApi {
 }
 
 pub struct Project {
+    pub project_settings: ProjectSettings,
     api: Container<ProjectApi>,
 }
 
@@ -25,11 +27,14 @@ impl Project {
         let container: Container<ProjectApi> =
             unsafe { Container::load(path) }.expect("Failed to load project");
 
-        Self { api: container }
+        Self {
+            project_settings: container.project_settings(),
+            api: container,
+        }
     }
 
     pub fn init_system(&self, world: &mut World, assets: &Assets) {
-        (self.api.init_system)(world, assets);
+        self.api.init_system(world, assets);
     }
 
     pub fn load_assets(
@@ -40,10 +45,7 @@ impl Project {
         surface_format: wgpu::TextureFormat,
         assets: &mut Assets,
     ) {
-        (self.api.load_assets)(camera_gpu_data, device, queue, surface_format, assets);
-    }
-
-    pub fn default_scene(&self) -> String {
-        (self.api.default_scene)()
+        self.api
+            .load_assets(camera_gpu_data, device, queue, surface_format, assets);
     }
 }

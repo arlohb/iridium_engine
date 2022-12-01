@@ -1,7 +1,5 @@
 //! An example project for the iridium game engine.
 
-use iridium_assets::Assets;
-
 mod gravity;
 pub use gravity::*;
 mod velocity;
@@ -9,12 +7,17 @@ pub use velocity::*;
 
 mod assets;
 pub use assets::*;
+
+use iridium_assets::Assets;
+use iridium_core::ProjectSettings;
 use iridium_ecs::World;
 
-/// The path of the default scene.
+/// Returns the project settings.
 #[no_mangle]
-pub fn default_scene() -> String {
-    "iridium_example_project/scenes/scene.json5".to_string()
+pub fn project_settings() -> ProjectSettings {
+    ProjectSettings {
+        default_scene: "iridium_example_project/scenes/scene.json5".to_string(),
+    }
 }
 
 /// An init system.
