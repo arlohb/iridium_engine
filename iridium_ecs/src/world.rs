@@ -16,7 +16,7 @@ pub struct World {
     /// This is separate to world to allow sharing references to entities without systems.
     pub entities: Entities,
     /// The systems.
-    systems: Systems,
+    pub systems: Systems,
 }
 
 impl World {
@@ -31,11 +31,6 @@ impl World {
         entities.add_components_dyn(system_state, systems.default_component_states());
 
         Self { entities, systems }
-    }
-
-    /// Runs the world's systems.
-    pub fn run_systems(&mut self, delta_time: f64, assets: &Assets) {
-        self.systems.run_systems(&self.entities, delta_time, assets);
     }
 
     /// Saves the world's state to the given file.

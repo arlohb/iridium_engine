@@ -16,7 +16,7 @@ use project::Project;
 mod play_state;
 
 use iridium_assets::Assets;
-use iridium_ecs::systems::{Systems, SystemsStage};
+use iridium_ecs::systems::Systems;
 use iridium_ecs::{Component, Entities, World};
 use iridium_graphics::{Camera, CameraGpuData, Renderable2D, Renderer2DState};
 
@@ -48,10 +48,7 @@ fn main() {
     let mut app = pollster::block_on(App::new(&window, &event_loop));
 
     // Create the world.
-    let mut world = World::new(
-        Entities::default(),
-        Systems::new(vec![SystemsStage::new(vec![Box::new(FrameHistorySystem)])]),
-    );
+    let mut world = World::new(Entities::default(), Systems::new());
 
     // Create the camera data.
     let camera_gpu_data = CameraGpuData::new(&app.device);
@@ -71,6 +68,8 @@ fn main() {
             camera_gpu_data: Some(camera_gpu_data),
         })],
     );
+
+    world.systems.add_system(FrameHistorySystem);
 
     // Create the camera.
     world
@@ -165,7 +164,9 @@ fn main() {
             if let PlayState::Play = app.ui_state.play_state() {
                 puffin::profile_scope!("Systems");
                 // Run the systems.
-                world.run_systems(delta_time, &assets);
+                world
+                    .systems
+                    .run_systems(&world.entities, delta_time, &assets);
             }
 
             // Render the app and game.

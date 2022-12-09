@@ -10,7 +10,7 @@ pub use assets::*;
 
 use iridium_assets::Assets;
 use iridium_core::ProjectSettings;
-use iridium_ecs::World;
+use iridium_ecs::{Component, World};
 
 /// Returns the project settings.
 #[no_mangle]
@@ -34,4 +34,24 @@ pub fn init_system(world: &mut World, assets: &Assets) {
     world
         .entities
         .register_component_with_default::<GravityState>();
+
+    world.systems.add_system(VelocitySystem);
+    world.systems.add_system(GravitySystem);
+
+    world.entities.add_components_dyn(
+        world
+            .entities
+            .entity_id_from_name("SystemState")
+            .expect("SystemState entity not found"),
+        // world.systems.default_component_states(),
+        vec![Component::new(GravityState::default())],
+    );
+
+    world.systems.stages = vec![
+        vec![
+            "FrameHistorySystem".to_string(),
+            "GravitySystem".to_string(),
+        ],
+        vec!["VelocitySystem".to_string()],
+    ];
 }

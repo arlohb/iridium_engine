@@ -1,21 +1,27 @@
+use hashbrown::HashMap;
 use iridium_assets::Assets;
+use rayon::prelude::*;
 
-use super::SystemsStage;
+use super::System;
 use crate::{Component, Entities};
 
 /// Stores the systems in the world.
+#[derive(Default)]
 pub struct Systems {
     /// The systems in the world.
-    systems: Vec<SystemsStage>,
+    ///
+    /// The key is the system name.
+    systems: HashMap<String, Box<dyn System>>,
+    /// The stages they should run in,
+    /// identified by their name.
+    pub stages: Vec<Vec<String>>,
 }
 
 impl Systems {
     /// Creates a new systems.
     #[must_use]
-    pub fn new(systems_stages: Vec<SystemsStage>) -> Self {
-        Self {
-            systems: systems_stages,
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Return all the default component states for each of the systems.
@@ -23,19 +29,33 @@ impl Systems {
     pub fn default_component_states(&self) -> Vec<Component> {
         self.systems
             .iter()
-            .flat_map(|systems_stage| {
-                systems_stage
-                    .systems
-                    .iter()
-                    .map(|system| system.default_state())
-            })
+            .map(|(_, system)| system.default_state())
             .collect()
+    }
+
+    /// Add a system, this doesn't place it in a stage.
+    pub fn add_system<S: System>(&mut self, system: S) {
+        self.systems
+            .insert(system.name().to_string(), Box::new(system));
     }
 
     /// Executes the systems.
     pub fn run_systems(&mut self, entities: &Entities, delta_time: f64, assets: &Assets) {
-        for systems_stage in &mut self.systems {
-            systems_stage.run_systems(entities, delta_time, assets);
-        }
+        // Run each stage, not in parallel.
+        self.stages.iter().for_each(|stage| {
+            // Run each system in the stage in parallel.
+            stage.par_iter().for_each(|name| {
+                // Get the system.
+                let system = self.systems.get(name).expect("System in stage not found");
+
+                // Get the type id of the system state.
+                let state_type_id = system.state_type_id();
+                // Get the system state component.
+                let state = entities.get_by_type_id(&state_type_id);
+
+                // Run the system.
+                system.system(state, entities, assets, delta_time);
+            });
+        });
     }
 }

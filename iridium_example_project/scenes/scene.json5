@@ -1,10 +1,46 @@
 {
     entities: {
+        "51482402868868353372344529207483626834": {
+            Name: {
+                name: "Bird",
+            },
+            Transform: {
+                position: [0.0, 0.0, 0.0],
+                scale: [0.2, 0.2, 1.0],
+                rotation: -2.4,
+            },
+            Renderable2D: {
+                mesh: "quad",
+                material: "fish_mat",
+            },
+            Weight: {
+            },
+            Velocity: {
+                velocity: [0.0, 0.0, 0.0],
+            },
+        },
+        "16990649016525782792705359485876353844": {
+            Name: {
+                name: "RightWall",
+            },
+            Transform: {
+                position: [1.0, 0.0, 0.0],
+                rotation: 0,
+                scale: [0.05, 1.0, 1.0],
+            },
+            Renderable2D: {
+                material: "uv_test",
+                mesh: "quad",
+            },
+        },
         "37161776037477752767738717876975443530": {
             Name: {
                 name: "SystemState",
             },
             VelocityState: {
+            },
+            GravityState: {
+                acceleration: 0.00001,
             },
             FrameHistoryState: {
                 max_frames: 500000,
@@ -20,67 +56,11 @@
             },
             Camera: {
                 position: [0.0, 0.0],
-                min_depth: 0,
                 name: "",
-                max_depth: 1,
                 rotation: 0,
                 scale: 1,
-            },
-        },
-        "285667665692892437578931008459670291972": {
-            Name: {
-                name: "BottomWall",
-            },
-            Transform: {
-                scale: [1.0, 0.05, 1.0],
-                position: [0.0, -1.0, 0.0],
-                rotation: 0,
-            },
-            Renderable2D: {
-                mesh: "quad",
-                material: "uv_test",
-            },
-        },
-        "51482402868868353372344529207483626834": {
-            Name: {
-                name: "Bird",
-            },
-            Transform: {
-                position: [0.0, 0.0, 0.0],
-                scale: [0.2, 0.2, 1.0],
-                rotation: -2.4,
-            },
-            Renderable2D: {
-                mesh: "quad",
-                material: "fish_mat",
-            },
-        },
-        "106889008285392059297777203314941870676": {
-            Name: {
-                name: "LeftWall",
-            },
-            Transform: {
-                position: [-1.0, 0.0, 0.0],
-                rotation: 0,
-                scale: [0.05, 1.0, 1.0],
-            },
-            Renderable2D: {
-                material: "uv_test",
-                mesh: "quad",
-            },
-        },
-        "16990649016525782792705359485876353844": {
-            Name: {
-                name: "RightWall",
-            },
-            Transform: {
-                rotation: 0,
-                position: [1.0, 0.0, 0.0],
-                scale: [0.05, 1.0, 1.0],
-            },
-            Renderable2D: {
-                mesh: "quad",
-                material: "uv_test",
+                max_depth: 1,
+                min_depth: 0,
             },
         },
         "248093174008008437236677369105102839533": {
@@ -88,8 +68,36 @@
                 name: "TopWall",
             },
             Transform: {
+                rotation: 0,
                 scale: [1.0, 0.05, 1.0],
                 position: [0.0, 1.0, 0.0],
+            },
+            Renderable2D: {
+                material: "uv_test",
+                mesh: "quad",
+            },
+        },
+        "285667665692892437578931008459670291972": {
+            Name: {
+                name: "BottomWall",
+            },
+            Transform: {
+                rotation: 0,
+                scale: [1.0, 0.05, 1.0],
+                position: [0.0, -1.0, 0.0],
+            },
+            Renderable2D: {
+                mesh: "quad",
+                material: "uv_test",
+            },
+        },
+        "106889008285392059297777203314941870676": {
+            Name: {
+                name: "LeftWall",
+            },
+            Transform: {
+                scale: [0.05, 1.0, 1.0],
+                position: [-1.0, 0.0, 0.0],
                 rotation: 0,
             },
             Renderable2D: {
