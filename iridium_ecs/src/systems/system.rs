@@ -1,26 +1,8 @@
 use std::any::TypeId;
 
 use iridium_assets::Assets;
-use iridium_ecs_macros::impl_system_inputs_for_all;
 
 use crate::{Component, Entities};
-
-/// Something that can be used as input for a system.
-pub trait SystemInputs<'a>
-where
-    Self: Sized,
-{
-    /// Create an iterator over self from entities.
-    fn from_entities(entities: &'a Entities) -> std::vec::IntoIter<Self>;
-}
-
-impl SystemInputs<'_> for () {
-    fn from_entities(_entities: &Entities) -> std::vec::IntoIter<Self> {
-        vec![].into_iter()
-    }
-}
-
-impl_system_inputs_for_all!();
 
 /// A system is a function that runs every frame.
 pub trait System: 'static + Send + Sync {

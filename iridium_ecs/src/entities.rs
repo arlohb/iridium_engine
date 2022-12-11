@@ -2,8 +2,6 @@
 
 use std::any::TypeId;
 
-use crate::systems::SystemInputs;
-
 use super::{Component, ComponentInfo, ComponentTrait, Name, Transform};
 use hashbrown::HashMap;
 
@@ -363,12 +361,6 @@ impl Entities {
             .into_iter()
     }
 
-    /// Get system inputs.
-    #[must_use]
-    pub fn query<'a, Inputs: SystemInputs<'a>>(&'a self) -> std::vec::IntoIter<Inputs> {
-        Inputs::from_entities(self)
-    }
-
     /// Get a single component of a given type.
     ///
     /// This gets the first component of the given type,
@@ -393,4 +385,54 @@ impl Entities {
             .next()
             .expect("Component not found.")
     }
+}
+
+/// Queries the entities that have a set of components.
+///
+/// Used as `query(&Entities, [mut Component1, mut Component2 etc ; Component3, Component4 etc])`.
+///
+/// Returns an iterator of tuples of the form (Component1, Component2 etc).
+///
+/// # Examples
+///
+/// ```ignore
+/// for (transform, velocity)
+/// in query!(&entities, [mut Transform; Velocity]) {
+///    transform.position += velocity.velocity;
+/// }
+/// ```
+#[macro_export]
+macro_rules! query {
+    ($entities:expr, [$(mut $mut_type:ty),* $(,)?; $($type:ty),* $(,)?]) => {
+        {
+            let type_ids = [
+                $(
+                    &std::any::TypeId::of::<$mut_type>(),
+                )*
+                $(
+                    &std::any::TypeId::of::<$type>(),
+                )*
+            ];
+
+            $entities.query_by_type_id(type_ids).map(|components| {
+                let mut index = 0;
+                (
+                    $(
+                        {
+                            #![allow(clippy::mixed_read_write_in_expression)]
+                            index += 1;
+                            components[index - 1].get_mut::<$mut_type>()
+                        },
+                    )*
+                    $(
+                        {
+                            #![allow(clippy::mixed_read_write_in_expression)]
+                            index += 1;
+                            components[index - 1].get::<$type>()
+                        },
+                    )*
+                )
+            }).collect::<Vec<_>>().into_iter()
+        }
+    };
 }

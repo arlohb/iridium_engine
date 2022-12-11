@@ -232,22 +232,28 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 assets: &iridium_assets::Assets,
                 delta_time: f64,
             ) {
+                use std::any::TypeId;
+
                 // Get the state as its real type.
                 // The system can mutate this.
                 let state = state.get_mut::<#state>();
 
-                // For each entity with the given components.
-                for components
-                in entities.query::<(#(#mutable_inputs, )* #(#immutable_inputs, )*)>() {
-                    // Run the system.
-                    Self::system(
-                        state,
-                        entities,
-                        components,
-                        assets,
-                        delta_time,
-                    );
-                }
+                // Query the entities.
+                iridium_ecs::query!(entities, [
+                    #(mut #mutable_inputs_types, )*;
+                    #(#immutable_inputs_types, )*
+                ])
+                    // For each entity with the given components.
+                    .for_each(|components| {
+                        // Run the system.
+                        Self::system(
+                            state,
+                            entities,
+                            components,
+                            assets,
+                            delta_time,
+                        );
+                    });
             }
         },
 
@@ -266,7 +272,10 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 let state = state.get::<#state>();
 
                 // Query the entities.
-                entities.query::<(#(#mutable_inputs, )* #(#immutable_inputs, )*)>()
+                iridium_ecs::query!(entities, [
+                    #(mut #mutable_inputs_types, )*;
+                    #(#immutable_inputs_types, )*
+                ])
                     // Run the query stuff now.
                     .collect::<Vec<_>>()
                     // Create a parallel iterator.

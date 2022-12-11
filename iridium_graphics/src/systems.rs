@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 
 use iridium_assets::Assets;
 use iridium_ecs::{
+    query,
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     Entities, Name, Transform,
 };
@@ -90,7 +91,7 @@ impl Renderer2DSystem {
                 } else {
                     let mut active_camera = None;
 
-                    for (camera,) in entities.query::<(&mut Camera,)>() {
+                    for (camera,) in query!(entities, [mut Camera; ]) {
                         *camera.viewport_size.x_mut() = size_pixels.0;
                         *camera.viewport_size.y_mut() = size_pixels.1;
 
@@ -112,9 +113,7 @@ impl Renderer2DSystem {
                 let mut components = {
                     puffin::profile_scope!("Query");
 
-                    entities
-                        .query::<(&mut Renderable2D, &Transform, &Name)>()
-                        .collect::<Vec<_>>()
+                    query!(entities, [mut Renderable2D; Transform, Name]).collect::<Vec<_>>()
                 };
 
                 {
