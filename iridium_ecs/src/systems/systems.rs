@@ -39,6 +39,12 @@ impl Systems {
             .insert(system.name().to_string(), Box::new(system));
     }
 
+    /// Gets a system by name.
+    #[must_use]
+    pub fn get_system(&self, name: &str) -> Option<&dyn System> {
+        self.systems.get(name).map(|system| &**system)
+    }
+
     /// Executes the systems.
     pub fn run_systems(&mut self, entities: &Entities, delta_time: f64, assets: &Assets) {
         // Run each stage, not in parallel.

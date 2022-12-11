@@ -47,12 +47,16 @@ impl ComponentStorage for GravityState {
 pub struct GravitySystem;
 
 impl GravitySystem {
-    fn system(state: &mut GravityState, entities: &Entities, _assets: &Assets, delta_time: f64) {
-        for (velocity, _) in entities.query::<(&mut Velocity, &Weight)>() {
-            *velocity.velocity.y_mut() -= state.acceleration * delta_time as f32;
-        }
+    fn system(
+        state: &GravityState,
+        _entities: &Entities,
+        (velocity, _): (&mut Velocity, &Weight),
+        _assets: &Assets,
+        delta_time: f64,
+    ) {
+        *velocity.velocity.y_mut() -= state.acceleration * delta_time as f32;
     }
 }
 
-#[system_helper(GravityState)]
+#[system_helper(GravityState, par_iter, &mut Velocity, &Weight)]
 impl System for GravitySystem {}

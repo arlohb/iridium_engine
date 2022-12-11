@@ -6,7 +6,7 @@ use iridium_ecs::{
     systems::System,
     Component, Entities,
 };
-use iridium_ecs_macros::{ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 /// Data about a single frame.
@@ -27,6 +27,16 @@ pub struct FrameHistoryState {
     pub max_frames: usize,
     /// The maximum age of frames to store.
     pub max_age: f64,
+}
+
+impl Default for FrameHistoryState {
+    fn default() -> Self {
+        Self {
+            frames: VecDeque::with_capacity(500_000),
+            max_frames: 500_000,
+            max_age: 5000.,
+        }
+    }
 }
 
 impl FrameHistoryState {
@@ -72,26 +82,13 @@ impl ComponentStorage for FrameHistoryState {
 /// A system to store data about previous frames.
 pub struct FrameHistorySystem;
 
-impl System for FrameHistorySystem {
-    fn name(&self) -> &'static str {
-        "FrameHistorySystem"
-    }
-
-    fn state_type_id(&self) -> std::any::TypeId {
-        std::any::TypeId::of::<FrameHistoryState>()
-    }
-
-    fn default_state(&self) -> Component {
-        Component::new(FrameHistoryState {
-            frames: VecDeque::with_capacity(500_000),
-            max_frames: 500_000,
-            max_age: 5000.,
-        })
-    }
-
-    fn system(&self, state: &Component, _entities: &Entities, _assets: &Assets, delta_time: f64) {
-        let state = state.get_mut::<FrameHistoryState>();
-
+impl FrameHistorySystem {
+    fn system(
+        state: &mut FrameHistoryState,
+        _entities: &Entities,
+        _assets: &Assets,
+        delta_time: f64,
+    ) {
         state.frames.push_back(Frame {
             time: std::time::SystemTime::now(),
             delta_time,
@@ -115,3 +112,6 @@ impl System for FrameHistorySystem {
         }
     }
 }
+
+#[system_helper(FrameHistoryState, once)]
+impl System for FrameHistorySystem {}

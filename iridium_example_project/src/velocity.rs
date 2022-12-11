@@ -48,31 +48,35 @@ pub struct VelocityState;
 pub struct VelocitySystem;
 
 impl VelocitySystem {
-    fn system(_state: &mut VelocityState, entities: &Entities, _assets: &Assets, delta_time: f64) {
-        for (transform, velocity) in entities.query::<(&mut Transform, &mut Velocity)>() {
-            let position = &mut transform.position;
-            let velocity = &mut velocity.velocity;
-            *position += *velocity * delta_time as f32;
+    fn system(
+        _state: &VelocityState,
+        _entities: &Entities,
+        (transform, velocity): (&mut Transform, &mut Velocity),
+        _assets: &Assets,
+        delta_time: f64,
+    ) {
+        let position = &mut transform.position;
+        let velocity = &mut velocity.velocity;
+        *position += *velocity * delta_time as f32;
 
-            if position.x() < -1. {
-                *position.x_mut() = -1.;
-                *velocity.x_mut() = -velocity.x();
-            }
-            if position.x() > 1. {
-                *position.x_mut() = 1.;
-                *velocity.x_mut() = -velocity.x();
-            }
-            if position.y() < -1. {
-                *position.y_mut() = -1.;
-                *velocity.y_mut() = -velocity.y();
-            }
-            if position.y() > 1. {
-                *position.y_mut() = 1.;
-                *velocity.y_mut() = -velocity.y();
-            }
+        if position.x() < -1. {
+            *position.x_mut() = -1.;
+            *velocity.x_mut() = -velocity.x();
+        }
+        if position.x() > 1. {
+            *position.x_mut() = 1.;
+            *velocity.x_mut() = -velocity.x();
+        }
+        if position.y() < -1. {
+            *position.y_mut() = -1.;
+            *velocity.y_mut() = -velocity.y();
+        }
+        if position.y() > 1. {
+            *position.y_mut() = 1.;
+            *velocity.y_mut() = -velocity.y();
         }
     }
 }
 
-#[system_helper(VelocityState)]
+#[system_helper(VelocityState, par_iter, &mut Transform, &mut Velocity)]
 impl System for VelocitySystem {}

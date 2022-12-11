@@ -30,6 +30,12 @@ pub trait System: 'static + Send + Sync {
     fn state_type_id(&self) -> TypeId;
     /// The default state of the system as a `Component`.
     fn default_state(&self) -> Component;
+    /// The components that the system requires.
+    ///
+    /// This is used to determine which components to query for.
+    ///
+    /// The first is mutable, the second is immutable.
+    fn required_components(&self) -> (Vec<TypeId>, Vec<TypeId>);
     /// The function that runs every frame.
     fn system(&self, state: &Component, entities: &Entities, assets: &Assets, delta_time: f64);
 }

@@ -57,6 +57,12 @@ impl Entities {
             .map(|(_, info)| info)
     }
 
+    /// Gets `ComponentInfo` from the component type id.
+    #[must_use]
+    pub fn component_info_from_type_id(&self, type_id: &TypeId) -> Option<&ComponentInfo> {
+        self.component_info.get(type_id)
+    }
+
     /// Gets the number of entities with a given component.
     #[must_use]
     pub fn entity_count<T: ComponentTrait>(&self) -> usize {
