@@ -70,7 +70,8 @@ impl PanelUi for BottomPanel {
                     CurrentTab::Assets => {
                         let icon_size = 40.;
 
-                        let icons_in_row = (ui.available_width() / icon_size).trunc() as u32;
+                        let icons_in_row =
+                            (ui.available_width() / (icon_size + 3.5)).trunc() as usize - 1;
 
                         let all_assets = assets.get_all();
 
@@ -88,8 +89,7 @@ impl PanelUi for BottomPanel {
                             .always_show_scroll(true)
                             .show(ui, |ui| {
                                 egui::Grid::new("Asset grid").show(ui, |ui| {
-                                    for (index, (id, _asset)) in
-                                        (0_u32..).zip(all_assets.into_iter())
+                                    for (index, (id, _asset)) in all_assets.into_iter().enumerate()
                                     {
                                         if index % icons_in_row == 0 {
                                             ui.end_row();
