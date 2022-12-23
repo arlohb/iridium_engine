@@ -27,7 +27,7 @@ pub fn load_assets(
         Shader::new(
             device,
             ShaderType::Vertex,
-            include_spirv!("assets/vert.hlsl", vert, hlsl, entry = "vs_main"),
+            include_spirv!("assets/vert.hlsl", vert, hlsl, entry = "vs_main", no_debug),
             vec![ShaderInput::Transform],
         ),
     );
@@ -36,7 +36,13 @@ pub fn load_assets(
         Shader::new(
             device,
             ShaderType::Fragment,
-            include_spirv!("assets/sprite.hlsl", frag, hlsl, entry = "fs_main"),
+            include_spirv!(
+                "assets/sprite.hlsl",
+                frag,
+                hlsl,
+                entry = "fs_main",
+                no_debug
+            ),
             vec![
                 ShaderInput::Texture(
                     assets
@@ -56,7 +62,13 @@ pub fn load_assets(
         Shader::new(
             device,
             ShaderType::Fragment,
-            include_spirv!("assets/uv_test.hlsl", frag, hlsl, entry = "fs_main"),
+            include_spirv!(
+                "assets/uv_test.hlsl",
+                frag,
+                hlsl,
+                entry = "fs_main",
+                no_debug
+            ),
             vec![],
         ),
     );
