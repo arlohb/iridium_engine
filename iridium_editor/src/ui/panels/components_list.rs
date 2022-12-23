@@ -1,3 +1,5 @@
+use std::any::TypeId;
+
 use iridium_assets::Assets;
 use iridium_ecs::{Component, Name};
 
@@ -16,52 +18,114 @@ pub fn component_widget(ui: &mut egui::Ui, id: impl std::hash::Hash, component: 
 
 /// A widget to view / reorder systems in stages.
 pub fn system_stages_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
+    puffin::profile_function!();
+
     egui::ScrollArea::new([false, true])
         .always_show_scroll(true)
         .auto_shrink([false, false])
         .max_width(f32::INFINITY)
         .show(ui, |ui| {
-            for stage in &world.systems.stages {
-                for system_name in stage {
-                    let system = world
-                        .systems
-                        .get_system(system_name)
-                        .expect("System in stage not found");
+            world
+                .systems
+                .stages
+                .clone()
+                .into_iter()
+                .enumerate()
+                .zip(world.systems.find_errors().into_iter())
+                .for_each(|((index, mut stage), errors)| {
+                    egui::CollapsingHeader::new(format!("Stage {index}"))
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            // Sort systems by name.
+                            // Just for consistency,
+                            stage.sort();
 
-                    ui.horizontal(|ui| {
-                        ui.label(system_name);
-                        let _r = ui.button("/\\");
-                        let _r = ui.button("\\/");
-                    });
+                            let (mut_inputs, immut_inputs): (Vec<_>, Vec<_>) = stage
+                                .clone()
+                                .into_iter()
+                                // Get the inputs of each system.
+                                .map(|system_name| {
+                                    world
+                                        .systems
+                                        .get_system(&system_name)
+                                        .expect("System in stage not found")
+                                        .required_components()
+                                })
+                                .map(|[a, b]| (a, b))
+                                .unzip();
 
-                    let (mut_inputs, immut_inputs) = system.required_components();
+                            stage
+                                .into_iter()
+                                .zip(mut_inputs)
+                                .zip(immut_inputs)
+                                .for_each(|((system_name, mut_inputs), immut_inputs)| {
+                                    ui.horizontal(|ui| {
+                                        // The system name.
+                                        ui.label(&system_name);
 
-                    let type_id_to_name = |type_id: std::any::TypeId| -> &'static str {
-                        world
-                            .entities
-                            .component_info_from_type_id(&type_id)
-                            .expect("System input component not found")
-                            .type_name
-                    };
+                                        // Place the buttons on the right.
+                                        ui.with_layout(
+                                            egui::Layout::right_to_left(egui::Align::Min),
+                                            |ui| {
+                                                if ui.button("/\\").clicked() {
+                                                    world.systems.move_system_up(&system_name);
+                                                }
+                                                if ui.button("\\/").clicked() {
+                                                    world.systems.move_system_down(&system_name);
+                                                }
+                                            },
+                                        );
+                                    });
 
-                    for input in mut_inputs
-                        .into_iter()
-                        .map(type_id_to_name)
-                        .collect::<Vec<_>>()
-                    {
-                        ui.label(format!("  - &mut {}", input));
-                    }
+                                    let zip_with_names =
+                                        |type_id: TypeId| -> (TypeId, &'static str) {
+                                            (
+                                                type_id,
+                                                |type_id: std::any::TypeId| -> &'static str {
+                                                    world
+                                                        .entities
+                                                        .component_info_from_type_id(&type_id)
+                                                        .expect("System input component not found")
+                                                        .type_name
+                                                }(
+                                                    type_id
+                                                ),
+                                            )
+                                        };
 
-                    for input in immut_inputs
-                        .into_iter()
-                        .map(type_id_to_name)
-                        .collect::<Vec<_>>()
-                    {
-                        ui.label(format!("  - &{}", input));
-                    }
+                                    for (input_id, input_name) in
+                                        mut_inputs.into_iter().map(zip_with_names)
+                                    {
+                                        ui.colored_label(
+                                            if errors.contains(&input_id) {
+                                                ui.visuals().warn_fg_color
+                                            } else {
+                                                ui.visuals().text_color()
+                                            },
+                                            format!("  - &mut {}", input_name),
+                                        );
+                                    }
 
-                    ui.separator();
-                }
+                                    for (input_id, input_name) in
+                                        immut_inputs.into_iter().map(zip_with_names)
+                                    {
+                                        ui.colored_label(
+                                            if errors.contains(&input_id) {
+                                                ui.visuals().warn_fg_color
+                                            } else {
+                                                ui.visuals().text_color()
+                                            },
+                                            format!("  - &{}", input_name),
+                                        );
+                                    }
+
+                                    ui.separator();
+                                });
+                        });
+                });
+
+            if ui.button("Add stage").clicked() {
+                world.systems.stages.push(vec![]);
             }
         });
 }

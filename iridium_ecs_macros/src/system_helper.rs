@@ -309,17 +309,17 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 Component::new(#state::default())
             }
 
-            fn required_components(&self) -> (Vec<std::any::TypeId>, Vec<std::any::TypeId>) {
+            fn required_components(&self) -> [Vec<std::any::TypeId>; 2] {
                 use std::any::TypeId;
 
-                (
+                [
                     vec![#(
                         TypeId::of::<#mutable_inputs_types>(),
                     )*],
                     vec![#(
                         TypeId::of::<#immutable_inputs_types>(),
                     )*],
-                )
+                ]
             }
 
             #system_fn

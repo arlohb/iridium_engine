@@ -17,7 +17,7 @@ pub trait System: 'static + Send + Sync {
     /// This is used to determine which components to query for.
     ///
     /// The first is mutable, the second is immutable.
-    fn required_components(&self) -> (Vec<TypeId>, Vec<TypeId>);
+    fn required_components(&self) -> [Vec<TypeId>; 2];
     /// The function that runs every frame.
     fn system(&self, state: &Component, entities: &Entities, assets: &Assets, delta_time: f64);
 }
