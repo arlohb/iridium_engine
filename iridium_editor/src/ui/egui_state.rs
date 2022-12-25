@@ -109,41 +109,64 @@ impl EguiState {
                         *ui_state.camera.position.y_mut() += movement.y;
                     }
 
-                    // If a button is being held down,
+                    // If the UI is doing something with the mouse,
                     // I still want to be able to move controls
                     if viewport_rect_logical.distance_to_pos(position) < 5.
-                        && !self.context.input().pointer.any_down()
+                        && !self.context.wants_pointer_input()
                     {
                         return Some(egui::Event::PointerGone);
                     }
 
                     Some(egui::Event::PointerMoved(position))
                 }
+                // False positive when order matters.
+                #[allow(clippy::match_same_arms)]
                 egui::Event::PointerButton {
                     pos,
                     button,
                     pressed,
                     modifiers,
-                } => {
-                    if button == PointerButton::Middle && !pressed {
+                } => match (
+                    button,
+                    pressed,
+                    viewport_rect_logical.contains(pos),
+                    self.context.wants_pointer_input() | self.context.wants_keyboard_input(),
+                ) {
+                    // If middle mouse btn is unpressed, and we're panning.
+                    (PointerButton::Middle, false, _, _) if ui_state.pan_start.is_some() => {
+                        // Stop panning.
                         ui_state.pan_start = None;
+                        // Don't send to egui.
+                        None
                     }
-
-                    if viewport_rect_logical.contains(pos) {
-                        if button == PointerButton::Middle && pressed {
-                            ui_state.pan_start = Some(pos);
-                        }
-
-                        return None;
+                    // If middle mouse btn is pressed in the viewport.
+                    (PointerButton::Middle, true, true, _) => {
+                        // Start panning.
+                        ui_state.pan_start = Some(pos);
+                        // Don't send to egui.
+                        None
                     }
-
-                    Some(egui::Event::PointerButton {
+                    // If any mouse btn is pressed/unpressed in the viewport and egui wants it.
+                    (_, _, true, true) => Some(egui::Event::PointerButton {
                         pos,
                         button,
                         pressed,
                         modifiers,
-                    })
-                }
+                    }),
+                    // If any mouse btn is pressed/unpressed in the viewport and egui doesn't want it.
+                    (_, _, true, false) => {
+                        // Send the input to the game.
+                        println!("Input would be given to the game here");
+                        None
+                    }
+                    // If any mouse btn is pressed/unpressed outside the viewport.
+                    _ => Some(egui::Event::PointerButton {
+                        pos,
+                        button,
+                        pressed,
+                        modifiers,
+                    }),
+                },
                 egui::Event::Scroll(scroll) => {
                     if ui_state.pan_start.is_some()
                         || viewport_rect_logical.contains(self.mouse_pos)
@@ -162,6 +185,22 @@ impl EguiState {
                     }
 
                     Some(egui::Event::Scroll(scroll))
+                }
+                egui::Event::Key {
+                    key,
+                    pressed,
+                    modifiers,
+                } => {
+                    if viewport_rect_logical.contains(self.mouse_pos) {
+                        println!("Input would be given to game here");
+                        return None;
+                    }
+
+                    Some(egui::Event::Key {
+                        key,
+                        pressed,
+                        modifiers,
+                    })
                 }
                 event => Some(event),
             })
