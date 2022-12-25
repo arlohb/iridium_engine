@@ -145,6 +145,12 @@ impl<const N: usize> VecN<N> {
         Self { data: [value; N] }
     }
 
+    /// Creates a new `VecN` with all values set to zero.
+    #[must_use]
+    pub const fn zero() -> Self {
+        Self::from_value(0.)
+    }
+
     /// Converts to bytes with the given size.
     #[must_use]
     pub fn as_bytes<const L: usize>(&self) -> [u8; L] {
