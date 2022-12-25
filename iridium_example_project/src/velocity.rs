@@ -1,8 +1,7 @@
 use iridium_assets::Assets;
 use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
-    systems::System,
-    Component, Entities, Transform,
+    Entities, Transform,
 };
 use iridium_ecs_macros::{system_helper, ComponentStorage, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
@@ -58,23 +57,6 @@ impl VelocitySystem {
         let position = &mut transform.position;
         let velocity = &mut velocity.velocity;
         *position += *velocity * delta_time as f32;
-
-        if position.x() < -1. {
-            *position.x_mut() = -1.;
-            *velocity.x_mut() = -velocity.x();
-        }
-        if position.x() > 1. {
-            *position.x_mut() = 1.;
-            *velocity.x_mut() = -velocity.x();
-        }
-        if position.y() < -1. {
-            *position.y_mut() = -1.;
-            *velocity.y_mut() = -velocity.y();
-        }
-        if position.y() > 1. {
-            *position.y_mut() = 1.;
-            *velocity.y_mut() = -velocity.y();
-        }
     }
 }
 

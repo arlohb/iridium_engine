@@ -1,5 +1,6 @@
 use std::any::TypeId;
 
+use hashbrown::HashSet;
 use iridium_assets::Assets;
 use iridium_ecs::{Component, Name};
 
@@ -131,17 +132,19 @@ pub fn system_stages_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
 }
 
 /// A widget to edit system states.
-pub fn system_states_widget(ui: &mut egui::Ui, entities: &mut iridium_ecs::Entities) {
+pub fn system_states_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
     egui::ScrollArea::new([false, true])
         .always_show_scroll(true)
         .auto_shrink([false, false])
         .max_width(f32::INFINITY)
         .show(ui, |ui| {
-            entities
+            world
+                .entities
                 // Get the system state.
                 .get_entity_components(
                     // Get the id of the system state.
-                    entities
+                    world
+                        .entities
                         .entity_id_from_name("SystemState")
                         .expect("SystemState not found"),
                 )
@@ -158,6 +161,34 @@ pub fn system_states_widget(ui: &mut egui::Ui, entities: &mut iridium_ecs::Entit
                     component_widget(ui, index, component);
                     ui.separator();
                 });
+
+            if ui.button("Add system state").clicked() {
+                // Get the id of the system state.
+                let system_state_id = world
+                    .entities
+                    .entity_id_from_name("SystemState")
+                    .expect("SystemState not found");
+
+                // Get the default states of every system.
+                let states = world.systems.default_component_states();
+
+                // Get the type ids of the states already in the world.
+                let already_added: HashSet<TypeId> = world
+                    .entities
+                    .get_entity_component_types(system_state_id)
+                    .expect("SystemState not found")
+                    .into_iter()
+                    .collect();
+
+                // Add the states that aren't already in the world.
+                world.entities.add_components_dyn(
+                    system_state_id,
+                    states
+                        .into_iter()
+                        .filter(|state| !already_added.contains(&state.type_id()))
+                        .collect(),
+                );
+            }
         });
 }
 
@@ -191,7 +222,7 @@ impl PanelUi for ComponentsList {
                 .show_inside(ui, |ui| {
                     ui.add(egui::Separator::default().spacing(0.));
 
-                    system_states_widget(ui, &mut world.entities);
+                    system_states_widget(ui, world);
                 });
 
             let min_x_logical = ui.max_rect().min.x - ui.spacing().item_spacing.x;

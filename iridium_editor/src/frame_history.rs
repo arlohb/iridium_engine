@@ -3,8 +3,7 @@ use std::{collections::VecDeque, time::SystemTime};
 use iridium_assets::Assets;
 use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
-    systems::System,
-    Component, Entities,
+    Entities,
 };
 use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
