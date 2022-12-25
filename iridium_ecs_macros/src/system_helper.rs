@@ -296,7 +296,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
     };
 
     quote! {
-        impl System for #self_type {
+        impl iridium_ecs::systems::System for #self_type {
             fn name(&self) -> &'static str {
                 stringify!(#self_type)
             }
@@ -305,8 +305,8 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 std::any::TypeId::of::<#state>()
             }
 
-            fn default_state(&self) -> Component {
-                Component::new(#state::default())
+            fn default_state(&self) -> iridium_ecs::Component {
+                iridium_ecs::Component::new(#state::default())
             }
 
             fn required_components(&self) -> [Vec<std::any::TypeId>; 2] {
