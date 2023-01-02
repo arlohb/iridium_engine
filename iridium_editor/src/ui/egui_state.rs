@@ -78,17 +78,22 @@ impl EguiState {
     /// Handles the input from winit.
     ///
     /// This modifies the input before the caller sends to egui.
+    #[allow(clippy::too_many_lines)]
     pub fn input(
         &mut self,
         window: &Window,
         viewport_rect_logical: egui::Rect,
         scale_factor: f32,
         ui_state: &mut UiState,
-    ) -> egui::RawInput {
+    ) -> (Vec<egui::Event>, egui::RawInput) {
         puffin::profile_function!();
 
         let mut input = self.winit.take_egui_input(window);
         input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
+
+        // The events that the game should handle.
+        let mut game_events = Vec::new();
+
         input.events = input
             .events
             .into_iter()
@@ -156,7 +161,12 @@ impl EguiState {
                     // If any mouse btn is pressed/unpressed in the viewport and egui doesn't want it.
                     (_, _, true, false) => {
                         // Send the input to the game.
-                        println!("Input would be given to the game here");
+                        game_events.push(egui::Event::PointerButton {
+                            pos,
+                            button,
+                            pressed,
+                            modifiers,
+                        });
                         None
                     }
                     // If any mouse btn is pressed/unpressed outside the viewport.
@@ -192,7 +202,11 @@ impl EguiState {
                     modifiers,
                 } => {
                     if viewport_rect_logical.contains(self.mouse_pos) {
-                        println!("Input would be given to game here");
+                        game_events.push(egui::Event::Key {
+                            key,
+                            pressed,
+                            modifiers,
+                        });
                         return None;
                     }
 
@@ -206,7 +220,7 @@ impl EguiState {
             })
             .collect::<Vec<_>>();
 
-        input
+        (game_events, input)
     }
 
     /// Draws the UI.

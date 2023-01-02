@@ -7,6 +7,7 @@ extern crate dlopen_derive;
 
 mod frame_history;
 pub use frame_history::*;
+use iridium_core::InputState;
 use play_state::PlayState;
 mod app;
 pub use app::*;
@@ -56,6 +57,7 @@ fn main() {
     // Register the default components.
     world.entities.register_component::<Renderable2D>();
     world.entities.register_component::<Renderer2DState>();
+    world.entities.register_component::<InputState>();
     world.entities.register_component::<FrameHistoryState>();
     world.entities.register_component_with_default::<Camera>();
     world.entities.add_components(
@@ -63,10 +65,13 @@ fn main() {
             .entities
             .entity_id_from_name("SystemState")
             .expect("SystemState entity not found"),
-        [Component::new(Renderer2DState {
-            active_camera: String::new(),
-            camera_gpu_data: Some(camera_gpu_data),
-        })],
+        [
+            Component::new(Renderer2DState {
+                active_camera: String::new(),
+                camera_gpu_data: Some(camera_gpu_data),
+            }),
+            Component::new(InputState::default()),
+        ],
     );
 
     world.systems.add_system(FrameHistorySystem);

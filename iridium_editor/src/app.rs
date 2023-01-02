@@ -4,8 +4,10 @@ use egui_winit::winit::{
     window::Window,
 };
 use iridium_assets::Assets;
+use iridium_core::InputState;
 use iridium_ecs::World;
 use iridium_graphics::Renderer2DSystem;
+use iridium_maths::VecN;
 
 use crate::{
     play_state::PlayState,
@@ -149,12 +151,38 @@ impl App {
             1.,
         );
 
-        let input = self.egui_state.input(
+        let (game_events, input) = self.egui_state.input(
             window,
             viewport_rect_logical,
             self.ui_state.scale_factor,
             &mut self.ui_state,
         );
+
+        let input_state = world.entities.get::<InputState>();
+        input_state.process_old_inputs();
+        for event in game_events {
+            match event {
+                egui::Event::Key {
+                    key,
+                    pressed,
+                    modifiers: _,
+                } => {
+                    if pressed {
+                        input_state.key_pressed(InputState::egui_to_winit_key(key));
+                    } else {
+                        input_state.key_released(InputState::egui_to_winit_key(key));
+                    }
+                }
+                egui::Event::PointerMoved(pos) => {
+                    input_state.mouse_position = VecN::new([pos.x, pos.y]);
+                }
+                egui::Event::PointerButton { button, .. } => {
+                    input_state
+                        .mouse_button_pressed(InputState::egui_to_winit_mouse_button(button));
+                }
+                _ => {}
+            }
+        }
 
         self.egui_state
             .draw(window, input, &mut self.ui_state, world, assets);

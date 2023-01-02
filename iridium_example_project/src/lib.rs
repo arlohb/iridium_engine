@@ -6,6 +6,8 @@ mod velocity;
 pub use velocity::*;
 mod death;
 pub use death::*;
+mod flight;
+pub use flight::*;
 
 mod assets;
 pub use assets::*;
@@ -40,10 +42,15 @@ pub fn init_system(world: &mut World, assets: &Assets) {
     world
         .entities
         .register_component_with_default::<DeathState>();
+    world.entities.register_component_with_default::<Flight>();
+    world
+        .entities
+        .register_component_with_default::<FlightState>();
 
     world.systems.add_system(VelocitySystem);
     world.systems.add_system(GravitySystem);
     world.systems.add_system(DeathSystem);
+    world.systems.add_system(FlightSystem);
 
     world.entities.add_components_dyn(
         world
@@ -61,5 +68,6 @@ pub fn init_system(world: &mut World, assets: &Assets) {
         ],
         vec!["VelocitySystem".to_string()],
         vec!["DeathSystem".to_string()],
+        vec!["FlightSystem".to_string()],
     ];
 }

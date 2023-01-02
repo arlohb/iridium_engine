@@ -1118,6 +1118,16 @@ dependencies = [
 [[package]]
 name = "iridium_core"
 version = "0.1.0"
+dependencies = [
+ "egui",
+ "hashbrown",
+ "iridium_assets",
+ "iridium_ecs",
+ "iridium_ecs_macros",
+ "iridium_map_utils",
+ "iridium_maths",
+ "winit",
+]
 
 [[package]]
 name = "iridium_ecs"
