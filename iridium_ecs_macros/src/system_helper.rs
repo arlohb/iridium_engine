@@ -207,18 +207,32 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
         .map(|input| &input.ty)
         .collect::<Vec<_>>();
 
+    // An expr to get the state.
+    let let_state_expr = if quote::ToTokens::to_token_stream(&state).to_string() == "()" {
+        quote! { let state = (); }
+    } else {
+        quote! { let state = state.unwrap_or_else(|| unreachable!()).get_mut::<#state>(); }
+    };
+
+    // An expr for default state.
+    let default_state_expr = if quote::ToTokens::to_token_stream(&state).to_string() == "()" {
+        quote! { None }
+    } else {
+        quote! { Some(iridium_ecs::Component::new(#state::default())) }
+    };
+
     // The system function.
     let system_fn = match mode {
         Mode::Once => quote! {
             fn system(
                 &self,
-                state: &iridium_ecs::Component,
+                state: Option<&iridium_ecs::Component>,
                 entities: &iridium_ecs::Entities,
                 assets: &iridium_assets::Assets,
                 delta_time: f64,
             ) {
                 // Get the state as its real type.
-                let state = state.get_mut::<#state>();
+                #let_state_expr
                 // Run the system.
                 Self::system(state, entities, assets, delta_time);
             }
@@ -227,7 +241,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
         Mode::Iter(_) => quote! {
             fn system(
                 &self,
-                state: &iridium_ecs::Component,
+                state: Option<&iridium_ecs::Component>,
                 entities: &iridium_ecs::Entities,
                 assets: &iridium_assets::Assets,
                 delta_time: f64,
@@ -236,7 +250,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
 
                 // Get the state as its real type.
                 // The system can mutate this.
-                let state = state.get_mut::<#state>();
+                #let_state_expr
 
                 // Query the entities.
                 iridium_ecs::query!(entities, [
@@ -260,7 +274,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
         Mode::ParIter(_) => quote! {
             fn system(
                 &self,
-                state: &iridium_ecs::Component,
+                state: Option<&iridium_ecs::Component>,
                 entities: &iridium_ecs::Entities,
                 assets: &iridium_assets::Assets,
                 delta_time: f64,
@@ -269,7 +283,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
 
                 // Get the state as its real type.
                 // The system can't mutate this directly as it's shared.
-                let state = state.get::<#state>();
+                #let_state_expr
 
                 // Query the entities.
                 iridium_ecs::query!(entities, [
@@ -305,8 +319,8 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 std::any::TypeId::of::<#state>()
             }
 
-            fn default_state(&self) -> iridium_ecs::Component {
-                iridium_ecs::Component::new(#state::default())
+            fn default_state(&self) -> Option<iridium_ecs::Component> {
+                #default_state_expr
             }
 
             fn required_components(&self) -> [Vec<std::any::TypeId>; 2] {

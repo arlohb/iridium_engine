@@ -9,17 +9,13 @@ use crate::Velocity;
 #[derive(ComponentTrait, InspectorUi, ComponentStorage, Default)]
 pub struct Death;
 
-/// The state for the `DeathSystem`.
-#[derive(ComponentTrait, InspectorUi, ComponentStorage, Default)]
-pub struct DeathState;
-
 /// When an entity with a `Death` component hits the bottom of the screen,
 /// it will die.
 pub struct DeathSystem;
 
 impl DeathSystem {
     fn system(
-        _state: &DeathState,
+        _state: (),
         _entities: &Entities,
         (transform, velocity, name, _death): (&mut Transform, &mut Velocity, &Name, &Death),
         _assets: &Assets,
@@ -35,5 +31,5 @@ impl DeathSystem {
     }
 }
 
-#[system_helper(DeathState, par_iter, &mut Transform, &mut Velocity, &Name, &Death)]
+#[system_helper((), par_iter, &mut Transform, &mut Velocity, &Name, &Death)]
 impl System for DeathSystem {}

@@ -1,7 +1,7 @@
 use iridium_assets::Assets;
 use iridium_core::{ButtonState, InputState, VirtualKeyCode};
 use iridium_ecs::storage::{ComponentStorage, StoredComponent, StoredComponentField};
-use iridium_ecs_macros::{system_helper, ComponentStorage, ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 use crate::Velocity;
@@ -36,16 +36,12 @@ impl Default for Flight {
     }
 }
 
-/// The state for the `FlightSystem`.
-#[derive(ComponentTrait, InspectorUi, ComponentStorage, Default)]
-pub struct FlightState;
-
 /// The system that applies flight.
 pub struct FlightSystem;
 
 impl FlightSystem {
     fn system(
-        _state: &FlightState,
+        _state: (),
         entities: &iridium_ecs::Entities,
         (velocity, flight): (&mut Velocity, &Flight),
         _assets: &Assets,
@@ -59,5 +55,5 @@ impl FlightSystem {
     }
 }
 
-#[system_helper(FlightState, par_iter, &mut Velocity, &Flight)]
+#[system_helper((), par_iter, &mut Velocity, &Flight)]
 impl System for FlightSystem {}

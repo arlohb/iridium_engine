@@ -3,7 +3,7 @@ use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     Entities, Transform,
 };
-use iridium_ecs_macros::{system_helper, ComponentStorage, ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
 use iridium_map_utils::fast_map;
 
 /// The velocity of an entity.
@@ -39,16 +39,12 @@ impl Default for Velocity {
     }
 }
 
-/// The state for the `VelocitySystem`.
-#[derive(ComponentTrait, InspectorUi, ComponentStorage, Default)]
-pub struct VelocityState;
-
 /// Applies velocity to entities with the `Velocity` component.
 pub struct VelocitySystem;
 
 impl VelocitySystem {
     fn system(
-        _state: &VelocityState,
+        _state: (),
         _entities: &Entities,
         (transform, velocity): (&mut Transform, &mut Velocity),
         _assets: &Assets,
@@ -60,5 +56,5 @@ impl VelocitySystem {
     }
 }
 
-#[system_helper(VelocityState, par_iter, &mut Transform, &mut Velocity)]
+#[system_helper((), par_iter, &mut Transform, &mut Velocity)]
 impl System for VelocitySystem {}

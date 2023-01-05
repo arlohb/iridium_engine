@@ -17,11 +17,7 @@
             Name: {
                 name: "SystemState",
             },
-            VelocityState: {
-            },
             InputState: {
-            },
-            FlightState: {
             },
             GravityState: {
                 acceleration: 0.00001,
@@ -32,8 +28,6 @@
             },
             Renderer2DState: {
                 active_camera: "",
-            },
-            DeathState: {
             },
         },
         "51482402868868353372344529207483626834": {

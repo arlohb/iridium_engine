@@ -31,21 +31,12 @@ pub fn init_system(world: &mut World, assets: &Assets) {
     let _ = assets;
 
     world.entities.register_component_with_default::<Velocity>();
-    world
-        .entities
-        .register_component_with_default::<VelocityState>();
     world.entities.register_component_with_default::<Weight>();
     world
         .entities
         .register_component_with_default::<GravityState>();
     world.entities.register_component_with_default::<Death>();
-    world
-        .entities
-        .register_component_with_default::<DeathState>();
     world.entities.register_component_with_default::<Flight>();
-    world
-        .entities
-        .register_component_with_default::<FlightState>();
 
     world.systems.add_system(VelocitySystem);
     world.systems.add_system(GravitySystem);

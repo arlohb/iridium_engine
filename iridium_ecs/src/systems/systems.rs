@@ -31,7 +31,7 @@ impl Systems {
     pub fn default_component_states(&self) -> Vec<Component> {
         self.systems
             .iter()
-            .map(|(_, system)| system.default_state())
+            .filter_map(|(_, system)| system.default_state())
             .collect()
     }
 
@@ -113,7 +113,11 @@ impl Systems {
                 // Get the type id of the system state.
                 let state_type_id = system.state_type_id();
                 // Get the system state component.
-                let state = entities.get_by_type_id(&state_type_id);
+                let state = if state_type_id == std::any::TypeId::of::<()>() {
+                    None
+                } else {
+                    Some(entities.get_by_type_id(&state_type_id))
+                };
 
                 // Run the system.
                 system.system(state, entities, assets, delta_time);
