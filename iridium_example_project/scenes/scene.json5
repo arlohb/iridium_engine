@@ -36,62 +36,6 @@
             DeathState: {
             },
         },
-        "16990649016525782792705359485876353844": {
-            Name: {
-                name: "RightWall",
-            },
-            Transform: {
-                rotation: 0,
-                position: [1.0, 0.0, 0.0],
-                scale: [0.05, 1.0, 1.0],
-            },
-            Renderable2D: {
-                mesh: "quad",
-                material: "uv_test",
-            },
-        },
-        "106889008285392059297777203314941870676": {
-            Name: {
-                name: "LeftWall",
-            },
-            Transform: {
-                position: [-1.0, 0.0, 0.0],
-                scale: [0.05, 1.0, 1.0],
-                rotation: 0,
-            },
-            Renderable2D: {
-                mesh: "quad",
-                material: "uv_test",
-            },
-        },
-        "248093174008008437236677369105102839533": {
-            Name: {
-                name: "TopWall",
-            },
-            Transform: {
-                position: [0.0, 1.0, 0.0],
-                rotation: 0,
-                scale: [1.0, 0.05, 1.0],
-            },
-            Renderable2D: {
-                material: "uv_test",
-                mesh: "quad",
-            },
-        },
-        "285667665692892437578931008459670291972": {
-            Name: {
-                name: "BottomWall",
-            },
-            Transform: {
-                rotation: 0,
-                position: [0.0, -1.0, 0.0],
-                scale: [1.0, 0.05, 1.0],
-            },
-            Renderable2D: {
-                material: "uv_test",
-                mesh: "quad",
-            },
-        },
         "51482402868868353372344529207483626834": {
             Name: {
                 name: "Bird",
