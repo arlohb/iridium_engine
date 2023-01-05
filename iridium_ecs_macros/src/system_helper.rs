@@ -175,7 +175,7 @@ impl syn::parse::Parse for Mode {
         match mode.as_str() {
             "iter" => Ok(Self::Iter(component_types)),
             "par_iter" => Ok(Self::ParIter(component_types)),
-            _ => panic!("Invalid mode: {}", mode),
+            _ => panic!("Invalid mode: {mode}"),
         }
     }
 }

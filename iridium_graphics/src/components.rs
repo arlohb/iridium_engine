@@ -101,9 +101,8 @@ impl Camera {
         bytes[12..16].copy_from_slice(&self.max_depth.to_le_bytes());
         bytes[16..20].copy_from_slice(&self.rotation.to_le_bytes());
         bytes[20..24].copy_from_slice(&self.scale.to_le_bytes());
-        bytes[24..28].copy_from_slice(
-            &(self.viewport_size.x() as f32 / self.viewport_size.y() as f32).to_le_bytes(),
-        );
+        bytes[24..28]
+            .copy_from_slice(&(self.viewport_size.x() / self.viewport_size.y()).to_le_bytes());
 
         bytes
     }

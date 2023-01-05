@@ -9,7 +9,7 @@ pub struct VecN<const N: usize> {
 
 impl<const N: usize> std::fmt::Debug for VecN<N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "VecN<{}>({:?})", N, self.data)
+        write!(f, "VecN<{N}>({:?})", self.data)
     }
 }
 
@@ -279,9 +279,9 @@ impl ops::Mul<Self> for VecN<3> {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
         Self::new([
-            self.data[1] * rhs.data[2] - self.data[2] * rhs.data[1],
-            self.data[2] * rhs.data[0] - self.data[0] * rhs.data[2],
-            self.data[0] * rhs.data[1] - self.data[1] * rhs.data[0],
+            self.data[1].mul_add(rhs.data[2], -self.data[2] * rhs.data[1]),
+            self.data[2].mul_add(rhs.data[0], -self.data[0] * rhs.data[2]),
+            self.data[0].mul_add(rhs.data[1], -self.data[1] * rhs.data[0]),
         ])
     }
 }
@@ -289,9 +289,9 @@ impl ops::Mul<Self> for VecN<3> {
 impl ops::MulAssign<Self> for VecN<3> {
     fn mul_assign(&mut self, rhs: Self) {
         *self = Self::new([
-            self.data[1] * rhs.data[2] - self.data[2] * rhs.data[1],
-            self.data[2] * rhs.data[0] - self.data[0] * rhs.data[2],
-            self.data[0] * rhs.data[1] - self.data[1] * rhs.data[0],
+            self.data[1].mul_add(rhs.data[2], -self.data[2] * rhs.data[1]),
+            self.data[2].mul_add(rhs.data[0], -self.data[0] * rhs.data[2]),
+            self.data[0].mul_add(rhs.data[1], -self.data[1] * rhs.data[0]),
         ]);
     }
 }
@@ -351,7 +351,7 @@ mod tests {
     fn test_debug() {
         let v = VecN::new([1., 2., 3.]);
 
-        assert_eq!(format!("{:?}", v), "VecN<3>([1.0, 2.0, 3.0])");
+        assert_eq!(format!("{v:?}"), "VecN<3>([1.0, 2.0, 3.0])");
     }
 
     #[test]

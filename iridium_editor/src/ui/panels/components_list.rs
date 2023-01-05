@@ -103,7 +103,7 @@ pub fn system_stages_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
                                             } else {
                                                 ui.visuals().text_color()
                                             },
-                                            format!("  - &mut {}", input_name),
+                                            format!("  - &mut {input_name}"),
                                         );
                                     }
 
@@ -116,7 +116,7 @@ pub fn system_stages_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
                                             } else {
                                                 ui.visuals().text_color()
                                             },
-                                            format!("  - &{}", input_name),
+                                            format!("  - &{input_name}"),
                                         );
                                     }
 

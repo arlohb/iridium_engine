@@ -108,7 +108,7 @@ fn main() {
     let default_scene = project.project_settings.default_scene;
     match world.load(&default_scene, &assets) {
         Ok(_) => app.ui_state.open_scene = Some(default_scene),
-        Err(e) => println!("Failed to load default scene with error: {:?}", e),
+        Err(e) => println!("Failed to load default scene with error: {e:?}"),
     }
 
     // The start time of the last frame.
