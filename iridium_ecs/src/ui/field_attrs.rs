@@ -3,6 +3,7 @@ use std::str::FromStr;
 /// The attributes a component field has.
 ///
 /// Map is attribute name -> attribute value.
+#[derive(Default)]
 pub struct InspectorUiFieldAttributes {
     attrs: hashbrown::HashMap<&'static str, &'static str>,
 }

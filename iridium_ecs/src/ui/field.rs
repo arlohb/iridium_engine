@@ -68,3 +68,13 @@ impl<T: Send + Sync> InspectorUiField for Asset<T> {
         ui.text_edit_singleline(&mut id);
     }
 }
+
+impl<T: InspectorUiField, const N: usize> InspectorUiField for [T; N] {
+    fn ui(&mut self, ui: &mut egui::Ui, _attributes: InspectorUiFieldAttributes) {
+        ui.columns(N, |ui| {
+            for i in 0..N {
+                self[i].ui(&mut ui[i], InspectorUiFieldAttributes::default());
+            }
+        });
+    }
+}
