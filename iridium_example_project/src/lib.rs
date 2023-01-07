@@ -8,6 +8,8 @@ mod death;
 pub use death::*;
 mod flight;
 pub use flight::*;
+mod pipes;
+pub use pipes::*;
 
 mod assets;
 pub use assets::*;
@@ -37,11 +39,15 @@ pub fn init_system(world: &mut World, assets: &Assets) {
         .register_component_with_default::<GravityState>();
     world.entities.register_component_with_default::<Death>();
     world.entities.register_component_with_default::<Flight>();
+    world
+        .entities
+        .register_component_with_default::<PipeState>();
 
     world.systems.add_system(VelocitySystem);
     world.systems.add_system(GravitySystem);
     world.systems.add_system(DeathSystem);
     world.systems.add_system(FlightSystem);
+    world.systems.add_system(PipeSystem);
 
     world.entities.add_components_dyn(
         world
@@ -56,6 +62,7 @@ pub fn init_system(world: &mut World, assets: &Assets) {
         vec![
             "FrameHistorySystem".to_string(),
             "GravitySystem".to_string(),
+            "PipeSystem".to_string(),
         ],
         vec!["VelocitySystem".to_string()],
         vec!["DeathSystem".to_string()],

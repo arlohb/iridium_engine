@@ -1,18 +1,5 @@
 {
     entities: {
-        "235060944676573309344287650051410162572": {
-            Name: {
-                name: "Camera",
-            },
-            Camera: {
-                min_depth: 0,
-                position: [0.0, 0.0],
-                name: "",
-                max_depth: 1,
-                rotation: 0,
-                scale: 1,
-            },
-        },
         "37161776037477752767738717876975443530": {
             Name: {
                 name: "SystemState",
@@ -29,6 +16,10 @@
             Renderer2DState: {
                 active_camera: "",
             },
+            PipeState: {
+                max_time_gap: 3,
+                min_time_gap: 1,
+            },
         },
         "51482402868868353372344529207483626834": {
             Name: {
@@ -40,8 +31,8 @@
                 position: [0.0, 0.0, 0.0],
             },
             Renderable2D: {
-                mesh: "quad",
                 material: "fish_mat",
+                mesh: "quad",
             },
             Weight: {
             },
@@ -52,6 +43,19 @@
             },
             Flight: {
                 force: 0.0025,
+            },
+        },
+        "235060944676573309344287650051410162572": {
+            Name: {
+                name: "Camera",
+            },
+            Camera: {
+                position: [0.0, 0.0],
+                min_depth: 0,
+                scale: 1,
+                max_depth: 1,
+                rotation: 0,
+                name: "",
             },
         },
     },

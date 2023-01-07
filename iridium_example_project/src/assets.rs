@@ -108,7 +108,7 @@ pub fn load_assets(
     load_sprite_assets(
         vec![
             ("fish", "FoodSprites/Food/Fish.png"),
-            ("steak", "FoodSprites/Food/Steak.png"),
+            ("wine", "FoodSprites/Food/Wine.png"),
         ],
         include_spirv!(
             "assets/sprite.hlsl",
