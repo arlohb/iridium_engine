@@ -1,5 +1,5 @@
 use iridium_assets::Assets;
-use iridium_ecs::{Entities, Name, Transform};
+use iridium_ecs::{Entities, EntityCommand, Name, Transform};
 use iridium_ecs_macros::{system_helper, ComponentStorage, ComponentTrait, InspectorUi};
 use iridium_maths::VecN;
 
@@ -16,7 +16,7 @@ pub struct DeathSystem;
 impl DeathSystem {
     fn system(
         _state: (),
-        _entities: &Entities,
+        entities: &Entities,
         (transform, velocity, name, _death): (&mut Transform, &mut Velocity, &Name, &Death),
         _assets: &Assets,
         _delta_time: f64,
@@ -27,6 +27,16 @@ impl DeathSystem {
             *transform.position.y_mut() = 0.;
 
             velocity.velocity = VecN::zero();
+
+            // In the future this should be available to systems.
+            let id = entities
+                .entity_id_from_name(&name.name)
+                .expect("Entity not found");
+
+            entities
+                .cmd_sender()
+                .send(EntityCommand::DeleteEntity(id))
+                .expect("Failed to send entity command");
         }
     }
 }

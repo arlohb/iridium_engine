@@ -171,7 +171,7 @@ fn main() {
                 // Run the systems.
                 world
                     .systems
-                    .run_systems(&world.entities, delta_time, &assets);
+                    .run_systems(&mut world.entities, delta_time, &assets);
             }
 
             // Render the app and game.

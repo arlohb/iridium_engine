@@ -102,7 +102,7 @@ impl Systems {
     }
 
     /// Executes the systems.
-    pub fn run_systems(&mut self, entities: &Entities, delta_time: f64, assets: &Assets) {
+    pub fn run_systems(&mut self, entities: &mut Entities, delta_time: f64, assets: &Assets) {
         // Run each stage, not in parallel.
         self.stages.iter().for_each(|stage| {
             // Run each system in the stage in parallel.
@@ -122,6 +122,9 @@ impl Systems {
                 // Run the system.
                 system.system(state, entities, assets, delta_time);
             });
+
+            // Process the commands.
+            entities.process_commands();
         });
     }
 

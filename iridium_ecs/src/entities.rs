@@ -1,9 +1,16 @@
 #![allow(clippy::mut_from_ref)]
 
-use std::any::TypeId;
+use std::{any::TypeId, sync::mpsc};
 
 use super::{Component, ComponentInfo, ComponentTrait, Name, Transform};
 use hashbrown::HashMap;
+
+/// A command created in a system, to be ran
+/// by `Entities` at the end of each stage.
+pub enum EntityCommand {
+    /// Delete the entity with the given ID.
+    DeleteEntity(u128),
+}
 
 /// Stores all the entities in the scene.
 pub struct Entities {
@@ -13,15 +20,31 @@ pub struct Entities {
     components: HashMap<TypeId, HashMap<u128, Component>>,
     /// Stores info about components.
     component_info: HashMap<TypeId, ComponentInfo>,
+
+    /// The mpsc receiver for the entity commands.
+    cmd_queue: mpsc::Receiver<EntityCommand>,
+    /// The mpsc sender for the entity commands.
+    cmd_sender: mpsc::Sender<EntityCommand>,
 }
+
+// The only blocker for this being automatically implemented
+// is cmd_sender not being Sync.
+//
+// I think this is safe, as I only ever clone it on other threads,
+// and don't send with it.
+unsafe impl Sync for Entities {}
 
 impl Default for Entities {
     fn default() -> Self {
+        let (cmd_sender, cmd_queue) = mpsc::channel();
+
         // Create Entities.
         let mut entities = Self {
             entities: HashMap::new(),
             components: HashMap::new(),
             component_info: HashMap::new(),
+            cmd_queue,
+            cmd_sender,
         };
 
         // Register the default components.
@@ -37,6 +60,47 @@ impl Entities {
     pub fn clear(&mut self) {
         self.entities.clear();
         self.components.clear();
+    }
+
+    /// Returns a clone of the command sender.
+    pub fn cmd_sender(&self) -> mpsc::Sender<EntityCommand> {
+        self.cmd_sender.clone()
+    }
+
+    /// Process the commands in the command queue.
+    pub fn process_commands(&mut self) {
+        while let Ok(cmd) = self.cmd_queue.try_recv() {
+            match cmd {
+                EntityCommand::DeleteEntity(entity_id) => {
+                    self.delete_entity(entity_id);
+                }
+            }
+        }
+    }
+
+    /// Delete an entity and all its components.
+    ///
+    /// Returns true if the entity was deleted,
+    /// false if it didn't exist.
+    pub fn delete_entity(&mut self, entity_id: u128) -> bool {
+        // Remove the entity from the entities list,
+        // and get the components it had.
+        let component_types = if let Some(ct) = self.entities.remove(&entity_id) {
+            ct
+        } else {
+            return false;
+        };
+
+        // For each component the entity had,
+        // remove it from the components list.
+        for component_type in component_types {
+            self.components
+                .get_mut(&component_type)
+                .expect("Invalid component type in entity while deleting")
+                .remove(&entity_id);
+        }
+
+        true
     }
 
     /// Gets `ComponentInfo` from the component type.
