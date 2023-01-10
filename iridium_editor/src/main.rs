@@ -65,7 +65,7 @@ fn main() {
             .entities
             .entity_id_from_name("SystemState")
             .expect("SystemState entity not found"),
-        [
+        vec![
             Component::new(Renderer2DState {
                 active_camera: String::new(),
                 camera_gpu_data: Some(camera_gpu_data),
@@ -79,7 +79,7 @@ fn main() {
     // Create the camera.
     world
         .entities
-        .new_entity("Camera", [Component::new(Camera::default())]);
+        .new_entity("Camera", vec![Component::new(Camera::default())]);
 
     // Create the assets.
     let mut assets = Assets::new();

@@ -181,7 +181,7 @@ pub fn system_states_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
                     .collect();
 
                 // Add the states that aren't already in the world.
-                world.entities.add_components_dyn(
+                world.entities.add_components(
                     system_state_id,
                     states
                         .into_iter()
@@ -242,7 +242,7 @@ impl PanelUi for ComponentsList {
                                 if ui.button(type_name).clicked() {
                                     ui.close_menu();
                                     let component = default();
-                                    world.entities.add_components(id, [component]);
+                                    world.entities.add_components(id, vec![component]);
                                 }
                             }
                         });

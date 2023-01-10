@@ -175,9 +175,7 @@ impl Entities {
     }
 
     /// Add components to an entity.
-    ///
-    /// Takes a `Vec` instead of a `[Component; N]` if you don't know the number of components.
-    pub fn add_components_dyn(&mut self, entity_id: u128, components: Vec<Component>) {
+    pub fn add_components(&mut self, entity_id: u128, components: Vec<Component>) {
         // Get the vec of components the entities has.
         // If it doesn't exist, add it.
         let entity = self.entities.entry(entity_id).or_default();
@@ -202,23 +200,10 @@ impl Entities {
         }
     }
 
-    /// Add components to an entity.
-    pub fn add_components<const N: usize>(&mut self, entity_id: u128, components: [Component; N]) {
-        self.add_components_dyn(entity_id, {
-            let mut vec = Vec::with_capacity(N);
-
-            for t in components {
-                vec.push(t);
-            }
-
-            vec
-        });
-    }
-
     /// Create a new entity with the given components.
     ///
     /// Automatically adds the Name component with the given name.
-    pub fn new_entity<const N: usize>(&mut self, name: &str, components: [Component; N]) -> u128 {
+    pub fn new_entity(&mut self, name: &str, components: Vec<Component>) -> u128 {
         // Generate a new entity id.
         let id = uuid::Uuid::new_v4().as_u128();
 
@@ -231,24 +216,19 @@ impl Entities {
     /// Creates a new entity with the given components and id.
     ///
     /// Automatically adds the Name component with the given name.
-    pub fn new_entity_with_id<const N: usize>(
-        &mut self,
-        id: u128,
-        name: &str,
-        components: [Component; N],
-    ) {
+    pub fn new_entity_with_id(&mut self, id: u128, name: &str, components: Vec<Component>) {
         // Add it to entities.
         self.entities.insert(id, vec![]);
 
         // Add the name component.
         self.add_components(
             id,
-            [Component::new(Name {
+            vec![Component::new(Name {
                 name: name.to_owned(),
             })],
         );
 
-        if N > 0 {
+        if !components.is_empty() {
             // Add the other components.
             self.add_components(id, components);
         }
