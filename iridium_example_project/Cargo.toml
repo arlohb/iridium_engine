@@ -25,4 +25,4 @@ rayon = "1.6"
 # For whatever reason manjaro's shaderc stopped working,
 # so I can't rely on any of them,
 # so it is built from source whether it's installed or not.
-inline-spirv = { version = "0.1", features = ["build-from-source"] }
+inline-spirv = { version = "0.1" }
