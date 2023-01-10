@@ -135,7 +135,7 @@ impl Entities {
     /// Gets an entity id from its name.
     #[must_use]
     pub fn entity_id_from_name(&self, name: &str) -> Option<u128> {
-        self.query_by_type_id_with_id([&std::any::TypeId::of::<Name>()])
+        self.query_by_type_id([&std::any::TypeId::of::<Name>()])
             .find(|(_, [name_component])| name_component.get::<Name>().name == name)
             .map(|(id, _)| id)
     }
@@ -295,7 +295,7 @@ impl Entities {
     ///
     /// # Panics
     #[must_use]
-    pub fn query_by_type_id_with_id<const N: usize>(
+    pub fn query_by_type_id<const N: usize>(
         &self,
         component_types: [&TypeId; N],
     ) -> std::vec::IntoIter<(u128, [&Component; N])> {
@@ -409,22 +409,6 @@ impl Entities {
         }
     }
 
-    /// Get an iterator over components of given types, in the form [comp1, comp2, comp3].
-    #[must_use]
-    pub fn query_by_type_id<const N: usize>(
-        &self,
-        component_types: [&TypeId; N],
-    ) -> std::vec::IntoIter<[&Component; N]> {
-        // Do the usual query.
-        self.query_by_type_id_with_id(component_types)
-            // Remove the id.
-            .map(|(_, components)| components)
-            // Into a vector to evaluate everything.
-            .collect::<Vec<_>>()
-            // Into an iterator for ease of use in a system.
-            .into_iter()
-    }
-
     /// Get a single component of a given type.
     ///
     /// This gets the first component of the given type,
@@ -455,12 +439,12 @@ impl Entities {
 ///
 /// Used as `query(&Entities, [mut Component1, mut Component2 etc ; Component3, Component4 etc])`.
 ///
-/// Returns an iterator of tuples of the form (Component1, Component2 etc).
+/// Returns an iterator of tuples of the form (id, Component1, Component2 etc).
 ///
 /// # Examples
 ///
 /// ```ignore
-/// for (transform, velocity)
+/// for (_id, transform, velocity)
 /// in query!(&entities, [mut Transform; Velocity]) {
 ///    transform.position += velocity.velocity;
 /// }
@@ -478,9 +462,10 @@ macro_rules! query {
                 )*
             ];
 
-            $entities.query_by_type_id(type_ids).map(|components| {
+            $entities.query_by_type_id(type_ids).map(|(id, components)| {
                 let mut index = 0;
                 (
+                    id,
                     $(
                         {
                             #![allow(clippy::mixed_read_write_in_expression)]

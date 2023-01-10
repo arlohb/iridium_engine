@@ -17,7 +17,13 @@ impl DeathSystem {
     fn system(
         _state: (),
         entities: &Entities,
-        (transform, velocity, name, _death): (&mut Transform, &mut Velocity, &Name, &Death),
+        (id, transform, velocity, name, _death): (
+            u128,
+            &mut Transform,
+            &mut Velocity,
+            &Name,
+            &Death,
+        ),
         _assets: &Assets,
         _delta_time: f64,
     ) {
@@ -27,11 +33,6 @@ impl DeathSystem {
             *transform.position.y_mut() = 0.;
 
             velocity.velocity = VecN::zero();
-
-            // In the future this should be available to systems.
-            let id = entities
-                .entity_id_from_name(&name.name)
-                .expect("Entity not found");
 
             entities
                 .cmd_sender()

@@ -49,7 +49,7 @@ impl GravitySystem {
     fn system(
         state: &GravityState,
         _entities: &Entities,
-        (velocity, _): (&mut Velocity, &Weight),
+        (_, velocity, _): (u128, &mut Velocity, &Weight),
         _assets: &Assets,
         delta_time: f64,
     ) {

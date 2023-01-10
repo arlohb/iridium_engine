@@ -46,7 +46,7 @@ impl VelocitySystem {
     fn system(
         _state: (),
         _entities: &Entities,
-        (transform, velocity): (&mut Transform, &mut Velocity),
+        (_, transform, velocity): (u128, &mut Transform, &mut Velocity),
         _assets: &Assets,
         delta_time: f64,
     ) {

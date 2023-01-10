@@ -58,7 +58,7 @@ impl PanelUi for EntitiesList {
                     for (id, [name]) in {
                         let mut entities = world
                             .entities
-                            .query_by_type_id_with_id([&std::any::TypeId::of::<Name>()])
+                            .query_by_type_id([&std::any::TypeId::of::<Name>()])
                             .collect::<Vec<_>>();
                         entities.sort_by_key(|(_, [name])| &name.get::<Name>().name);
                         entities

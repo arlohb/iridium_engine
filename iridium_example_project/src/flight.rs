@@ -43,7 +43,7 @@ impl FlightSystem {
     fn system(
         _state: (),
         entities: &iridium_ecs::Entities,
-        (velocity, flight): (&mut Velocity, &Flight),
+        (_, velocity, flight): (u128, &mut Velocity, &Flight),
         _assets: &Assets,
         _delta_time: f64,
     ) {

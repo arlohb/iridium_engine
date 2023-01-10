@@ -91,7 +91,7 @@ impl Renderer2DSystem {
                 } else {
                     let mut active_camera = None;
 
-                    for (camera,) in query!(entities, [mut Camera; ]) {
+                    for (_, camera) in query!(entities, [mut Camera; ]) {
                         *camera.viewport_size.x_mut() = size_pixels.0;
                         *camera.viewport_size.y_mut() = size_pixels.1;
 
@@ -121,7 +121,7 @@ impl Renderer2DSystem {
 
                     // Sort entities by their z position, then name if z is equal.
                     // The name shouldn't be used to order sprites, it's just to prevent z-fighting.
-                    components.sort_by(|(_, a_t, a_name), (_, b_t, b_name)| {
+                    components.sort_by(|(_, _, a_t, a_name), (_, _, b_t, b_name)| {
                         // Sort by z-index.
                         let ordering = a_t
                             .position
@@ -167,7 +167,7 @@ impl Renderer2DSystem {
 
         puffin::profile_scope!("Rendering");
 
-        for (renderable_2d, transform, _) in components {
+        for (_, renderable_2d, transform, _) in components {
             // Check if runtime data is initialised, if not, create it.
             renderable_2d.create_live_data(device);
 
