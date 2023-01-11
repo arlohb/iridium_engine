@@ -26,7 +26,7 @@ impl World {
     #[must_use]
     pub fn new(mut entities: Entities, systems: Systems) -> Self {
         // Add the system state to the world.
-        let system_state = entities.new_entity("SystemState", vec![]);
+        let system_state = entities.new_entity(None, "SystemState", vec![]);
 
         entities.add_components(system_state, systems.default_component_states());
 

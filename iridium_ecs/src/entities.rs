@@ -200,23 +200,16 @@ impl Entities {
         }
     }
 
-    /// Create a new entity with the given components.
-    ///
-    /// Automatically adds the Name component with the given name.
-    pub fn new_entity(&mut self, name: &str, components: Vec<Component>) -> u128 {
-        // Generate a new entity id.
-        let id = uuid::Uuid::new_v4().as_u128();
-
-        self.new_entity_with_id(id, name, components);
-
-        // Return the id.
-        id
-    }
-
     /// Creates a new entity with the given components and id.
     ///
+    /// If id is none, a new id is generated.
+    /// Returns the id of the new entity.
+    ///
     /// Automatically adds the Name component with the given name.
-    pub fn new_entity_with_id(&mut self, id: u128, name: &str, components: Vec<Component>) {
+    pub fn new_entity(&mut self, id: Option<u128>, name: &str, components: Vec<Component>) -> u128 {
+        // Generate a new entity id if none is given.
+        let id = id.unwrap_or_else(|| uuid::Uuid::new_v4().as_u128());
+
         // Add it to entities.
         self.entities.insert(id, vec![]);
 
@@ -232,6 +225,8 @@ impl Entities {
             // Add the other components.
             self.add_components(id, components);
         }
+
+        id
     }
 
     /// Get all the component types an entity has.

@@ -37,7 +37,7 @@ impl PanelUi for EntitiesList {
 
             ui.menu_button("Add Entity", |ui| {
                 if ui.button("Empty").clicked() {
-                    world.entities.new_entity("New Entity", vec![]);
+                    world.entities.new_entity(None, "New Entity", vec![]);
                     ui.close_menu();
                 }
             });

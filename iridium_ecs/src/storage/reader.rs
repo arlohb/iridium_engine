@@ -192,7 +192,7 @@ fn write_components_to_world(parsed_entities: ParsedEntities, world: &mut World)
     world.entities.clear();
 
     for (id, name, components) in parsed_entities {
-        world.entities.new_entity_with_id(id, &name.name, vec![]);
+        world.entities.new_entity(Some(id), &name.name, vec![]);
 
         world.entities.add_components(id, components);
     }

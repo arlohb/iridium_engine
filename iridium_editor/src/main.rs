@@ -79,7 +79,7 @@ fn main() {
     // Create the camera.
     world
         .entities
-        .new_entity("Camera", vec![Component::new(Camera::default())]);
+        .new_entity(None, "Camera", vec![Component::new(Camera::default())]);
 
     // Create the assets.
     let mut assets = Assets::new();
