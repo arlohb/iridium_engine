@@ -2,7 +2,7 @@ use iridium_assets::Assets;
 
 use crate::storage::StoredComponent;
 
-use super::{Component, ComponentTrait};
+use super::{ComponentBox, ComponentTrait};
 
 /// Information about a component type when it is registered.
 ///
@@ -13,9 +13,9 @@ pub struct ComponentInfo {
     /// Creates a component from within the UI.
     ///
     /// Not all components implement this.
-    pub default: Option<fn() -> Component>,
+    pub default: Option<fn() -> ComponentBox>,
     /// Tries to create a component from a stored component.
-    pub from_stored: fn(StoredComponent, &Assets) -> Option<Component>,
+    pub from_stored: fn(StoredComponent, &Assets) -> Option<ComponentBox>,
 }
 
 impl ComponentInfo {
@@ -36,7 +36,7 @@ impl ComponentInfo {
     pub fn new_with_default<T: ComponentTrait + Default>() -> Self {
         Self {
             type_name: T::type_name(),
-            default: Some(|| Component::new(T::default())),
+            default: Some(|| ComponentBox::new(T::default())),
             from_stored: T::from_stored_component,
         }
     }

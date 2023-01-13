@@ -1,7 +1,7 @@
 use hashbrown::HashMap;
 use iridium_assets::Assets;
 
-use crate::{Component, ComponentTrait};
+use crate::{ComponentBox, ComponentTrait};
 
 /// A field in a `StoredComponent`.
 pub struct StoredComponentField {
@@ -67,11 +67,11 @@ pub trait ComponentStorage {
     ///
     /// Returns a `Component` instead of `Self`.
     #[must_use]
-    fn from_stored_component(stored: StoredComponent, assets: &Assets) -> Option<Component>
+    fn from_stored_component(stored: StoredComponent, assets: &Assets) -> Option<ComponentBox>
     where
         Self: Sized + ComponentTrait,
     {
-        Self::from_stored(stored, assets).map(|t| Component::new(t))
+        Self::from_stored(stored, assets).map(|t| ComponentBox::new(t))
     }
 
     /// Create a stored component from a component.

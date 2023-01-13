@@ -2,7 +2,7 @@
 
 use std::{any::TypeId, sync::mpsc};
 
-use super::{Component, ComponentInfo, ComponentTrait, Name, Transform};
+use super::{ComponentBox, ComponentInfo, ComponentTrait, Name, Transform};
 use hashbrown::HashMap;
 
 /// A command created in a system, to be ran
@@ -17,7 +17,7 @@ pub struct Entities {
     /// entity_id => components
     entities: HashMap<u128, Vec<TypeId>>,
     /// component_type => entity_id => component
-    components: HashMap<TypeId, HashMap<u128, Component>>,
+    components: HashMap<TypeId, HashMap<u128, ComponentBox>>,
     /// Stores info about components.
     component_info: HashMap<TypeId, ComponentInfo>,
 
@@ -167,7 +167,7 @@ impl Entities {
     /// Get a vec of component names and their factories.
     #[allow(clippy::type_complexity)]
     #[must_use]
-    pub fn component_defaults(&self) -> Vec<(&'static str, fn() -> Component)> {
+    pub fn component_defaults(&self) -> Vec<(&'static str, fn() -> ComponentBox)> {
         self.component_info
             .iter()
             .filter_map(|(_, info)| Some((info.type_name, info.default?)))
@@ -175,7 +175,7 @@ impl Entities {
     }
 
     /// Add components to an entity.
-    pub fn add_components(&mut self, entity_id: u128, components: Vec<Component>) {
+    pub fn add_components(&mut self, entity_id: u128, components: Vec<ComponentBox>) {
         // Get the vec of components the entities has.
         // If it doesn't exist, add it.
         let entity = self.entities.entry(entity_id).or_default();
@@ -206,7 +206,12 @@ impl Entities {
     /// Returns the id of the new entity.
     ///
     /// Automatically adds the Name component with the given name.
-    pub fn new_entity(&mut self, id: Option<u128>, name: &str, components: Vec<Component>) -> u128 {
+    pub fn new_entity(
+        &mut self,
+        id: Option<u128>,
+        name: &str,
+        components: Vec<ComponentBox>,
+    ) -> u128 {
         // Generate a new entity id if none is given.
         let id = id.unwrap_or_else(|| uuid::Uuid::new_v4().as_u128());
 
@@ -216,7 +221,7 @@ impl Entities {
         // Add the name component.
         self.add_components(
             id,
-            vec![Component::new(Name {
+            vec![ComponentBox::new(Name {
                 name: name.to_owned(),
             })],
         );
@@ -242,7 +247,7 @@ impl Entities {
     ///
     /// Returns None if the entity doesn't exist.
     #[must_use]
-    pub fn get_entity_components(&self, entity_id: u128) -> Option<Vec<&Component>> {
+    pub fn get_entity_components(&self, entity_id: u128) -> Option<Vec<&ComponentBox>> {
         // Get the component types of the entity.
         let component_types = self.get_entity_component_types(entity_id)?;
 
@@ -273,7 +278,7 @@ impl Entities {
     pub fn query_by_type_id<const N: usize>(
         &self,
         component_types: [&TypeId; N],
-    ) -> std::vec::IntoIter<(u128, [&Component; N])> {
+    ) -> std::vec::IntoIter<(u128, [&ComponentBox; N])> {
         puffin::profile_function!();
 
         // If only one component type is given,
@@ -371,7 +376,7 @@ impl Entities {
                         .collect::<Vec<_>>();
 
                     // This converts a vector to a sized array.
-                    let components_array: [&Component; N] =
+                    let components_array: [&ComponentBox; N] =
                         components_vec.try_into().unwrap_or_else(|_| panic!());
 
                     // Join with the id in a tuple.
@@ -402,7 +407,7 @@ impl Entities {
     ///
     /// but should only be used when you're sure there is only one.
     #[must_use]
-    pub fn get_by_type_id(&self, component_type: &TypeId) -> &Component {
+    pub fn get_by_type_id(&self, component_type: &TypeId) -> &ComponentBox {
         self.components[component_type]
             .values()
             .next()

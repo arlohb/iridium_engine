@@ -1,7 +1,7 @@
 use hashbrown::HashMap;
 use iridium_assets::Assets;
 
-use crate::{storage::StoredComponentField, Component, Entities, Name, World};
+use crate::{storage::StoredComponentField, ComponentBox, Entities, Name, World};
 
 use super::StoredComponent;
 
@@ -19,7 +19,7 @@ pub type StoredEntities = Vec<(u128, Vec<StoredComponent>)>;
 /// the world is more complicated, hence storing them this way at first.
 ///
 /// This is guaranteed to be valid.
-pub type ParsedEntities = Vec<(u128, Name, Vec<Component>)>;
+pub type ParsedEntities = Vec<(u128, Name, Vec<ComponentBox>)>;
 
 /// The location an error occurred at.
 #[derive(Debug)]

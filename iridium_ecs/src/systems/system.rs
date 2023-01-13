@@ -2,7 +2,7 @@ use std::any::TypeId;
 
 use iridium_assets::Assets;
 
-use crate::{Component, Entities};
+use crate::{ComponentBox, Entities};
 
 /// A system is a function that runs every frame.
 pub trait System: 'static + Send + Sync {
@@ -12,7 +12,7 @@ pub trait System: 'static + Send + Sync {
     fn state_type_id(&self) -> TypeId;
     /// The default state of the system as a `Component`.
     /// This is `None` if the system does not have state.
-    fn default_state(&self) -> Option<Component>;
+    fn default_state(&self) -> Option<ComponentBox>;
     /// The components that the system requires.
     ///
     /// This is used to determine which components to query for.
@@ -22,7 +22,7 @@ pub trait System: 'static + Send + Sync {
     /// The function that runs every frame.
     fn system(
         &self,
-        state: Option<&Component>,
+        state: Option<&ComponentBox>,
         entities: &Entities,
         assets: &Assets,
         delta_time: f64,

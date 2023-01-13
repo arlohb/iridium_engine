@@ -1,4 +1,4 @@
-use crate::{Component, Entities, World};
+use crate::{ComponentBox, Entities, World};
 use std::fmt::Write;
 
 /// Manages the process of saving data to a file.
@@ -19,7 +19,7 @@ impl StorageWriter {
     }
 
     /// Write a component to the file.
-    fn write_component(&mut self, component: &Component) {
+    fn write_component(&mut self, component: &ComponentBox) {
         let stored = component.get_trait().to_stored();
 
         writeln!(&mut self.buffer, "            {}: {{", stored.type_name).unwrap();

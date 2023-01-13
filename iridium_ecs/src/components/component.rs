@@ -12,14 +12,14 @@ use super::ComponentTrait;
 ///
 /// Even though this goes against Rust's safety rules, it is the user's responsibility to ensure that
 /// the rules are followed. Hopefully this will be fixed in the future.
-pub struct Component {
+pub struct ComponentBox {
     data: Box<UnsafeCell<dyn ComponentTrait>>,
 }
 
-unsafe impl Send for Component {}
-unsafe impl Sync for Component {}
+unsafe impl Send for ComponentBox {}
+unsafe impl Sync for ComponentBox {}
 
-impl Component {
+impl ComponentBox {
     /// Creates a new component from a type that implements `ComponentTrait`.
     #[must_use]
     pub fn new<T: ComponentTrait + 'static>(component: T) -> Self {

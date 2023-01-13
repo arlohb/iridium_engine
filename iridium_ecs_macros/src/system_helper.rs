@@ -218,7 +218,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
     let default_state_expr = if quote::ToTokens::to_token_stream(&state).to_string() == "()" {
         quote! { None }
     } else {
-        quote! { Some(iridium_ecs::Component::new(#state::default())) }
+        quote! { Some(iridium_ecs::ComponentBox::new(#state::default())) }
     };
 
     // The system function.
@@ -226,7 +226,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
         Mode::Once => quote! {
             fn system(
                 &self,
-                state: Option<&iridium_ecs::Component>,
+                state: Option<&iridium_ecs::ComponentBox>,
                 entities: &iridium_ecs::Entities,
                 assets: &iridium_assets::Assets,
                 delta_time: f64,
@@ -241,7 +241,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
         Mode::Iter(_) => quote! {
             fn system(
                 &self,
-                state: Option<&iridium_ecs::Component>,
+                state: Option<&iridium_ecs::ComponentBox>,
                 entities: &iridium_ecs::Entities,
                 assets: &iridium_assets::Assets,
                 delta_time: f64,
@@ -274,7 +274,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
         Mode::ParIter(_) => quote! {
             fn system(
                 &self,
-                state: Option<&iridium_ecs::Component>,
+                state: Option<&iridium_ecs::ComponentBox>,
                 entities: &iridium_ecs::Entities,
                 assets: &iridium_assets::Assets,
                 delta_time: f64,
@@ -319,7 +319,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 std::any::TypeId::of::<#state>()
             }
 
-            fn default_state(&self) -> Option<iridium_ecs::Component> {
+            fn default_state(&self) -> Option<iridium_ecs::ComponentBox> {
                 #default_state_expr
             }
 

@@ -2,12 +2,12 @@ use std::any::TypeId;
 
 use hashbrown::HashSet;
 use iridium_assets::Assets;
-use iridium_ecs::{Component, Name};
+use iridium_ecs::{ComponentBox, Name};
 
 use crate::ui::PanelUi;
 
 /// A widget to edit a component.
-pub fn component_widget(ui: &mut egui::Ui, id: impl std::hash::Hash, component: &Component) {
+pub fn component_widget(ui: &mut egui::Ui, id: impl std::hash::Hash, component: &ComponentBox) {
     egui::CollapsingHeader::new(component.type_name())
         .default_open(true)
         .show(ui, |ui| {

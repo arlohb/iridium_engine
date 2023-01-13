@@ -5,7 +5,7 @@ use iridium_assets::Assets;
 use rayon::prelude::*;
 
 use super::System;
-use crate::{Component, Entities};
+use crate::{ComponentBox, Entities};
 
 /// Stores the systems in the world.
 #[derive(Default)]
@@ -28,7 +28,7 @@ impl Systems {
 
     /// Return all the default component states for each of the systems.
     #[must_use]
-    pub fn default_component_states(&self) -> Vec<Component> {
+    pub fn default_component_states(&self) -> Vec<ComponentBox> {
         self.systems
             .iter()
             .filter_map(|(_, system)| system.default_state())
