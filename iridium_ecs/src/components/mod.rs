@@ -1,5 +1,5 @@
-mod component;
-pub use component::*;
+mod component_box;
+pub use component_box::*;
 
 mod basic_components;
 pub use basic_components::*;
