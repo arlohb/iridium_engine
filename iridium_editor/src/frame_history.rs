@@ -5,7 +5,7 @@ use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     Entities,
 };
-use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, Component, InspectorUi};
 use iridium_map_utils::fast_map;
 
 /// Data about a single frame.
@@ -17,7 +17,7 @@ pub struct Frame {
 }
 
 /// The state of `FrameHistorySystem`.
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(Component, InspectorUi)]
 pub struct FrameHistoryState {
     /// The queue of previous frames.
     #[hidden]

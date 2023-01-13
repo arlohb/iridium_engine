@@ -6,13 +6,13 @@ use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     Entities, Name, Transform,
 };
-use iridium_ecs_macros::{ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{Component, InspectorUi};
 use iridium_map_utils::fast_map;
 
 use crate::{Camera, CameraGpuData, Renderable2D};
 
 /// The state for `Renderer2DSystem`.
-#[derive(ComponentTrait, InspectorUi, Default)]
+#[derive(Component, InspectorUi, Default)]
 pub struct Renderer2DState {
     /// The name of the active camera.
     ///

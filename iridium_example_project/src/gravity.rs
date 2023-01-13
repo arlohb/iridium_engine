@@ -3,17 +3,17 @@ use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     Entities,
 };
-use iridium_ecs_macros::{system_helper, ComponentStorage, ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
 use iridium_map_utils::fast_map;
 
 use crate::Velocity;
 
 /// The entity is affected by gravity.
-#[derive(ComponentTrait, InspectorUi, ComponentStorage, Default)]
+#[derive(Component, InspectorUi, ComponentStorage, Default)]
 pub struct Weight;
 
 /// The state for the `GravitySystem`.
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(Component, InspectorUi)]
 pub struct GravityState {
     /// The acceleration down due to gravity.
     pub acceleration: f32,

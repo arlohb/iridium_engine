@@ -1,13 +1,13 @@
 use iridium_assets::Assets;
 use iridium_core::{ButtonState, InputState, VirtualKeyCode};
 use iridium_ecs::storage::{ComponentStorage, StoredComponent, StoredComponentField};
-use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, Component, InspectorUi};
 use iridium_map_utils::fast_map;
 
 use crate::Velocity;
 
 /// An entity that can fly when the player presses the space bar.
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(Component, InspectorUi)]
 pub struct Flight {
     /// The force applied upwards on flight.
     pub force: f32,

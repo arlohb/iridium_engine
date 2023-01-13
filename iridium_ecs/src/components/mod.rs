@@ -7,5 +7,5 @@ pub use basic_components::*;
 mod component_info;
 pub use component_info::*;
 
-mod component_trait;
-pub use component_trait::*;
+mod component;
+pub use component::*;

@@ -3,11 +3,11 @@ use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     Entities, Transform,
 };
-use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, Component, InspectorUi};
 use iridium_map_utils::fast_map;
 
 /// The velocity of an entity.
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(Component, InspectorUi)]
 pub struct Velocity {
     #[drag_speed(0.0001)]
     /// The velocity.

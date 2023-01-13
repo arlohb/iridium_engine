@@ -2,7 +2,7 @@
 
 use std::{any::TypeId, sync::mpsc};
 
-use super::{ComponentBox, ComponentInfo, ComponentTrait, Name, Transform};
+use super::{Component, ComponentBox, ComponentInfo, Name, Transform};
 use hashbrown::HashMap;
 
 /// A command created in a system, to be ran
@@ -105,7 +105,7 @@ impl Entities {
 
     /// Gets `ComponentInfo` from the component type.
     #[must_use]
-    pub fn component_info<T: ComponentTrait>(&self) -> Option<&ComponentInfo> {
+    pub fn component_info<T: Component>(&self) -> Option<&ComponentInfo> {
         let type_id = TypeId::of::<T>();
         self.component_info.get(&type_id)
     }
@@ -127,7 +127,7 @@ impl Entities {
 
     /// Gets the number of entities with a given component.
     #[must_use]
-    pub fn entity_count<T: ComponentTrait>(&self) -> usize {
+    pub fn entity_count<T: Component>(&self) -> usize {
         let type_id = TypeId::of::<T>();
         self.components.get(&type_id).map_or(0, HashMap::len)
     }
@@ -149,7 +149,7 @@ impl Entities {
     /// Registers a component type.
     ///
     /// This stores info about the component.
-    pub fn register_component<T: ComponentTrait>(&mut self) {
+    pub fn register_component<T: Component>(&mut self) {
         let type_id = TypeId::of::<T>();
         let component_info = ComponentInfo::new::<T>();
         self.component_info.insert(type_id, component_info);
@@ -158,7 +158,7 @@ impl Entities {
     /// Registers a component type with a default implementation.
     ///
     /// Called instead of `register_component`
-    pub fn register_component_with_default<T: ComponentTrait + Default>(&mut self) {
+    pub fn register_component_with_default<T: Component + Default>(&mut self) {
         let type_id = TypeId::of::<T>();
         let component_info = ComponentInfo::new_with_default::<T>();
         self.component_info.insert(type_id, component_info);
@@ -395,7 +395,7 @@ impl Entities {
     ///
     /// but should only be used when you're sure there is only one.
     #[must_use]
-    pub fn get<T: ComponentTrait>(&self) -> &mut T {
+    pub fn get<T: Component>(&self) -> &mut T {
         let component_type = &TypeId::of::<T>();
 
         self.get_by_type_id(component_type).get_mut::<T>()

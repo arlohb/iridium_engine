@@ -2,27 +2,27 @@
 
 use std::{any::TypeId, cell::UnsafeCell};
 
-use super::ComponentTrait;
+use super::Component;
 
 /// A component.
 ///
-/// This is a wrapper around a type that implements `ComponentTrait`.
+/// This is a wrapper around a type that implements `Component`.
 ///
 /// This ignores Rust's borrow checker as it uses internal mutability.
 ///
 /// Even though this goes against Rust's safety rules, it is the user's responsibility to ensure that
 /// the rules are followed. Hopefully this will be fixed in the future.
 pub struct ComponentBox {
-    data: Box<UnsafeCell<dyn ComponentTrait>>,
+    data: Box<UnsafeCell<dyn Component>>,
 }
 
 unsafe impl Send for ComponentBox {}
 unsafe impl Sync for ComponentBox {}
 
 impl ComponentBox {
-    /// Creates a new component from a type that implements `ComponentTrait`.
+    /// Creates a new component from a type that implements `Component`.
     #[must_use]
-    pub fn new<T: ComponentTrait + 'static>(component: T) -> Self {
+    pub fn new<T: Component + 'static>(component: T) -> Self {
         Self {
             data: Box::new(UnsafeCell::new(component)),
         }
@@ -30,7 +30,7 @@ impl ComponentBox {
 
     /// Gets the inner component type.
     #[must_use]
-    pub fn take<T: ComponentTrait + Sized>(self) -> T {
+    pub fn take<T: Component + Sized>(self) -> T {
         unsafe {
             let ptr = self.data.get() as *const T;
             let t = ptr.read();
@@ -41,25 +41,25 @@ impl ComponentBox {
 
     /// Gets a reference to the component as `T`.
     #[must_use]
-    pub fn get<T: ComponentTrait>(&self) -> &T {
+    pub fn get<T: Component>(&self) -> &T {
         unsafe { &*self.data.get().cast::<T>() }
     }
 
     /// Gets a mutable reference to the component as `T`.
     #[must_use]
-    pub fn get_mut<T: ComponentTrait>(&self) -> &mut T {
+    pub fn get_mut<T: Component>(&self) -> &mut T {
         unsafe { &mut *self.data.get().cast::<T>() }
     }
 
-    /// Gets a reference to the component as `dyn ComponentTrait`.
+    /// Gets a reference to the component as `dyn Component`.
     #[must_use]
-    pub fn get_trait(&self) -> &dyn ComponentTrait {
+    pub fn get_trait(&self) -> &dyn Component {
         unsafe { &*self.data.get() }
     }
 
-    /// Gets a mutable reference to the component as `dyn ComponentTrait`.
+    /// Gets a mutable reference to the component as `dyn Component`.
     #[must_use]
-    pub fn get_trait_mut(&self) -> &mut dyn ComponentTrait {
+    pub fn get_trait_mut(&self) -> &mut dyn Component {
         unsafe { &mut *self.data.get() }
     }
 
@@ -71,7 +71,7 @@ impl ComponentBox {
 
     /// Checks if the component is of the given type.
     #[must_use]
-    pub fn is_type<T: ComponentTrait>(&self) -> bool {
+    pub fn is_type<T: Component>(&self) -> bool {
         self.type_id() == TypeId::of::<T>()
     }
 

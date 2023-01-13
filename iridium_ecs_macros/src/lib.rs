@@ -20,9 +20,9 @@ pub fn system_helper(attr: TokenStream, item: TokenStream) -> TokenStream {
     system_helper::system_helper(input, ast)
 }
 
-/// Derive macro generating an impl of the trait `ComponentTrait`.
-#[proc_macro_derive(ComponentTrait)]
-pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
+/// Derive macro generating an impl of the trait `Component`.
+#[proc_macro_derive(Component)]
+pub fn derive_component(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
 
@@ -35,7 +35,7 @@ pub fn derive_component_trait(tokens: TokenStream) -> TokenStream {
     };
 
     quote! {
-        impl #ecs_crate::ComponentTrait for #struct_name {
+        impl #ecs_crate::Component for #struct_name {
             fn type_name() -> &'static str {
                 stringify!(#struct_name)
             }

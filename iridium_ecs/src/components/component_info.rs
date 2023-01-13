@@ -2,7 +2,7 @@ use iridium_assets::Assets;
 
 use crate::storage::StoredComponent;
 
-use super::{ComponentBox, ComponentTrait};
+use super::{Component, ComponentBox};
 
 /// Information about a component type when it is registered.
 ///
@@ -21,7 +21,7 @@ pub struct ComponentInfo {
 impl ComponentInfo {
     /// Creates a new component info from a component type.
     #[must_use]
-    pub fn new<T: ComponentTrait>() -> Self {
+    pub fn new<T: Component>() -> Self {
         Self {
             type_name: T::type_name(),
             default: None,
@@ -33,7 +33,7 @@ impl ComponentInfo {
     ///
     /// Also adds the default fn.
     #[must_use]
-    pub fn new_with_default<T: ComponentTrait + Default>() -> Self {
+    pub fn new_with_default<T: Component + Default>() -> Self {
         Self {
             type_name: T::type_name(),
             default: Some(|| ComponentBox::new(T::default())),

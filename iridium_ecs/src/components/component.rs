@@ -3,7 +3,7 @@ use std::any::Any;
 use crate::{storage::ComponentStorage, ui::InspectorUi};
 
 /// A trait implemented by components.
-pub trait ComponentTrait: 'static + Send + Sync + Any + ComponentStorage + InspectorUi {
+pub trait Component: 'static + Send + Sync + Any + ComponentStorage + InspectorUi {
     /// The name of the component type.
     ///
     /// Called on the type.

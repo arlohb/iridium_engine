@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use iridium_assets::{Asset, Assets};
 use iridium_ecs::storage::{ComponentStorage, StoredComponent, StoredComponentField};
-use iridium_ecs_macros::{ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{Component, InspectorUi};
 use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
 use wgpu::util::DeviceExt;
@@ -64,7 +64,7 @@ impl CameraGpuData {
 /// Describes the camera used to render the scene.
 ///
 /// This is just a simple orthographic camera.
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(Component, InspectorUi)]
 pub struct Camera {
     /// The name.
     pub name: String,
@@ -151,7 +151,7 @@ impl ComponentStorage for Camera {
 }
 
 /// Describes how an entity should be drawn to the screen.
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(Component, InspectorUi)]
 pub struct Renderable2D {
     /// The mesh used.
     ///

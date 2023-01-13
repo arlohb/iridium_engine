@@ -1,10 +1,10 @@
 use iridium_assets::Assets;
 use iridium_ecs::storage::{ComponentStorage, StoredComponent, StoredComponentField};
-use iridium_ecs_macros::{system_helper, ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{system_helper, Component, InspectorUi};
 use iridium_map_utils::fast_map;
 
 /// The state for the `PipeSystem`.
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(Component, InspectorUi)]
 pub struct PipeState {
     /// The min time between pipes in secs.
     pub min_time_gap: f64,

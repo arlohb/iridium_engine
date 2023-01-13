@@ -1,7 +1,7 @@
 use hashbrown::HashMap;
 use iridium_assets::Assets;
 use iridium_ecs::storage::{ComponentStorage, StoredComponent};
-use iridium_ecs_macros::{ComponentTrait, InspectorUi};
+use iridium_ecs_macros::{Component, InspectorUi};
 use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
 use winit::event::{MouseButton, VirtualKeyCode};
@@ -27,7 +27,7 @@ pub enum ButtonState {
 /// as there'd be nothing for the system to do.
 ///
 /// It is stored under the name "`SystemState`" in the world.
-#[derive(ComponentTrait, InspectorUi)]
+#[derive(Component, InspectorUi)]
 pub struct InputState {
     /// The current mouse position.
     pub mouse_position: VecN<2>,
