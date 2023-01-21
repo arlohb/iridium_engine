@@ -6,6 +6,14 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::parse_macro_input;
 
+fn get_ecs_crate() -> proc_macro2::TokenStream {
+    if std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME env var not found") == "iridium_ecs" {
+        quote! { crate }
+    } else {
+        quote! { iridium_ecs }
+    }
+}
+
 /// This macro simplifies the creation of a system.
 ///
 /// # Panics
@@ -26,13 +34,7 @@ pub fn derive_component(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
 
-    let ecs_crate = if std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME env var not found")
-        == "iridium_ecs"
-    {
-        quote! { crate }
-    } else {
-        quote! { iridium_ecs }
-    };
+    let ecs_crate = get_ecs_crate();
 
     quote! {
         impl #ecs_crate::Component for #struct_name {
@@ -52,82 +54,119 @@ pub fn derive_component(tokens: TokenStream) -> TokenStream {
 /// Derive macro generating an impl of the trait `ComponentStorage`.
 ///
 /// For now this is quite limited, it only works for empty structs.
-#[proc_macro_derive(ComponentStorage)]
+///
+/// # Panics
+///
+/// Panics if it's derived on something that isn't a struct,
+/// or a non-empty tuple struct.
+#[allow(clippy::too_many_lines)]
+#[proc_macro_derive(ComponentStorage, attributes(temporary, string))]
 pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
 
-    let ecs_crate = if std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME env var not found")
-        == "iridium_ecs"
-    {
-        quote! { crate }
-    } else {
-        quote! { iridium_ecs }
-    };
+    let ecs_crate = get_ecs_crate();
 
-    if let syn::Data::Struct(data) = ast.data {
+    let (from_stored, to_stored) = if let syn::Data::Struct(data) = ast.data {
         match data.fields {
-            syn::Fields::Unit => {
+            syn::Fields::Unit => (
+                quote! { Some(Self) },
                 quote! {
-                    impl #ecs_crate::storage::ComponentStorage for #struct_name {
-                        fn from_stored(
-                            _stored: #ecs_crate::storage::StoredComponent,
-                            _assets: &iridium_assets::Assets,
-                        ) -> Option<Self> {
-                            Some(Self)
-                        }
+                    #ecs_crate::storage::StoredComponent {
+                        type_name: stringify!(#struct_name).to_string(),
+                        fields: hashbrown::HashMap::new(),
+                    }
+                },
+            ),
+            syn::Fields::Named(fields) => {
+                let mut temporary_fields: Vec<(&syn::Ident, proc_macro2::TokenStream)> = Vec::new();
 
-                        fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
+                let (fields1, is_string): (Vec<&syn::Ident>, Vec<bool>) = fields
+                    .named
+                    .iter()
+                    .filter_map(|field| {
+                        if let Some(temp_attr) = field
+                            .attrs
+                            .iter()
+                            .find(|attr| attr.path.is_ident("temporary"))
+                        {
+                            temporary_fields
+                                .push((field.ident.as_ref()?, temp_attr.parse_args().ok()?));
+                            None
+                        } else {
+                            Some((
+                                field.ident.as_ref()?,
+                                field.attrs.iter().any(|attr| attr.path.is_ident("string")),
+                            ))
+                        }
+                    })
+                    .unzip();
+
+                let (temp_fields, temp_tokens): (Vec<&syn::Ident>, Vec<proc_macro2::TokenStream>) =
+                    temporary_fields.into_iter().unzip();
+
+                let fields2 = fields1.clone();
+                let fields3 = fields1.clone();
+                let fields4 = fields1.clone();
+
+                (
+                    quote! {
+                        Some(Self {
+                            #(#fields1: stored.get(stringify!(#fields2))?.parse().ok()?,)*
+                            #(#temp_fields: #temp_tokens,)*
+                        })
+                    },
+                    quote! {
+                        #ecs_crate::storage::StoredComponent {
+                            type_name: stringify!(#struct_name).to_string(),
+                            fields: {
+                                let mut map = hashbrown::HashMap::new();
+                                #(map.insert(
+                                    stringify!(#fields3).to_string(),
+                                    #ecs_crate::storage::StoredComponentField::new(
+                                        self.#fields4.to_string(),
+                                        #is_string,
+                                    ),
+                                );)*
+                                map
+                            },
+                        }
+                    },
+                )
+            }
+            syn::Fields::Unnamed(fields) => {
+                if fields.unnamed.is_empty() {
+                    (
+                        quote! { Some(Self()) },
+                        quote! {
                             #ecs_crate::storage::StoredComponent {
                                 type_name: stringify!(#struct_name).to_string(),
                                 fields: hashbrown::HashMap::new(),
                             }
-                        }
-                    }
+                        },
+                    )
+                } else {
+                    panic!("ComponentStorage cannot be derived on non-empty tuple struct")
                 }
             }
-            syn::Fields::Named(fields) if fields.named.is_empty() => {
-                quote! {
-                    impl #ecs_crate::storage::ComponentStorage for #struct_name {
-                        fn from_stored(
-                            _stored: #ecs_crate::storage::StoredComponent,
-                            _assets: &iridium_assets::Assets,
-                        ) -> Option<Self> {
-                            Some(Self {})
-                        }
-
-                        fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
-                            #ecs_crate::storage::StoredComponent {
-                                type_name: stringify!(#struct_name).to_string(),
-                                fields: hashbrown::HashMap::new(),
-                            }
-                        }
-                    }
-                }
-            }
-            syn::Fields::Unnamed(fields) if fields.unnamed.is_empty() => {
-                quote! {
-                    impl #ecs_crate::storage::ComponentStorage for #struct_name {
-                        fn from_stored(
-                            _stored: #ecs_crate::storage::StoredComponent,
-                            _assets: &iridium_assets::Assets,
-                        ) -> Option<Self> {
-                            Some(Self())
-                        }
-
-                        fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
-                            #ecs_crate::storage::StoredComponent {
-                                type_name: stringify!(#struct_name).to_string(),
-                                fields: hashbrown::HashMap::new(),
-                            }
-                        }
-                    }
-                }
-            }
-            _ => quote! {},
         }
     } else {
-        quote! {}
+        panic!("ComponentStorage can only be derived on a struct")
+    };
+
+    quote! {
+        impl #ecs_crate::storage::ComponentStorage for #struct_name {
+            fn from_stored(
+                mut stored: #ecs_crate::storage::StoredComponent,
+                _assets: &iridium_assets::Assets,
+            ) -> Option<Self> {
+                #from_stored
+            }
+
+            fn to_stored(&self) -> #ecs_crate::storage::StoredComponent {
+                #to_stored
+            }
+        }
     }
     .to_string()
     .parse()
@@ -140,13 +179,7 @@ pub fn derive_inspector_ui(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
 
-    let ecs_crate = if std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME env var not found")
-        == "iridium_ecs"
-    {
-        quote! { crate }
-    } else {
-        quote! { iridium_ecs }
-    };
+    let ecs_crate = get_ecs_crate();
 
     let mut idents = vec![];
     let mut idents_strings = vec![];

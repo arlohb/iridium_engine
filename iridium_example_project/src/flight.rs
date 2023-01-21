@@ -1,33 +1,14 @@
 use iridium_assets::Assets;
 use iridium_core::{ButtonState, InputState, VirtualKeyCode};
-use iridium_ecs::storage::{ComponentStorage, StoredComponent, StoredComponentField};
-use iridium_ecs_macros::{system_helper, Component, InspectorUi};
-use iridium_map_utils::fast_map;
+use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
 
 use crate::Velocity;
 
 /// An entity that can fly when the player presses the space bar.
-#[derive(Component, InspectorUi)]
+#[derive(Component, InspectorUi, ComponentStorage)]
 pub struct Flight {
     /// The force applied upwards on flight.
     pub force: f32,
-}
-
-impl ComponentStorage for Flight {
-    fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(Self {
-            force: stored.get("force")?.parse().ok()?,
-        })
-    }
-
-    fn to_stored(&self) -> StoredComponent {
-        StoredComponent {
-            type_name: "Flight".to_string(),
-            fields: fast_map! {
-                "force" => StoredComponentField::new(self.force.to_string(), false),
-            },
-        }
-    }
 }
 
 impl Default for Flight {

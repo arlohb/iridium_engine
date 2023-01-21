@@ -1,24 +1,16 @@
 {
     entities: {
-        "37161776037477752767738717876975443530": {
+        "235060944676573309344287650051410162572": {
             Name: {
-                name: "SystemState",
+                name: "Camera",
             },
-            InputState: {
-            },
-            GravityState: {
-                acceleration: 0.00001,
-            },
-            FrameHistoryState: {
-                max_frames: 500000,
-                max_age: 5000,
-            },
-            Renderer2DState: {
-                active_camera: "",
-            },
-            PipeState: {
-                max_time_gap: 3,
-                min_time_gap: 1,
+            Camera: {
+                rotation: 0,
+                scale: 1,
+                position: [0.0, 0.0],
+                min_depth: 0,
+                max_depth: 1,
+                name: ,
             },
         },
         "51482402868868353372344529207483626834": {
@@ -26,9 +18,9 @@
                 name: "Bird",
             },
             Transform: {
-                rotation: -2.4,
-                scale: [0.2, 0.2, 1.0],
                 position: [0.0, 0.0, 0.0],
+                scale: [0.2, 0.2, 1.0],
+                rotation: -2.4,
             },
             Renderable2D: {
                 material: "fish_mat",
@@ -45,17 +37,25 @@
                 force: 0.0025,
             },
         },
-        "235060944676573309344287650051410162572": {
+        "37161776037477752767738717876975443530": {
             Name: {
-                name: "Camera",
+                name: "SystemState",
             },
-            Camera: {
-                position: [0.0, 0.0],
-                min_depth: 0,
-                scale: 1,
-                max_depth: 1,
-                rotation: 0,
-                name: "",
+            InputState: {
+            },
+            GravityState: {
+                acceleration: 0.00001,
+            },
+            FrameHistoryState: {
+                max_age: 5000,
+                max_frames: 500000,
+            },
+            Renderer2DState: {
+                active_camera: "",
+            },
+            PipeState: {
+                min_time_gap: 1,
+                max_time_gap: 3,
             },
         },
     },

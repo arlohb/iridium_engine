@@ -28,7 +28,7 @@ pub struct Renderer2DState {
 impl ComponentStorage for Renderer2DState {
     fn from_stored(mut stored: StoredComponent, _assets: &iridium_assets::Assets) -> Option<Self> {
         Some(Self {
-            active_camera: stored.get("active_camera")?,
+            active_camera: stored.get("active_camera")?.parse().ok()?,
             camera_gpu_data: None,
         })
     }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use iridium_assets::{Asset, Assets};
 use iridium_ecs::storage::{ComponentStorage, StoredComponent, StoredComponentField};
-use iridium_ecs_macros::{Component, InspectorUi};
+use iridium_ecs_macros::{Component, ComponentStorage, InspectorUi};
 use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
 use wgpu::util::DeviceExt;
@@ -64,7 +64,7 @@ impl CameraGpuData {
 /// Describes the camera used to render the scene.
 ///
 /// This is just a simple orthographic camera.
-#[derive(Component, InspectorUi)]
+#[derive(Component, InspectorUi, ComponentStorage)]
 pub struct Camera {
     /// The name.
     pub name: String,
@@ -85,6 +85,7 @@ pub struct Camera {
     pub scale: f32,
     /// The screen size.
     #[hidden]
+    #[temporary(VecN::new([1., 1.]))]
     pub viewport_size: VecN<2>,
 }
 
@@ -118,34 +119,6 @@ impl Default for Camera {
             rotation: 0.0,
             scale: 1.0,
             viewport_size: VecN::new([1., 1.]),
-        }
-    }
-}
-
-impl ComponentStorage for Camera {
-    fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(Self {
-            name: stored.get("name")?,
-            position: stored.get("position")?.parse().ok()?,
-            min_depth: stored.get("min_depth")?.parse().ok()?,
-            max_depth: stored.get("max_depth")?.parse().ok()?,
-            rotation: stored.get("rotation")?.parse().ok()?,
-            scale: stored.get("scale")?.parse().ok()?,
-            viewport_size: VecN::new([1., 1.]),
-        })
-    }
-
-    fn to_stored(&self) -> StoredComponent {
-        StoredComponent {
-            type_name: "Camera".to_string(),
-            fields: fast_map! {
-                "name" => StoredComponentField::new(self.name.clone(), true),
-                "position" => StoredComponentField::new(self.position.to_string(), false),
-                "min_depth" => StoredComponentField::new(self.min_depth.to_string(), false),
-                "max_depth" => StoredComponentField::new(self.max_depth.to_string(), false),
-                "rotation" => StoredComponentField::new(self.rotation.to_string(), false),
-                "scale" => StoredComponentField::new(self.scale.to_string(), false),
-            },
         }
     }
 }

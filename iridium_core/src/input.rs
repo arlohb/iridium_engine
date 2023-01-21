@@ -1,8 +1,5 @@
 use hashbrown::HashMap;
-use iridium_assets::Assets;
-use iridium_ecs::storage::{ComponentStorage, StoredComponent};
-use iridium_ecs_macros::{Component, InspectorUi};
-use iridium_map_utils::fast_map;
+use iridium_ecs_macros::{Component, ComponentStorage, InspectorUi};
 use iridium_maths::VecN;
 use winit::event::{MouseButton, VirtualKeyCode};
 
@@ -27,18 +24,21 @@ pub enum ButtonState {
 /// as there'd be nothing for the system to do.
 ///
 /// It is stored under the name "`SystemState`" in the world.
-#[derive(Component, InspectorUi)]
+#[derive(Component, InspectorUi, ComponentStorage)]
 pub struct InputState {
     /// The current mouse position.
+    #[temporary(VecN::zero())]
     pub mouse_position: VecN<2>,
     /// A map of the mouse buttons.
     #[hidden]
+    #[temporary(HashMap::new())]
     pub mouse_buttons: HashMap<MouseButton, ButtonState>,
     /// A map of all the buttons.
     ///
     /// This isn't public because if a key is not in the map, it is assumed to be up,
     /// which access functions deal with.
     #[hidden]
+    #[temporary(HashMap::new())]
     inputs: HashMap<VirtualKeyCode, ButtonState>,
 }
 
@@ -198,19 +198,6 @@ impl Default for InputState {
             mouse_position: VecN::zero(),
             mouse_buttons: HashMap::new(),
             inputs: HashMap::new(),
-        }
-    }
-}
-
-impl ComponentStorage for InputState {
-    fn from_stored(_: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(Self::default())
-    }
-
-    fn to_stored(&self) -> StoredComponent {
-        StoredComponent {
-            type_name: "InputState".to_string(),
-            fields: fast_map! {},
         }
     }
 }

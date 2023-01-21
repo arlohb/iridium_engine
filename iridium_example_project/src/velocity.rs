@@ -1,34 +1,13 @@
 use iridium_assets::Assets;
-use iridium_ecs::{
-    storage::{ComponentStorage, StoredComponent, StoredComponentField},
-    Entities, Transform,
-};
-use iridium_ecs_macros::{system_helper, Component, InspectorUi};
-use iridium_map_utils::fast_map;
+use iridium_ecs::{Entities, Transform};
+use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
 
 /// The velocity of an entity.
-#[derive(Component, InspectorUi)]
+#[derive(Component, InspectorUi, ComponentStorage)]
 pub struct Velocity {
     #[drag_speed(0.0001)]
     /// The velocity.
     pub velocity: iridium_maths::VecN<3>,
-}
-
-impl ComponentStorage for Velocity {
-    fn from_stored(mut stored: StoredComponent, _assets: &Assets) -> Option<Self> {
-        Some(Self {
-            velocity: stored.get("velocity")?.parse().ok()?,
-        })
-    }
-
-    fn to_stored(&self) -> StoredComponent {
-        StoredComponent {
-            type_name: "Velocity".to_string(),
-            fields: fast_map! {
-                "velocity" => StoredComponentField::new(self.velocity.to_string(), false),
-            },
-        }
-    }
 }
 
 impl Default for Velocity {
