@@ -5,13 +5,13 @@ use std::str::FromStr;
 /// Map is attribute name -> attribute value.
 #[derive(Default)]
 pub struct InspectorUiFieldAttributes {
-    attrs: hashbrown::HashMap<&'static str, &'static str>,
+    attrs: std::collections::HashMap<&'static str, &'static str>,
 }
 
 impl InspectorUiFieldAttributes {
     /// Create a new `InspectorUiFieldAttributes` from the already parsed attributes.
     #[must_use]
-    pub const fn from_inner(attrs: hashbrown::HashMap<&'static str, &'static str>) -> Self {
+    pub const fn from_inner(attrs: std::collections::HashMap<&'static str, &'static str>) -> Self {
         Self { attrs }
     }
 

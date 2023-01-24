@@ -13,5 +13,4 @@ iridium_assets = { path = "../iridium_assets" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 
 winit = "0.27"
-hashbrown = "0.12"
 egui = "0.19"

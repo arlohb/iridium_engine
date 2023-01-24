@@ -74,7 +74,7 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
                 quote! {
                     #ecs_crate::storage::StoredComponent {
                         type_name: stringify!(#struct_name).to_string(),
-                        fields: hashbrown::HashMap::new(),
+                        fields: std::collections::HashMap::new(),
                     }
                 },
             ),
@@ -120,7 +120,7 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
                         #ecs_crate::storage::StoredComponent {
                             type_name: stringify!(#struct_name).to_string(),
                             fields: {
-                                let mut map = hashbrown::HashMap::new();
+                                let mut map = std::collections::HashMap::new();
                                 #(map.insert(
                                     stringify!(#fields3).to_string(),
                                     #ecs_crate::storage::StoredComponentField::new(
@@ -141,7 +141,7 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
                         quote! {
                             #ecs_crate::storage::StoredComponent {
                                 type_name: stringify!(#struct_name).to_string(),
-                                fields: hashbrown::HashMap::new(),
+                                fields: std::collections::HashMap::new(),
                             }
                         },
                     )
@@ -213,7 +213,7 @@ pub fn derive_inspector_ui(tokens: TokenStream) -> TokenStream {
 
                 #(
                     let attributes = {
-                        let mut attributes = hashbrown::HashMap::new();
+                        let mut attributes = std::collections::HashMap::new();
                         #(
                             let tts = stringify!(#attrs_tts);
                             // Remove the first and last chars, which are ( and )

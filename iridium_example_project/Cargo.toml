@@ -19,7 +19,6 @@ iridium_map_utils = { path = "../iridium_map_utils" }
 
 egui = "0.19.0"
 wgpu = "0.14"
-hashbrown = "0.12"
 rand = "0.8"
 rayon = "1.6"
 # For whatever reason manjaro's shaderc stopped working,

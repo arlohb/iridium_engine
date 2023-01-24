@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use std::collections::HashMap;
 use std::{
     any::Any,
     sync::{Arc, RwLock},

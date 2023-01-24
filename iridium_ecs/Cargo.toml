@@ -12,7 +12,6 @@ iridium_map_utils = { path = "../iridium_map_utils" }
 iridium_maths = { path = "../iridium_maths" }
 
 egui = "0.19.0"
-hashbrown = "0.12"
 uuid = { version = "1.0", features = ["fast-rng", "v4"] }
 rayon = "1.5"
 puffin = "0.13"

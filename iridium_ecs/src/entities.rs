@@ -3,7 +3,7 @@
 use std::{any::TypeId, sync::mpsc};
 
 use super::{Component, ComponentBox, ComponentInfo, Name, Transform};
-use hashbrown::HashMap;
+use std::collections::HashMap;
 
 /// A command created in a system, to be ran
 /// by `Entities` at the end of each stage.

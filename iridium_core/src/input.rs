@@ -1,6 +1,6 @@
-use hashbrown::HashMap;
 use iridium_ecs_macros::{Component, ComponentStorage, InspectorUi};
 use iridium_maths::VecN;
+use std::collections::HashMap;
 use winit::event::{MouseButton, VirtualKeyCode};
 
 /// The pressed state of a button.
