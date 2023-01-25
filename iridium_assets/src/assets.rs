@@ -7,16 +7,9 @@ use std::{
 use crate::Asset;
 
 /// The asset manager to store all assets such as textures, shaders, etc.
+#[derive(Default)]
 pub struct Assets {
     assets: HashMap<String, Arc<RwLock<dyn Any + Send + Sync>>>,
-}
-
-impl Default for Assets {
-    fn default() -> Self {
-        Self {
-            assets: HashMap::new(),
-        }
-    }
 }
 
 impl Assets {

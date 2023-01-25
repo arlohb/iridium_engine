@@ -143,7 +143,7 @@ impl InputState {
     ///
     /// The frame specific inputs are moved on.
     pub fn process_old_inputs(&mut self) {
-        for (_, state) in self.inputs.iter_mut() {
+        for state in self.inputs.values_mut() {
             match state {
                 ButtonState::Pressed => *state = ButtonState::Held,
                 ButtonState::Released => *state = ButtonState::Up,
