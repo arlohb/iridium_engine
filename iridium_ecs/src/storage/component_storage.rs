@@ -1,5 +1,5 @@
-use hashbrown::HashMap;
 use iridium_assets::Assets;
+use std::collections::HashMap;
 
 use crate::{Component, ComponentBox};
 
