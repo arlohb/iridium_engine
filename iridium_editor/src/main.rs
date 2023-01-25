@@ -7,7 +7,7 @@ extern crate dlopen_derive;
 
 mod frame_history;
 pub use frame_history::*;
-use iridium_core::InputState;
+use iridium_core::{InputState, LogState};
 use play_state::PlayState;
 mod app;
 pub use app::*;
@@ -58,6 +58,7 @@ fn main() {
     world.entities.register_component::<Renderable2D>();
     world.entities.register_component::<Renderer2DState>();
     world.entities.register_component::<InputState>();
+    world.entities.register_component::<LogState>();
     world.entities.register_component::<FrameHistoryState>();
     world.entities.register_component_with_default::<Camera>();
     world.entities.add_components(

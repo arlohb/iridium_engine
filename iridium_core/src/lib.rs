@@ -6,5 +6,8 @@ pub use project_settings::*;
 mod input;
 pub use input::*;
 
+mod log;
+pub use log::*;
+
 // Re-export this.
 pub use winit::event::VirtualKeyCode;

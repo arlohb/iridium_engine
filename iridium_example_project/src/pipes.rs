@@ -1,4 +1,5 @@
 use iridium_assets::Assets;
+use iridium_core::LogState;
 use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
 
 /// The state for the `PipeSystem`.
@@ -29,7 +30,7 @@ pub struct PipeSystem;
 impl PipeSystem {
     fn system(
         state: &mut PipeState,
-        _entities: &iridium_ecs::Entities,
+        entities: &iridium_ecs::Entities,
         _assets: &Assets,
         delta_time: f64,
     ) {
@@ -44,7 +45,7 @@ impl PipeSystem {
             // This is where a new pipe would be created,
             // but this can't be done yet.
 
-            println!("Created a pipe");
+            entities.get::<LogState>().info("Placed a new pipe.");
         }
     }
 }

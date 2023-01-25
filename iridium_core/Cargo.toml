@@ -15,3 +15,4 @@ iridium_map_utils = { path = "../iridium_map_utils" }
 winit = "0.27"
 hashbrown = "0.12"
 egui = "0.19"
+chrono = "0.4"

@@ -1,4 +1,5 @@
 use iridium_assets::Assets;
+use iridium_core::LogState;
 use iridium_ecs::{Entities, EntityCommand, Name, Transform};
 use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
 use iridium_maths::VecN;
@@ -28,7 +29,9 @@ impl DeathSystem {
         _delta_time: f64,
     ) {
         if transform.position.y() < -1. {
-            println!("Entity {:?} died!", name.name);
+            entities
+                .get::<LogState>()
+                .info(format!("Entity {:?} died!", name.name));
 
             *transform.position.y_mut() = 0.;
 

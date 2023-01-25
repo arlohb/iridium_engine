@@ -1,5 +1,6 @@
 use image::GenericImageView;
 use iridium_assets::Assets;
+use iridium_core::{LogState, LogType};
 
 use crate::ui::PanelUi;
 
@@ -21,6 +22,7 @@ fn load_texture(context: &egui::Context, path: &str) -> ((usize, usize), egui::T
 #[derive(PartialEq, Eq)]
 pub enum CurrentTab {
     Assets,
+    Logs,
     Profiler,
 }
 
@@ -47,7 +49,7 @@ impl PanelUi for BottomPanel {
         &mut self,
         context: &egui::Context,
         ui_state: &mut crate::ui::UiState,
-        _world: &mut iridium_ecs::World,
+        world: &mut iridium_ecs::World,
         assets: &Assets,
     ) {
         egui::TopBottomPanel::bottom("asset_browser")
@@ -61,6 +63,7 @@ impl PanelUi for BottomPanel {
 
                 ui.horizontal(|ui| {
                     ui.selectable_value(&mut self.current_tab, CurrentTab::Assets, "Assets");
+                    ui.selectable_value(&mut self.current_tab, CurrentTab::Logs, "Logs");
                     ui.selectable_value(&mut self.current_tab, CurrentTab::Profiler, "Profiler");
                 });
 
@@ -101,6 +104,29 @@ impl PanelUi for BottomPanel {
                                         });
                                     }
                                 });
+                            });
+                    }
+                    CurrentTab::Logs => {
+                        egui::ScrollArea::new([false, true])
+                            .auto_shrink([false, false])
+                            .max_width(f32::INFINITY)
+                            .always_show_scroll(true)
+                            .show(ui, |ui| {
+                                let log = world.entities.get::<LogState>();
+
+                                for entry in log.entries() {
+                                    match entry.log_type {
+                                        LogType::Info => ui.label(&entry.message),
+                                        LogType::Warning => ui.label(
+                                            egui::RichText::new(&entry.message)
+                                                .color(egui::Color32::YELLOW),
+                                        ),
+                                        LogType::Error => ui.label(
+                                            egui::RichText::new(&entry.message)
+                                                .color(egui::Color32::RED),
+                                        ),
+                                    };
+                                }
                             });
                     }
                     CurrentTab::Profiler => {
