@@ -12,6 +12,7 @@ pub struct Weight;
 #[derive(Component, InspectorUi, ComponentStorage)]
 pub struct GravityState {
     /// The acceleration down due to gravity.
+    #[drag_speed(0.0001)]
     pub acceleration: f32,
 }
 

@@ -10,6 +10,8 @@ use std::collections::HashMap;
 pub enum EntityCommand {
     /// Delete the entity with the given ID.
     DeleteEntity(u128),
+    /// Create an entity, maybe with the given id.
+    NewEntity(Option<u128>, String, Vec<ComponentBox>),
 }
 
 /// Stores all the entities in the scene.
@@ -73,6 +75,9 @@ impl Entities {
             match cmd {
                 EntityCommand::DeleteEntity(entity_id) => {
                     self.delete_entity(entity_id);
+                }
+                EntityCommand::NewEntity(id, name, components) => {
+                    self.new_entity(id, &name, components);
                 }
             }
         }

@@ -105,6 +105,19 @@ pub fn load_assets(
         },
     );
 
+    assets.add(
+        "quad_offset",
+        Mesh {
+            vertices: vec![
+                Vertex::new(VecN::new([-0.5, 0., 0.]), VecN::new([0., 0.])),
+                Vertex::new(VecN::new([-0.5, 1., 0.]), VecN::new([0., 1.])),
+                Vertex::new(VecN::new([0.5, 1., 0.]), VecN::new([1., 1.])),
+                Vertex::new(VecN::new([0.5, 0., 0.]), VecN::new([1., 0.])),
+            ],
+            indices: vec![0, 3, 2, 0, 2, 1],
+        },
+    );
+
     load_sprite_assets(
         vec![
             ("fish", "FoodSprites/Food/Fish.png"),

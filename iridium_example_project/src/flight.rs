@@ -8,6 +8,7 @@ use crate::Velocity;
 #[derive(Component, InspectorUi, ComponentStorage)]
 pub struct Flight {
     /// The force applied upwards on flight.
+    #[drag_speed(0.0001)]
     pub force: f32,
 }
 
