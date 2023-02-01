@@ -234,7 +234,9 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 // Get the state as its real type.
                 #let_state_expr
                 // Run the system.
-                Self::system(state, entities, assets, delta_time);
+                if let Err(error) = Self::system(state, entities, assets, delta_time) {
+                    entities.get::<iridium_core::LogState>().error(error);
+                }
             }
         },
 
@@ -260,13 +262,15 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                     // For each entity with the given components.
                     .for_each(|components| {
                         // Run the system.
-                        Self::system(
+                        if let Err(error) = Self::system(
                             state,
                             entities,
                             components,
                             assets,
                             delta_time,
-                        );
+                        ) {
+                            entities.get::<iridium_core::LogState>().error(error);
+                        }
                     });
             }
         },
@@ -297,13 +301,15 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                     // For each entity with the given components.
                     .for_each(|components| {
                         // Run the system.
-                        Self::system(
+                        if let Err(error) = Self::system(
                             state,
                             entities,
                             components,
                             assets,
                             delta_time,
-                        );
+                        ) {
+                            entities.get::<iridium_core::LogState>().error(error);
+                        }
                     });
             }
         },

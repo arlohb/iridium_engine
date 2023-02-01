@@ -28,10 +28,12 @@ impl VelocitySystem {
         (_, transform, velocity): (u128, &mut Transform, &mut Velocity),
         _assets: &Assets,
         delta_time: f64,
-    ) {
+    ) -> Result<(), String> {
         let position = &mut transform.position;
         let velocity = &mut velocity.velocity;
         *position += *velocity * delta_time as f32;
+
+        Ok(())
     }
 }
 

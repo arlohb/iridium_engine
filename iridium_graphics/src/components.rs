@@ -162,9 +162,9 @@ pub struct Renderable2D {
 impl ComponentStorage for Renderable2D {
     fn from_stored(mut stored: StoredComponent, assets: &Assets) -> Option<Self> {
         Some(Self {
-            mesh: assets.get(&stored.get("mesh")?)?,
+            mesh: assets.get(&stored.get("mesh")?).ok()?,
 
-            material: assets.get(&stored.get("material")?)?,
+            material: assets.get(&stored.get("material")?).ok()?,
 
             vertex_shader_buffers: None,
             vertex_shader_bind_group: None,

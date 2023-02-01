@@ -26,11 +26,15 @@ impl Assets {
     }
 
     /// Gets an asset.
-    #[must_use]
-    pub fn get<T: Any + Send + Sync + 'static>(&self, id: &str) -> Option<Asset<T>> {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the asset id is not found.
+    pub fn get<T: Any + Send + Sync + 'static>(&self, id: &str) -> Result<Asset<T>, String> {
         self.assets
             .get(id)
             .map(|asset| Asset::<T>::from_inner(id.to_string(), asset.clone()))
+            .ok_or(format!("Asset {id} is not found"))
     }
 
     /// Gets all assets.

@@ -19,4 +19,6 @@ allow = [
     "clippy::cast_possible_truncation",
     # Same as above.
     "clippy::cast_sign_loss",
+    # Systems have to return Results.
+    "clippy::unnecessary_wraps",
 ]

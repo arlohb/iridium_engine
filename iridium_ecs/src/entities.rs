@@ -64,9 +64,15 @@ impl Entities {
         self.components.clear();
     }
 
-    /// Returns a clone of the command sender.
-    pub fn cmd_sender(&self) -> mpsc::Sender<EntityCommand> {
-        self.cmd_sender.clone()
+    /// Send an `EntityCommand`.
+    pub fn send_cmd(&self, cmd: EntityCommand) {
+        self.cmd_sender
+            // I clone it because `mpsc::Sender` is not Sync, only Send
+            .clone()
+            .send(cmd)
+            .unwrap_or_else(|_| {
+                unreachable!("Reciever can't have been dropped as it's in the same struct")
+            });
     }
 
     /// Process the commands in the command queue.

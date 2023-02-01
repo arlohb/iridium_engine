@@ -28,12 +28,14 @@ impl FlightSystem {
         (_, velocity, flight): (u128, &mut Velocity, &Flight),
         _assets: &Assets,
         _delta_time: f64,
-    ) {
+    ) -> Result<(), String> {
         let input_state = entities.get::<InputState>();
 
         if input_state.key(VirtualKeyCode::Space) == ButtonState::Pressed {
             *velocity.velocity.y_mut() = flight.force;
         }
+
+        Ok(())
     }
 }
 

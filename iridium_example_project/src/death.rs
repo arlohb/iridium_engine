@@ -27,7 +27,7 @@ impl DeathSystem {
         ),
         _assets: &Assets,
         _delta_time: f64,
-    ) {
+    ) -> Result<(), String> {
         if transform.position.y() < -1. {
             entities
                 .get::<LogState>()
@@ -37,11 +37,10 @@ impl DeathSystem {
 
             velocity.velocity = VecN::zero();
 
-            entities
-                .cmd_sender()
-                .send(EntityCommand::DeleteEntity(id))
-                .expect("Failed to send entity command");
+            entities.send_cmd(EntityCommand::DeleteEntity(id));
         }
+
+        Ok(())
     }
 }
 

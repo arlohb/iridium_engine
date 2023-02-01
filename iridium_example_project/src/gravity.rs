@@ -32,8 +32,10 @@ impl GravitySystem {
         (_, velocity, _): (u128, &mut Velocity, &Weight),
         _assets: &Assets,
         delta_time: f64,
-    ) {
+    ) -> Result<(), String> {
         *velocity.velocity.y_mut() -= state.acceleration * delta_time as f32;
+
+        Ok(())
     }
 }
 

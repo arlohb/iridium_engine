@@ -22,7 +22,7 @@ fn load_sprite_assets(
     queue: &wgpu::Queue,
     surface_format: wgpu::TextureFormat,
     assets: &mut Assets,
-) {
+) -> Result<(), String> {
     for (name, image_path) in sprite_data {
         assets.add(
             &format!("{name}_tex"),
@@ -42,16 +42,8 @@ fn load_sprite_assets(
                 ShaderType::Fragment,
                 frag_shader_spirv,
                 vec![
-                    ShaderInput::Texture(
-                        assets
-                            .get::<Texture>(&format!("{name}_tex"))
-                            .unwrap_or_else(|| panic!("Could not find {name}_tex")),
-                    ),
-                    ShaderInput::Sampler(
-                        assets
-                            .get::<Texture>(&format!("{name}_tex"))
-                            .unwrap_or_else(|| panic!("Could not find {name}_tex")),
-                    ),
+                    ShaderInput::Texture(assets.get::<Texture>(&format!("{name}_tex"))?),
+                    ShaderInput::Sampler(assets.get::<Texture>(&format!("{name}_tex"))?),
                 ],
             ),
         );
@@ -65,12 +57,12 @@ fn load_sprite_assets(
                     .get::<Shader>("sprite_vertex")
                     .expect("asset 'sprite_vertex' not found"),
                 camera_gpu_data,
-                assets
-                    .get::<Shader>(&format!("{name}_frag"))
-                    .unwrap_or_else(|| panic!("Could not find {name}_frag")),
+                assets.get::<Shader>(&format!("{name}_frag"))?,
             ),
         );
     }
+
+    Ok(())
 }
 
 /// Load the assets needed for the game.
@@ -135,5 +127,6 @@ pub fn load_assets(
         queue,
         surface_format,
         assets,
-    );
+    )
+    .expect("Failed to load assets");
 }

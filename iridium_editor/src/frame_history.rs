@@ -87,7 +87,7 @@ impl FrameHistorySystem {
         _entities: &Entities,
         _assets: &Assets,
         delta_time: f64,
-    ) {
+    ) -> Result<(), String> {
         state.frames.push_back(Frame {
             time: std::time::SystemTime::now(),
             delta_time,
@@ -100,7 +100,7 @@ impl FrameHistorySystem {
             if frame
                 .time
                 .elapsed()
-                .expect("Time went backwards")
+                .map_err(|_| "Time went backwards?")?
                 .as_millis()
                 > state.max_age as u128
             {
@@ -109,6 +109,8 @@ impl FrameHistorySystem {
                 break;
             }
         }
+
+        Ok(())
     }
 }
 
