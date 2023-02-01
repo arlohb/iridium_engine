@@ -82,15 +82,11 @@ pub fn system_stages_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
                                         |type_id: TypeId| -> (TypeId, &'static str) {
                                             (
                                                 type_id,
-                                                |type_id: std::any::TypeId| -> &'static str {
-                                                    world
-                                                        .entities
-                                                        .component_info_from_type_id(&type_id)
-                                                        .expect("System input component not found")
-                                                        .type_name
-                                                }(
-                                                    type_id
-                                                ),
+                                                world
+                                                    .entities
+                                                    .component_info_from_type_id(&type_id)
+                                                    .expect("System input component not found")
+                                                    .type_name,
                                             )
                                         };
 
