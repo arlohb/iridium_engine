@@ -42,18 +42,21 @@ pub fn init_system(world: &mut World, assets: &Assets) {
     world
         .entities
         .register_component_with_default::<PipeState>();
+    world.entities.register_component_with_default::<Pipe>();
 
     world.systems.add_system(VelocitySystem);
     world.systems.add_system(GravitySystem);
     world.systems.add_system(DeathSystem);
     world.systems.add_system(FlightSystem);
     world.systems.add_system(PipeSystem);
+    world.systems.add_system(PipeRemovalSystem);
 
     world.systems.stages = vec![
         vec![
             "FrameHistorySystem".to_string(),
             "GravitySystem".to_string(),
             "PipeSystem".to_string(),
+            "PipeRemovalSystem".to_string(),
         ],
         vec!["VelocitySystem".to_string()],
         vec!["DeathSystem".to_string()],

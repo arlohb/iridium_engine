@@ -8,6 +8,33 @@ use rand::Rng;
 
 use crate::Velocity;
 
+/// Just a marker component for pipes.
+#[derive(Component, InspectorUi, ComponentStorage, Default)]
+pub struct Pipe;
+
+/// The system that removes pipes from the world.
+pub struct PipeRemovalSystem;
+
+impl PipeRemovalSystem {
+    fn system(
+        _state: (),
+        entities: &iridium_ecs::Entities,
+        (id, transform, _): (u128, &Transform, &Pipe),
+        _assets: &Assets,
+        _delta_time: f64,
+    ) {
+        if transform.position.x() <= -1. {
+            entities
+                .cmd_sender()
+                .send(EntityCommand::DeleteEntity(id))
+                .expect("Failed to send entity cmd");
+        }
+    }
+}
+
+#[system_helper((), par_iter, &Transform, &Pipe)]
+impl System for PipeRemovalSystem {}
+
 /// The state for the `PipeSystem`.
 #[derive(Component, InspectorUi, ComponentStorage)]
 pub struct PipeState {
@@ -102,6 +129,7 @@ impl PipeSystem {
                     ComponentBox::new(Velocity {
                         velocity: VecN::new([-state.pipe_speed as f32, 0., 0.]),
                     }),
+                    ComponentBox::new(Pipe),
                 ],
             ))
             .expect("Failed to send EntityCommand");
