@@ -1,6 +1,6 @@
 use iridium_assets::Assets;
 use iridium_core::LogState;
-use iridium_ecs::{ComponentBox, EntityCommand, Transform};
+use iridium_ecs::{EntityCommand, Transform};
 use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
 use iridium_graphics::Renderable2D;
 use iridium_maths::VecN;
@@ -122,15 +122,13 @@ impl PipeSystem {
             None,
             "Pipe".to_owned(),
             vec![
-                ComponentBox::new(transform),
-                ComponentBox::new(Renderable2D::new(
-                    assets.get("quad_offset")?,
-                    assets.get("wine_mat")?,
-                )),
-                ComponentBox::new(Velocity {
+                transform.into(),
+                Renderable2D::new(assets.get("quad_offset")?, assets.get("wine_mat")?).into(),
+                Velocity {
                     velocity: VecN::new([-state.pipe_speed as f32, 0., 0.]),
-                }),
-                ComponentBox::new(Pipe),
+                }
+                .into(),
+                Pipe.into(),
             ],
         ));
 

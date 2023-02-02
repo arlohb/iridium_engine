@@ -18,7 +18,7 @@ mod play_state;
 
 use iridium_assets::Assets;
 use iridium_ecs::systems::Systems;
-use iridium_ecs::{ComponentBox, Entities, World};
+use iridium_ecs::{Entities, World};
 use iridium_graphics::{Camera, CameraGpuData, Renderable2D, Renderer2DState};
 
 use egui_winit::winit::{
@@ -67,11 +67,12 @@ fn main() {
             .entity_id_from_name("SystemState")
             .expect("SystemState entity not found"),
         vec![
-            ComponentBox::new(Renderer2DState {
+            Renderer2DState {
                 active_camera: String::new(),
                 camera_gpu_data: Some(camera_gpu_data),
-            }),
-            ComponentBox::new(InputState::default()),
+            }
+            .into(),
+            InputState::default().into(),
         ],
     );
 
@@ -80,7 +81,7 @@ fn main() {
     // Create the camera.
     world
         .entities
-        .new_entity(None, "Camera", vec![ComponentBox::new(Camera::default())]);
+        .new_entity(None, "Camera", vec![Camera::default().into()]);
 
     // Create the assets.
     let mut assets = Assets::new();

@@ -71,7 +71,7 @@ pub trait ComponentStorage {
     where
         Self: Sized + Component,
     {
-        Self::from_stored(stored, assets).map(|t| ComponentBox::new(t))
+        Self::from_stored(stored, assets).map(Into::into)
     }
 
     /// Create a stored component from a component.

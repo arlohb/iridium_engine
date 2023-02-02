@@ -36,7 +36,7 @@ impl ComponentInfo {
     pub fn new_with_default<T: Component + Default>() -> Self {
         Self {
             type_name: T::type_name(),
-            default: Some(|| ComponentBox::new(T::default())),
+            default: Some(|| T::default().into()),
             from_stored: T::from_stored_component,
         }
     }

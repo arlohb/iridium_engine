@@ -232,9 +232,10 @@ impl Entities {
         // Add the name component.
         self.add_components(
             id,
-            vec![ComponentBox::new(Name {
+            vec![Name {
                 name: name.to_owned(),
-            })],
+            }
+            .into()],
         );
 
         if !components.is_empty() {

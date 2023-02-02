@@ -81,3 +81,9 @@ impl ComponentBox {
         self.get_trait().dyn_type_name()
     }
 }
+
+impl<T: Component> From<T> for ComponentBox {
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}

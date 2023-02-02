@@ -218,7 +218,7 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
     let default_state_expr = if quote::ToTokens::to_token_stream(&state).to_string() == "()" {
         quote! { None }
     } else {
-        quote! { Some(iridium_ecs::ComponentBox::new(#state::default())) }
+        quote! { Some(#state::default().into()) }
     };
 
     // The system function.
