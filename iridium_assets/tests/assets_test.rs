@@ -77,7 +77,7 @@ fn not_found() {
 
     let c = assets.get::<i32>("c");
 
-    assert!(c.is_none());
+    assert!(c.is_err());
 }
 
 #[test]
