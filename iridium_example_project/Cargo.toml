@@ -10,6 +10,7 @@ crate-type = ["dylib"]
 
 [dependencies]
 iridium_assets = { path = "../iridium_assets" }
+iridium_collision = { path = "../iridium_collision" }
 iridium_core = { path = "../iridium_core" }
 iridium_ecs = { path = "../iridium_ecs" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }

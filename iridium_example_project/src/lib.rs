@@ -3,6 +3,7 @@
 mod gravity;
 pub use gravity::*;
 mod velocity;
+use iridium_collision::AABBCollider;
 pub use velocity::*;
 mod death;
 pub use death::*;
@@ -43,6 +44,9 @@ pub fn init_system(world: &mut World, assets: &Assets) {
         .entities
         .register_component_with_default::<PipeState>();
     world.entities.register_component_with_default::<Pipe>();
+    world
+        .entities
+        .register_component_with_default::<AABBCollider>();
 
     world.systems.add_system(VelocitySystem);
     world.systems.add_system(GravitySystem);

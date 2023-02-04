@@ -1,4 +1,5 @@
 use iridium_assets::Assets;
+use iridium_collision::AABBCollider;
 use iridium_core::LogState;
 use iridium_ecs::{EntityCommand, Transform};
 use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
@@ -129,6 +130,14 @@ impl PipeSystem {
                 }
                 .into(),
                 Pipe.into(),
+                AABBCollider {
+                    x: 0.,
+                    x_size: 1.,
+                    y: 0.,
+                    y_size: 1.,
+                    tag: "Pipe".into(),
+                }
+                .into(),
             ],
         ));
 
@@ -158,3 +167,23 @@ impl PipeSystem {
 
 #[system_helper(PipeState, once)]
 impl System for PipeSystem {}
+
+/// Detects collisions between pipes and the bird.
+pub struct PipeCollisionSystem;
+
+impl PipeCollisionSystem {
+    fn system(
+        _state: (),
+        entities: &iridium_ecs::Entities,
+        (id, _): (u128, &Pipe),
+        _assets: &Assets,
+        _delta_time: f64,
+    ) -> Result<(), String> {
+        entities.send_cmd(EntityCommand::DeleteEntity(id));
+
+        Ok(())
+    }
+}
+
+#[system_helper((), par_iter, &Pipe)]
+impl System for PipeCollisionSystem {}

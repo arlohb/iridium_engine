@@ -6,6 +6,7 @@ resolver = "2"
 
 members = [
     "iridium_assets",
+    "iridium_collision",
     "iridium_core",
     "iridium_ecs",
     "iridium_ecs_macros",

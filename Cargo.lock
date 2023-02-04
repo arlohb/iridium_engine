@@ -1113,6 +1113,16 @@ name = "iridium_assets"
 version = "0.1.0"
 
 [[package]]
+name = "iridium_collision"
+version = "0.1.0"
+dependencies = [
+ "egui",
+ "iridium_assets",
+ "iridium_ecs",
+ "iridium_ecs_macros",
+]
+
+[[package]]
 name = "iridium_core"
 version = "0.1.0"
 dependencies = [
@@ -1180,6 +1190,7 @@ dependencies = [
  "egui",
  "inline-spirv",
  "iridium_assets",
+ "iridium_collision",
  "iridium_core",
  "iridium_ecs",
  "iridium_ecs_macros",
