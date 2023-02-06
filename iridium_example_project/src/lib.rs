@@ -50,6 +50,7 @@ pub fn init_system(world: &mut World, assets: &Assets) {
     world.systems.add_system(FlightSystem);
     world.systems.add_system(PipeSystem);
     world.systems.add_system(PipeRemovalSystem);
+    world.systems.add_system(PipeCollisionSystem);
 
     world.systems.stages = vec![
         vec![
@@ -57,6 +58,7 @@ pub fn init_system(world: &mut World, assets: &Assets) {
             "GravitySystem".to_string(),
             "PipeSystem".to_string(),
             "PipeRemovalSystem".to_string(),
+            "PipeCollisionSystem".to_string(),
         ],
         vec!["VelocitySystem".to_string()],
         vec!["DeathSystem".to_string()],
