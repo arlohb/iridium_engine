@@ -1,13 +1,13 @@
 use iridium_assets::Assets;
-use iridium_collision::AABBCollider;
+use iridium_collision::Rect;
 use iridium_core::LogState;
-use iridium_ecs::{EntityCommand, Transform};
+use iridium_ecs::{query, EntityCommand, Transform};
 use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
 use iridium_graphics::Renderable2D;
 use iridium_maths::VecN;
 use rand::Rng;
 
-use crate::Velocity;
+use crate::{Flight, Velocity};
 
 /// Just a marker component for pipes.
 #[derive(Component, InspectorUi, ComponentStorage, Default)]
@@ -124,20 +124,12 @@ impl PipeSystem {
             "Pipe".to_owned(),
             vec![
                 transform.into(),
-                Renderable2D::new(assets.get("quad_offset")?, assets.get("wine_mat")?).into(),
+                Renderable2D::new(assets.get("wine_mesh")?, assets.get("wine_mat")?).into(),
                 Velocity {
                     velocity: VecN::new([-state.pipe_speed as f32, 0., 0.]),
                 }
                 .into(),
                 Pipe.into(),
-                AABBCollider {
-                    x: 0.,
-                    x_size: 1.,
-                    y: 0.,
-                    y_size: 1.,
-                    tag: "Pipe".into(),
-                }
-                .into(),
             ],
         ));
 
@@ -169,21 +161,50 @@ impl PipeSystem {
 impl System for PipeSystem {}
 
 /// Detects collisions between pipes and the bird.
+///
+/// The `Flight` component is used to find the bird.
 pub struct PipeCollisionSystem;
 
 impl PipeCollisionSystem {
     fn system(
         _state: (),
         entities: &iridium_ecs::Entities,
-        (id, _): (u128, &Pipe),
+        (pipe_id, _, pipe_transform, pipe_r2d): (u128, &Pipe, &Transform, &Renderable2D),
         _assets: &Assets,
         _delta_time: f64,
     ) -> Result<(), String> {
-        entities.send_cmd(EntityCommand::DeleteEntity(id));
+        let pipe_rect = Rect::bounding_from_vertices(
+            &pipe_r2d
+                .mesh
+                .vertices
+                .iter()
+                .map(|vertex| vertex.position)
+                .collect::<Vec<_>>(),
+        )
+        .apply_transform(pipe_transform);
+
+        for (bird_id, _, bird_transform, bird_r2d) in
+            query!(entities, [; Flight, Transform, Renderable2D])
+        {
+            let bird_rect = Rect::bounding_from_vertices(
+                &bird_r2d
+                    .mesh
+                    .vertices
+                    .iter()
+                    .map(|vertex| vertex.position)
+                    .collect::<Vec<_>>(),
+            )
+            .apply_transform(bird_transform);
+
+            if bird_rect.is_colliding(&pipe_rect) {
+                entities.send_cmd(EntityCommand::DeleteEntity(bird_id));
+                entities.send_cmd(EntityCommand::DeleteEntity(pipe_id));
+            }
+        }
 
         Ok(())
     }
 }
 
-#[system_helper((), par_iter, &Pipe)]
+#[system_helper((), par_iter, &Pipe, &Transform, &Renderable2D)]
 impl System for PipeCollisionSystem {}

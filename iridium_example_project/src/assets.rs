@@ -110,6 +110,31 @@ pub fn load_assets(
         },
     );
 
+    assets.add(
+        "wine_mesh",
+        Mesh {
+            vertices: vec![
+                Vertex::new(
+                    VecN::new([-0.5 + 5. / 16., 0., 0.]),
+                    VecN::new([5. / 16., 0.]),
+                ),
+                Vertex::new(
+                    VecN::new([-0.5 + 5. / 16., 1., 0.]),
+                    VecN::new([5. / 16., 1.]),
+                ),
+                Vertex::new(
+                    VecN::new([0.5 - 5. / 16., 1., 0.]),
+                    VecN::new([11. / 16., 1.]),
+                ),
+                Vertex::new(
+                    VecN::new([0.5 - 5. / 16., 0., 0.]),
+                    VecN::new([11. / 16., 0.]),
+                ),
+            ],
+            indices: vec![0, 3, 2, 0, 2, 1],
+        },
+    );
+
     load_sprite_assets(
         vec![
             ("fish", "FoodSprites/Food/Fish.png"),

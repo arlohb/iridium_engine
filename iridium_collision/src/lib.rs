@@ -1,6 +1,6 @@
 //! # Iridium Collision
 //!
-//! Provides simple collision components and systems.
+//! Provides simple collision logic for 2D games.
 
-mod aabb_collider;
-pub use aabb_collider::*;
+mod rect;
+pub use rect::*;

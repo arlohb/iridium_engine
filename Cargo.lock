@@ -1117,9 +1117,8 @@ name = "iridium_collision"
 version = "0.1.0"
 dependencies = [
  "egui",
- "iridium_assets",
  "iridium_ecs",
- "iridium_ecs_macros",
+ "iridium_maths",
 ]
 
 [[package]]

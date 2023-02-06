@@ -3,7 +3,6 @@
 mod gravity;
 pub use gravity::*;
 mod velocity;
-use iridium_collision::AABBCollider;
 pub use velocity::*;
 mod death;
 pub use death::*;
@@ -44,9 +43,6 @@ pub fn init_system(world: &mut World, assets: &Assets) {
         .entities
         .register_component_with_default::<PipeState>();
     world.entities.register_component_with_default::<Pipe>();
-    world
-        .entities
-        .register_component_with_default::<AABBCollider>();
 
     world.systems.add_system(VelocitySystem);
     world.systems.add_system(GravitySystem);
@@ -54,6 +50,7 @@ pub fn init_system(world: &mut World, assets: &Assets) {
     world.systems.add_system(FlightSystem);
     world.systems.add_system(PipeSystem);
     world.systems.add_system(PipeRemovalSystem);
+    world.systems.add_system(PipeCollisionSystem);
 
     world.systems.stages = vec![
         vec![
@@ -61,6 +58,7 @@ pub fn init_system(world: &mut World, assets: &Assets) {
             "GravitySystem".to_string(),
             "PipeSystem".to_string(),
             "PipeRemovalSystem".to_string(),
+            "PipeCollisionSystem".to_string(),
         ],
         vec!["VelocitySystem".to_string()],
         vec!["DeathSystem".to_string()],
