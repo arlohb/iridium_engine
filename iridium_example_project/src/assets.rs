@@ -85,13 +85,13 @@ pub fn load_assets(
     );
 
     assets.add(
-        "quad",
+        "fish_mesh",
         Mesh {
             vertices: vec![
-                Vertex::new(VecN::new([-1., -1., 0.]), VecN::new([0., 0.])),
-                Vertex::new(VecN::new([-1., 1., 0.]), VecN::new([0., 1.])),
-                Vertex::new(VecN::new([1., 1., 0.]), VecN::new([1., 1.])),
-                Vertex::new(VecN::new([1., -1., 0.]), VecN::new([1., 0.])),
+                Vertex::new(VecN::new([-1., -1., 0.]), VecN::new([1., 0.])),
+                Vertex::new(VecN::new([-1., 1., 0.]), VecN::new([1., 1.])),
+                Vertex::new(VecN::new([1., 1., 0.]), VecN::new([0., 1.])),
+                Vertex::new(VecN::new([1., -1., 0.]), VecN::new([0., 0.])),
             ],
             indices: vec![0, 3, 2, 0, 2, 1],
         },
