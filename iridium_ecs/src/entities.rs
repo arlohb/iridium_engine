@@ -96,9 +96,7 @@ impl Entities {
     pub fn delete_entity(&mut self, entity_id: u128) -> bool {
         // Remove the entity from the entities list,
         // and get the components it had.
-        let component_types = if let Some(ct) = self.entities.remove(&entity_id) {
-            ct
-        } else {
+        let Some(component_types) = self.entities.remove(&entity_id) else {
             return false;
         };
 

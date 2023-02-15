@@ -168,7 +168,7 @@ fn main() {
             last_time = std::time::Instant::now();
 
             // If the game is playing.
-            if let PlayState::Play = app.ui_state.play_state() {
+            if matches!(app.ui_state.play_state(), PlayState::Play) {
                 puffin::profile_scope!("Systems");
                 // Run the systems.
                 world

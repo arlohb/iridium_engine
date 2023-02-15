@@ -244,7 +244,7 @@ impl App {
                     self.ui_state.viewport_rect.width() * self.ui_state.screen_size.0 as f32,
                     self.ui_state.viewport_rect.height() * self.ui_state.screen_size.1 as f32,
                 ),
-                if let PlayState::Play = self.ui_state.play_state() {
+                if matches!(self.ui_state.play_state(), PlayState::Play) {
                     None
                 } else {
                     Some(&mut self.ui_state.camera)

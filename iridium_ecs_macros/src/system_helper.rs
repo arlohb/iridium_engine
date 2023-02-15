@@ -188,9 +188,7 @@ impl syn::parse::Parse for Mode {
 #[allow(clippy::too_many_lines, clippy::needless_pass_by_value)]
 pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_macro::TokenStream {
     // Get the name of the system.
-    let self_type = if let Type::Path(path) = &*ast.self_ty {
-        path
-    } else {
+    let Type::Path(self_type) = &*ast.self_ty else {
         panic!("`system` must be implemented for a struct");
     };
 

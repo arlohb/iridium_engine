@@ -36,17 +36,3 @@ macro_rules! fast_map_any {
         }
     };
 }
-
-/// Like `fast_map!`, but wraps the values in a `Arc`.
-#[macro_export]
-macro_rules! fast_map_arc {
-    ($($key:expr => $value:expr),* $(,)*) => {
-        {
-            let mut map = std::collections::HashMap::new();
-            $(
-                map.insert($key.to_owned(), std::sync::Arc::new($value));
-            )*
-            map
-        }
-    };
-}
