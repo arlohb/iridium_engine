@@ -59,11 +59,16 @@ impl Renderer2DSystem {
         device: &wgpu::Device,
         render_pass: & /* 'rpass */ mut wgpu::RenderPass,
         queue: &wgpu::Queue,
-        viewport_rect_physical: &egui::Rect,
+        viewport_rect_physical: Option<egui::Rect>,
         size_pixels: (f32, f32),
         editor_camera: Option<&mut Camera>,
     ) {
         puffin::profile_function!();
+
+        let viewport_rect_physical = viewport_rect_physical.unwrap_or_else(|| egui::Rect {
+            min: egui::pos2(0., 0.),
+            max: egui::pos2(1., 1.),
+        });
 
         let components = {
             puffin::profile_scope!("Setup");

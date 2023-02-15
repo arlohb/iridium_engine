@@ -1,40 +1,26 @@
-use egui_winit::winit::{
-    event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
-    event_loop::EventLoop,
-    window::Window,
-};
 use iridium_assets::Assets;
-use iridium_core::InputState;
+use iridium_core::{InputState, LogState};
 use iridium_ecs::World;
 use iridium_graphics::Renderer2DSystem;
 use iridium_maths::VecN;
+use winit::{event::WindowEvent, window::Window};
 
-use crate::{
-    play_state::PlayState,
-    ui::{EguiState, ScreenRect, UiState},
-};
-
-/// The main application state.
+/// Manages the rendering stuff.
 pub struct App {
     /// The wgpu surface.
-    surface: wgpu::Surface,
+    pub surface: wgpu::Surface,
     /// The wgpu device.
     pub device: wgpu::Device,
     /// The wgpu queue.
     pub queue: wgpu::Queue,
-    /// The wgpu surface configuration.
+    /// The wgpu surface configuration
     pub surface_config: wgpu::SurfaceConfiguration,
-
-    /// The egui rendering state.
-    egui_state: EguiState,
-    /// The state of the UI.
-    pub ui_state: UiState,
 }
 
 impl App {
-    /// Create a new instance of App.
+    /// Create a new instance of `App`.
     #[allow(clippy::future_not_send)]
-    pub async fn new(window: &Window, event_loop: &EventLoop<()>) -> Self {
+    pub async fn new(window: &Window) -> Self {
         // Get the size of the window.
         let screen_size = {
             let size = window.inner_size();
@@ -84,18 +70,11 @@ impl App {
         };
         surface.configure(&device, &surface_config);
 
-        // Initialize the UI state.
-        let egui_state = EguiState::new(&device, surface_config.format, event_loop);
-        let ui_state = UiState::new(ScreenRect::new(1. / 3., 0., 2. / 3., 0.6), screen_size, 1.2);
-
         Self {
             surface,
             device,
             queue,
             surface_config,
-
-            egui_state,
-            ui_state,
         }
     }
 
@@ -103,9 +82,6 @@ impl App {
     pub fn resize(&mut self, new_size: (u32, u32)) {
         // On windows the window size is 0 when minimized.
         if new_size.0 > 0 && new_size.1 > 0 {
-            // Update the screen size.
-            self.ui_state.screen_size = new_size;
-
             // Update the surface configuration.
             self.surface_config.width = new_size.0;
             self.surface_config.height = new_size.1;
@@ -113,89 +89,54 @@ impl App {
         }
     }
 
-    /// Handle the window input.
-    ///
-    /// Returns true if egui handled the event,
-    /// false if the event should be handled outside the app.
-    pub fn input(&mut self, event: &WindowEvent) -> bool {
-        self.egui_state
-            .winit
-            .on_event(&self.egui_state.context, event);
+    /// Handles window input and passes it to the game.
+    pub fn input(&mut self, world: &mut World, event: &WindowEvent) {
+        let input_state = world.entities.get::<InputState>();
+        let log = world.entities.get::<LogState>();
+
         match event {
+            WindowEvent::Resized(physical_size) => {
+                self.resize((physical_size.width, physical_size.height));
+            }
+            WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                self.resize((new_inner_size.width, new_inner_size.height));
+            }
             WindowEvent::KeyboardInput {
                 input:
-                    KeyboardInput {
-                        state: ElementState::Pressed,
-                        virtual_keycode: Some(key),
+                    winit::event::KeyboardInput {
+                        state,
+                        virtual_keycode: Some(virtual_keycode),
                         ..
                     },
                 ..
-            } => *key != VirtualKeyCode::Escape,
-            _ => false,
+            } => match state {
+                winit::event::ElementState::Pressed => {
+                    input_state.key_pressed(*virtual_keycode);
+                }
+                winit::event::ElementState::Released => {
+                    input_state.key_released(*virtual_keycode);
+                }
+            },
+            WindowEvent::ModifiersChanged(_) => {
+                log.warning("Modifiers in runtime not implemented yet");
+            }
+
+            WindowEvent::CursorMoved { position, .. } => {
+                input_state.mouse_position = VecN::new([position.x as f32, position.y as f32]);
+            }
+            WindowEvent::MouseWheel { .. } => {
+                log.warning("Mouse wheel in runtime not implemented yet");
+            }
+            WindowEvent::MouseInput { state, button, .. } => match state {
+                winit::event::ElementState::Pressed => input_state.mouse_button_pressed(*button),
+                winit::event::ElementState::Released => input_state.mouse_button_released(*button),
+            },
+            _ => {}
         }
     }
 
     /// Render everything to the screen.
-    #[allow(clippy::too_many_lines)]
-    pub fn render(&mut self, window: &Window, world: &mut World, assets: &Assets) {
-        puffin::profile_function!();
-
-        // Calculate the viewport_rect in logical and physical coordinates.
-        let viewport_rect_logical = self.ui_state.viewport_rect.egui_logical(
-            self.ui_state.screen_size.0,
-            self.ui_state.screen_size.1,
-            self.ui_state.scale_factor,
-        );
-        let viewport_rect_physical = self.ui_state.viewport_rect.egui_logical(
-            self.ui_state.screen_size.0,
-            self.ui_state.screen_size.1,
-            1.,
-        );
-
-        let (game_events, input) = self.egui_state.input(
-            window,
-            viewport_rect_logical,
-            self.ui_state.scale_factor,
-            &mut self.ui_state,
-        );
-
-        let input_state = world.entities.get::<InputState>();
-        input_state.process_old_inputs();
-        for event in game_events {
-            match event {
-                egui::Event::Key {
-                    key,
-                    pressed,
-                    modifiers: _,
-                } => {
-                    if pressed {
-                        input_state.key_pressed(InputState::egui_to_winit_key(key));
-                    } else {
-                        input_state.key_released(InputState::egui_to_winit_key(key));
-                    }
-                }
-                egui::Event::PointerMoved(pos) => {
-                    input_state.mouse_position = VecN::new([pos.x, pos.y]);
-                }
-                egui::Event::PointerButton {
-                    button, pressed, ..
-                } => {
-                    if pressed {
-                        input_state
-                            .mouse_button_pressed(InputState::egui_to_winit_mouse_button(button));
-                    } else {
-                        input_state
-                            .mouse_button_released(InputState::egui_to_winit_mouse_button(button));
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        self.egui_state
-            .draw(window, input, &mut self.ui_state, world, assets);
-        self.egui_state.upload_ui(&self.device, &self.queue);
-
+    pub fn render(&mut self, world: &mut World, assets: &Assets) {
         // Get the surface texture to render to.
         let output = self
             .surface
@@ -239,22 +180,14 @@ impl App {
                 &self.device,
                 &mut render_pass,
                 &self.queue,
-                Some(viewport_rect_physical),
+                None,
                 (
-                    self.ui_state.viewport_rect.width() * self.ui_state.screen_size.0 as f32,
-                    self.ui_state.viewport_rect.height() * self.ui_state.screen_size.1 as f32,
+                    self.surface_config.width as f32,
+                    self.surface_config.height as f32,
                 ),
-                if let PlayState::Play = self.ui_state.play_state() {
-                    None
-                } else {
-                    Some(&mut self.ui_state.camera)
-                },
+                None,
             );
-
-            self.egui_state.render(&mut render_pass, &self.ui_state);
         }
-
-        puffin::profile_scope!("Queue submit");
 
         // Submit the command encoder.
         self.queue.submit(std::iter::once(encoder.finish()));

@@ -14,7 +14,8 @@ members = [
     "iridium_graphics",
     "iridium_maths",
     "iridium_map_utils",
-    "iridium_example_project"
+    "iridium_example_project",
+    "iridium_runtime"
 ]
 
 [profile.dev]
