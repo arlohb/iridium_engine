@@ -22,8 +22,6 @@ egui-winit = "0.19.0"
 env_logger = "0.9"
 wgpu = { version = "0.14", features = ["spirv"] }
 pollster = "0.2"
-dlopen = "0.1"
-dlopen_derive = "0.1"
 image = "0.24"
 puffin = "0.13"
 puffin_egui = "0.17"

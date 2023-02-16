@@ -1126,12 +1126,16 @@ name = "iridium_core"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "dlopen",
+ "dlopen_derive",
  "egui",
  "iridium_assets",
  "iridium_ecs",
  "iridium_ecs_macros",
+ "iridium_graphics",
  "iridium_map_utils",
  "iridium_maths",
+ "wgpu",
  "winit",
 ]
 
@@ -1162,8 +1166,6 @@ dependencies = [
 name = "iridium_editor"
 version = "0.1.0"
 dependencies = [
- "dlopen",
- "dlopen_derive",
  "egui",
  "egui-latest_wgpu_backend",
  "egui-winit",
@@ -1228,8 +1230,6 @@ version = "0.1.0"
 name = "iridium_runtime"
 version = "0.1.0"
 dependencies = [
- "dlopen",
- "dlopen_derive",
  "iridium_assets",
  "iridium_core",
  "iridium_ecs",

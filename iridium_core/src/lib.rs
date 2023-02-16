@@ -9,5 +9,8 @@ pub use input::*;
 mod log;
 pub use log::*;
 
+mod project;
+pub use project::*;
+
 // Re-export this.
 pub use winit::event::VirtualKeyCode;

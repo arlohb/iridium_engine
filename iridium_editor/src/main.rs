@@ -2,19 +2,14 @@
 //!
 //! A game engine for Rust.
 
-#[macro_use]
-extern crate dlopen_derive;
-
 mod frame_history;
 pub use frame_history::*;
-use iridium_core::{InputState, LogState};
+use iridium_core::{InputState, LogState, Project};
 use play_state::PlayState;
 mod app;
 pub use app::*;
-mod project;
-mod ui;
-use project::Project;
 mod play_state;
+mod ui;
 
 use iridium_assets::Assets;
 use iridium_ecs::systems::Systems;
@@ -47,6 +42,11 @@ fn main() {
 
     // Start the app.
     let mut app = pollster::block_on(App::new(&window, &event_loop));
+
+    // Load the project.
+    // This needs to be done before `world` and `assets`,
+    // for reasons explained in `Project::load`
+    let project = Project::load("target/debug/libiridium_example_project.so");
 
     // Create the world.
     let mut world = World::new(Entities::default(), Systems::new());
@@ -85,9 +85,6 @@ fn main() {
 
     // Create the assets.
     let mut assets = Assets::new();
-
-    // Load the project.
-    let project = Project::load("target/debug/libiridium_example_project.so");
 
     // Load the assets.
     project.load_assets(

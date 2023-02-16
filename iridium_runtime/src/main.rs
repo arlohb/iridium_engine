@@ -3,12 +3,11 @@
 //! For use in a final executable.
 
 mod app;
+
 pub use app::*;
-mod project;
-pub use project::*;
 
 use iridium_assets::Assets;
-use iridium_core::{InputState, LogState};
+use iridium_core::{InputState, LogState, Project};
 use iridium_ecs::{systems::Systems, Entities, World};
 use iridium_graphics::{Camera, CameraGpuData, Renderable2D, Renderer2DState};
 use winit::{event_loop::EventLoop, window::WindowBuilder};
@@ -25,6 +24,11 @@ fn main() {
 
     // Start the app.
     let app = pollster::block_on(App::new(&window));
+
+    // Load the project.
+    // This needs to be done before `world` and `assets`,
+    // for reasons explained in `Project::load`
+    let project = Project::load("target/debug/libiridium_example_project.so");
 
     // Create the world.
     let mut world = World::new(Entities::default(), Systems::new());
@@ -60,9 +64,6 @@ fn main() {
 
     // Create the assets.
     let mut assets = Assets::new();
-
-    // Load the project.
-    let project = Project::load("target/debug/libiridium_example_project.so");
 
     // Load the assets.
     project.load_assets(

@@ -15,5 +15,3 @@ iridium_maths = { path = "../iridium_maths" }
 wgpu = "0.14"
 winit = "0.27"
 pollster = "0.2"
-dlopen = "0.1"
-dlopen_derive = "0.1"
