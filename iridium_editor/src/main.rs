@@ -113,9 +113,6 @@ fn main() {
     // The start time of the last frame.
     let mut last_time = std::time::Instant::now();
 
-    // Just while profiling.
-    // app.ui_state.play();
-
     event_loop.run(move |event, _, control_flow| match event {
         // Handle window events.
         Event::WindowEvent {
