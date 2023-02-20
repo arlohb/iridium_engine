@@ -159,10 +159,15 @@ fn main() {
             puffin::profile_scope!("Frame");
 
             // Get the time in ms since the last frame.
-            let delta_time: f64 = f64::from(
-                u32::try_from(last_time.elapsed().as_nanos())
-                    .expect("Delta time nanos too big for u32"),
-            ) / 1_000_000f64;
+            let delta_time: f64 = {
+                let micros: u128 = last_time.elapsed().as_micros();
+                let micros: u32 = u32::try_from(micros).expect(
+                    "Delta time micros too big for u32\n\
+                    This would mean 71 mins have passed since the last frame :(",
+                );
+                let micros: f64 = f64::from(micros);
+                micros / 1_000.
+            };
             // Reset the last time.
             last_time = std::time::Instant::now();
 
