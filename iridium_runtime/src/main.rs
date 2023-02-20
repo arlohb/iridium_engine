@@ -125,6 +125,10 @@ fn main() {
                 .systems
                 .run_systems(&mut world.entities, delta_time, &assets);
 
+            // Process the input from last frame.
+            let input_state = world.entities.get::<InputState>();
+            input_state.process_old_inputs();
+
             // Render the app and game.
             app.render(&mut world, &assets);
         }
