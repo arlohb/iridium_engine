@@ -36,9 +36,6 @@
                 name: ,
                 scale: 1,
             },
-            LogState: {
-                max_entries: 100,
-            },
         },
         "37161776037477752767738717876975443530": {
             Name: {
@@ -63,6 +60,9 @@
                 min_time_gap: 1.4,
                 pipe_speed: 0.0005,
                 gap_min: 0.45,
+            },
+            LogState: {
+                max_entries: 100,
             },
         },
     },

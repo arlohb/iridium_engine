@@ -57,7 +57,6 @@ pub fn init_system(world: &mut World, assets: &Assets) {
 
     world.systems.stages = vec![
         vec![
-            "FrameHistorySystem".to_string(),
             "GravitySystem".to_string(),
             "PipeSystem".to_string(),
             "PipeRemovalSystem".to_string(),

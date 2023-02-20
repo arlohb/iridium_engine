@@ -65,10 +65,8 @@ impl Renderer2DSystem {
     ) {
         puffin::profile_function!();
 
-        let viewport_rect_physical = viewport_rect_physical.unwrap_or_else(|| egui::Rect {
-            min: egui::pos2(0., 0.),
-            max: egui::pos2(1., 1.),
-        });
+        let viewport_rect_physical = viewport_rect_physical
+            .unwrap_or_else(|| egui::Rect::from_min_max(egui::Pos2::ZERO, size_pixels.into()));
 
         let components = {
             puffin::profile_scope!("Setup");

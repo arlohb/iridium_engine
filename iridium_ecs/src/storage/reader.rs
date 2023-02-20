@@ -158,15 +158,23 @@ fn parse_components(
         let mut name = None;
 
         for stored in stored_components {
-            let from_stored_fn = entities
+            let Some(component_info) = entities
                 .component_info_from_name(&stored.type_name)
-                .ok_or_else(|| {
-                    ReadError::UnknownComponent(
+                // If the component isn't registered,
+                else {
+                    // And it's FrameHistoryState
+                    if stored.type_name == "FrameHistoryState" {
+                        // Don't crash.
+                        // This is because the runtime doesn't contain this
+                        continue;
+                    }
+
+                    return Err(ReadError::UnknownComponent(
                         ErrorLocation::Component(id),
-                        stored.type_name.clone(),
-                    )
-                })?
-                .from_stored;
+                        stored.type_name,
+                    ))
+                };
+            let from_stored_fn = component_info.from_stored;
 
             let component = from_stored_fn(stored, assets)
                 .ok_or(ReadError::InvalidField(ErrorLocation::Component(id)))?;

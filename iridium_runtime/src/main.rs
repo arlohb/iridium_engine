@@ -10,11 +10,16 @@ use iridium_assets::Assets;
 use iridium_core::{InputState, LogState, Project};
 use iridium_ecs::{systems::Systems, Entities, World};
 use iridium_graphics::{Camera, CameraGpuData, Renderable2D, Renderer2DState};
-use winit::{event_loop::EventLoop, window::WindowBuilder};
+use winit::{
+    event::{Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    window::WindowBuilder,
+};
 
 fn main() {
     // Create the event loop.
     let event_loop = EventLoop::new();
+
     // Create the window.
     let window = WindowBuilder::new()
         .with_title("Iridium Editor")
@@ -23,7 +28,7 @@ fn main() {
         .expect("Failed to create window");
 
     // Start the app.
-    let app = pollster::block_on(App::new(&window));
+    let mut app = pollster::block_on(App::new(&window));
 
     // Load the project.
     // This needs to be done before `world` and `assets`,
@@ -81,4 +86,51 @@ fn main() {
 
     // Run the init system.
     project.init_system(&mut world, &assets);
+
+    // Open the default scene.
+    let default_scene = project.project_settings.default_scene;
+    if let Err(e) = world.load(&default_scene, &assets) {
+        println!("Failed to load default scene with error: {e:?}");
+    }
+
+    // The start time of the last frame.
+    let mut last_time = std::time::Instant::now();
+
+    event_loop.run(move |event, _, control_flow| match event {
+        // Handle window events.
+        Event::WindowEvent {
+            ref event,
+            window_id,
+        } if window_id == window.id() => {
+            // If the app didn't handle the event itself.
+            if matches!(event, WindowEvent::CloseRequested) {
+                // Exit the app.
+                *control_flow = ControlFlow::Exit;
+            } else {
+                app.input(&mut world, event);
+            }
+        }
+        // Redraw the window.
+        Event::RedrawRequested(window_id) if window_id == window.id() => {
+            // Get the time in ms since the last frame.
+            let delta_time: f64 = f64::from(
+                u32::try_from(last_time.elapsed().as_nanos())
+                    .expect("Delta time nanos too big for u32"),
+            ) / 1_000_000f64;
+            // Reset the last time.
+            last_time = std::time::Instant::now();
+
+            // Run the systems.
+            world
+                .systems
+                .run_systems(&mut world.entities, delta_time, &assets);
+
+            // Render the app and game.
+            app.render(&mut world, &assets);
+        }
+        Event::MainEventsCleared => {
+            window.request_redraw();
+        }
+        _ => {}
+    });
 }

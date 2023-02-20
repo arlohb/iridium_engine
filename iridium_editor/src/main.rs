@@ -103,6 +103,11 @@ fn main() {
     // Run the init system.
     project.init_system(&mut world, &assets);
 
+    // Prepend `FrameHistorySystem` to stages.
+    let mut stages = vec![vec!["FrameHistorySystem".to_string()]];
+    stages.extend(world.systems.stages);
+    world.systems.stages = stages;
+
     // Open the default scene.
     let default_scene = project.project_settings.default_scene;
     match world.load(&default_scene, &assets) {
