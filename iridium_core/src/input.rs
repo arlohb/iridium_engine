@@ -6,7 +6,7 @@ use winit::event::{MouseButton, VirtualKeyCode};
 /// The pressed state of a button.
 ///
 /// This could be a mouse button or a key.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ButtonState {
     /// The button is not pressed.
     Up,
