@@ -71,7 +71,7 @@ fn main() {
     let mut assets = Assets::new();
 
     // Load the assets.
-    project.load_assets(
+    if let Err(e) = project.load_assets(
         world
             .entities
             .get::<Renderer2DState>()
@@ -82,7 +82,9 @@ fn main() {
         &app.queue,
         app.surface_config.format,
         &mut assets,
-    );
+    ) {
+        println!("Failed to load assets with error: {e}");
+    };
 
     // Run the init system.
     project.init_system(&mut world, &assets);

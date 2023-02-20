@@ -1,5 +1,7 @@
 //! An example project for the iridium game engine.
 
+#![warn(clippy::expect_used)]
+
 mod gravity;
 pub use gravity::*;
 mod velocity;

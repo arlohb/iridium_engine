@@ -30,7 +30,7 @@ fn load_sprite_assets(
                 device,
                 queue,
                 &std::fs::read(format!("iridium_example_project/assets/{image_path}"))
-                    .expect("Failed to read image"),
+                    .map_err(|e| e.to_string())?,
                 false,
             ),
         );
@@ -53,9 +53,7 @@ fn load_sprite_assets(
             Material::new(
                 device,
                 surface_format,
-                assets
-                    .get::<Shader>("sprite_vertex")
-                    .expect("asset 'sprite_vertex' not found"),
+                assets.get::<Shader>("sprite_vertex")?,
                 camera_gpu_data,
                 assets.get::<Shader>(&format!("{name}_frag"))?,
             ),
@@ -66,6 +64,11 @@ fn load_sprite_assets(
 }
 
 /// Load the assets needed for the game.
+///
+/// # Errors
+///
+/// If a file is missing,
+/// or logic was incorrect and assets were loaded in the wrong order.
 #[no_mangle]
 pub fn load_assets(
     camera_gpu_data: &iridium_graphics::CameraGpuData,
@@ -73,7 +76,7 @@ pub fn load_assets(
     queue: &wgpu::Queue,
     surface_format: wgpu::TextureFormat,
     assets: &mut Assets,
-) {
+) -> Result<(), String> {
     assets.add(
         "sprite_vertex",
         Shader::new(
@@ -152,6 +155,7 @@ pub fn load_assets(
         queue,
         surface_format,
         assets,
-    )
-    .expect("Failed to load assets");
+    )?;
+
+    Ok(())
 }

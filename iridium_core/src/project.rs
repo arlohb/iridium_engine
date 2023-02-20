@@ -14,7 +14,7 @@ struct ProjectApi {
         queue: &wgpu::Queue,
         surface_format: wgpu::TextureFormat,
         assets: &mut Assets,
-    ) -> (),
+    ) -> Result<(), String>,
     init_system: fn(world: &mut World, assets: &Assets) -> (),
 }
 
@@ -61,6 +61,11 @@ impl Project {
     /// This loads the assets required for the project.
     /// This either includes the assets compiled into the
     /// binary file, or opens the file when called.
+    ///
+    /// # Errors
+    ///
+    /// The errors here could be that files couldn't be found,
+    /// but these are raised by the project so could be anything.
     pub fn load_assets(
         &self,
         camera_gpu_data: &iridium_graphics::CameraGpuData,
@@ -68,8 +73,8 @@ impl Project {
         queue: &wgpu::Queue,
         surface_format: wgpu::TextureFormat,
         assets: &mut Assets,
-    ) {
+    ) -> Result<(), String> {
         self.api
-            .load_assets(camera_gpu_data, device, queue, surface_format, assets);
+            .load_assets(camera_gpu_data, device, queue, surface_format, assets)
     }
 }
