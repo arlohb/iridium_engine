@@ -35,9 +35,8 @@ impl Project {
     /// before data that it's allocated.
     ///
     /// Make sure to drop this **after** anything that it's created on the heap.
-    /// This can be done automatically be defining this first,
-    /// as local variables are dropped in the reverse order
-    /// they are defined in.
+    /// This can be done automatically by defining this first,
+    /// as local variables are dropped in the reverse order they are defined in.
     #[must_use]
     pub fn load(path: &str) -> Self {
         let container: Container<ProjectApi> =
