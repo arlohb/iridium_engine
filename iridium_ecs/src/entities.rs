@@ -2,6 +2,8 @@
 
 use std::{any::TypeId, sync::mpsc};
 
+use iridium_assets::Assets;
+
 use super::{Component, ComponentBox, ComponentInfo, Name, Transform};
 use std::collections::HashMap;
 
@@ -62,6 +64,32 @@ impl Entities {
     pub fn clear(&mut self) {
         self.entities.clear();
         self.components.clear();
+    }
+
+    /// Updates all the assets on all the components.
+    ///
+    /// # Errors
+    ///
+    /// If a new asset id is not found.
+    pub fn update_assets(&self, assets: &Assets) -> Result<i32, String> {
+        puffin::profile_function!();
+
+        Ok(self
+            .components
+            .values()
+            .map(|component_map| {
+                component_map
+                    .values()
+                    .map(|component| component.get_trait_mut().update_assets(assets))
+                    // This gets the first err if found
+                    .collect::<Result<Vec<i32>, String>>()
+            })
+            // This gets the first err if found
+            // And then early returns if err
+            .collect::<Result<Vec<Vec<i32>>, String>>()?
+            .into_iter()
+            .flatten()
+            .sum::<i32>())
     }
 
     /// Send an `EntityCommand`.

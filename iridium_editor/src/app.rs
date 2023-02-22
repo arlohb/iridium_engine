@@ -4,7 +4,7 @@ use egui_winit::winit::{
     window::Window,
 };
 use iridium_assets::Assets;
-use iridium_core::InputState;
+use iridium_core::{InputState, LogState};
 use iridium_ecs::World;
 use iridium_graphics::Renderer2DSystem;
 use iridium_maths::VecN;
@@ -195,6 +195,15 @@ impl App {
         self.egui_state
             .draw(window, input, &mut self.ui_state, world, assets);
         self.egui_state.upload_ui(&self.device, &self.queue);
+
+        // Drawing the UI could've changed an Asset id,
+        // so these need to be updated here.
+        let log_state = world.entities.get::<LogState>();
+        match world.entities.update_assets(assets) {
+            Ok(count) if count > 0 => log_state.info(format!("Updated {count} assets")),
+            Err(error) => log_state.error(format!("Updating assets failed: {error}")),
+            _ => {}
+        }
 
         // Get the surface texture to render to.
         let output = self

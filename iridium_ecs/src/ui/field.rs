@@ -60,12 +60,23 @@ impl<const N: usize> InspectorUiField for iridium_maths::VecN<N> {
     }
 }
 
+// This implementation is mainly just for reference,
+// as most things that use assets need to regenerate
+// some data when an asset changes, so will need to
+// impl `InspectorUi` themselves anyway.
 impl<T: Send + Sync> InspectorUiField for Asset<T> {
     fn ui(&mut self, ui: &mut egui::Ui, _attributes: InspectorUiFieldAttributes) {
-        // In the future, this will be editable.
-        // For now just show a clone.
-        let mut id = self.id.clone();
+        // Copy the id
+        let mut id = self.id().to_owned();
+
+        // Allow user to edit
         ui.text_edit_singleline(&mut id);
+
+        // If the id has changed
+        if self.id() != id {
+            // Update it
+            self.change_id(id);
+        }
     }
 }
 

@@ -47,7 +47,7 @@ fn get() {
 
     let a = assets.get::<i32>("a").expect("Asset not found");
 
-    assert_eq!(a.id, "a".to_string());
+    assert_eq!(a.id(), "a");
     assert_eq!(*a.get(), 1);
 }
 
@@ -57,7 +57,7 @@ fn get_mut() {
 
     let a = assets.get::<i32>("a").expect("Asset not found");
 
-    assert_eq!(a.id, "a".to_string());
+    assert_eq!(a.id(), "a");
     assert_eq!(*a.get_mut(), 1);
 }
 
@@ -67,7 +67,7 @@ fn deref() {
 
     let a = assets.get::<i32>("a").expect("Asset not found");
 
-    assert_eq!(a.id, "a".to_string());
+    assert_eq!(a.id(), "a");
     assert_eq!(*a, 1);
 }
 
@@ -88,4 +88,21 @@ fn wrong_type() {
     let a = assets.get::<String>("a").expect("Asset not found");
 
     let _ = a.get();
+}
+
+#[test]
+fn change_id() {
+    let assets = test_assets();
+
+    let mut a = assets.get::<i32>("a").expect("Asset not found");
+
+    a.change_id("b".to_owned());
+
+    assert_eq!(*a, 1);
+
+    let updated = a.update_asset(&assets).expect("New asset not found");
+
+    assert!(updated);
+
+    assert_eq!(*a, 2);
 }

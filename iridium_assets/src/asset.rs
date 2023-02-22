@@ -4,10 +4,15 @@ use std::{
     sync::{Arc, RwLock},
 };
 
+use crate::Assets;
+
 /// An asset.
 pub struct Asset<T: Send + Sync + 'static> {
     /// The ID of the asset.
-    pub id: String,
+    id: String,
+    /// If the ID has changed but the asset hasn't.
+    invalid: bool,
+
     asset: Arc<RwLock<dyn Any + Send + Sync>>,
     phantom: std::marker::PhantomData<*const T>,
 }
@@ -20,6 +25,7 @@ impl<T: Send + Sync + 'static> Clone for Asset<T> {
         Self {
             id: self.id.clone(),
             asset: self.asset.clone(),
+            invalid: self.invalid,
             phantom: self.phantom,
         }
     }
@@ -40,8 +46,27 @@ impl<T: Send + Sync + 'static> Asset<T> {
         Self {
             id,
             asset,
+            invalid: false,
             phantom: std::marker::PhantomData,
         }
+    }
+
+    /// Gets the id.
+    ///
+    /// This only reflects the actual asset if `invalid` isn't set.
+    /// If used in the engine in a component,
+    /// this should never be invalid.
+    #[must_use]
+    pub fn id(&self) -> &str {
+        &self.id
+    }
+
+    /// Gets the invalid state.
+    ///
+    /// This means a new asset id hasn't been loaded.
+    #[must_use]
+    pub const fn invalid(&self) -> bool {
+        self.invalid
     }
 
     /// Gets the asset.
@@ -74,5 +99,33 @@ impl<T: Send + Sync + 'static> Asset<T> {
         unsafe {
             std::mem::transmute::<&mut T, & /*'self*/ mut T>(local_mut)
         }
+    }
+
+    /// Replace the id of the asset.
+    /// This won't load the new asset immediately,
+    /// only when `Self::update_asset` is called,
+    /// which should be done automatically by the engine.
+    pub fn change_id(&mut self, new_id: String) {
+        self.id = new_id;
+        self.invalid = true;
+    }
+
+    /// Updates the assets.
+    /// This will check whether the asset has been invalidated,
+    /// and early return if it's still valid.
+    ///
+    /// Returns true if the asset was reloaded, false if not.
+    ///
+    /// # Errors
+    ///
+    /// If the asset isn't found.
+    pub fn update_asset(&mut self, assets: &Assets) -> Result<bool, String> {
+        if !self.invalid {
+            return Ok(false);
+        }
+
+        *self = assets.get::<T>(&self.id)?;
+
+        Ok(true)
     }
 }

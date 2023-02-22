@@ -132,6 +132,15 @@ fn main() {
                 .systems
                 .run_systems(&mut world.entities, delta_time, &assets);
 
+            // Running the systems could've changed an asset id,
+            // so these need to be updated here.
+            let log_state = world.entities.get::<LogState>();
+            match world.entities.update_assets(&assets) {
+                Ok(count) if count > 0 => log_state.info(format!("Updated {count} assets")),
+                Err(error) => log_state.error(format!("Updating assets failed: {error}")),
+                _ => {}
+            }
+
             // Process the input from last frame.
             let input_state = world.entities.get::<InputState>();
             input_state.process_old_inputs();

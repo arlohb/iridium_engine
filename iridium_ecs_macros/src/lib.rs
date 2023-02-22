@@ -29,12 +29,47 @@ pub fn system_helper(attr: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 /// Derive macro generating an impl of the trait `Component`.
+///
+/// # Panics
+///
+/// If the type isn't a struct.
 #[proc_macro_derive(Component)]
 pub fn derive_component(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;
 
     let ecs_crate = get_ecs_crate();
+
+    let syn::Data::Struct(data) = ast.data
+    else {
+        panic!("This macro only works with structs");
+    };
+
+    // The idents of the asset fields
+    let asset_fields: Vec<syn::Ident> = data
+        .fields
+        .into_iter()
+        .filter_map(|field| {
+            // Get the path type of the field
+            let syn::Type::Path(path) = field.ty else {
+                // If it's not a path, it can't be an asset
+                return None;
+            };
+
+            // If `Asset` isn't one of the segments
+            if !path
+                .path
+                .segments
+                .into_iter()
+                .any(|segment| segment.ident == "Asset")
+            {
+                return None;
+            }
+
+            // Returns the field ident
+            field.ident
+        })
+        .collect();
 
     quote! {
         impl #ecs_crate::Component for #struct_name {
@@ -43,6 +78,17 @@ pub fn derive_component(tokens: TokenStream) -> TokenStream {
             }
             fn dyn_type_name(&self) -> &'static str {
                 stringify!(#struct_name)
+            }
+            fn update_assets(&mut self, assets: &iridium_assets::Assets) -> Result<i32, String> {
+                let mut updated = 0;
+
+                #({
+                    if self.#asset_fields.update_asset(assets)? {
+                        updated += 1;
+                    }
+                };)*
+
+                Ok(updated)
             }
         }
     }

@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use iridium_assets::{Asset, Assets};
-use iridium_ecs::storage::{ComponentStorage, StoredComponent, StoredComponentField};
+use iridium_ecs::{
+    storage::{ComponentStorage, StoredComponent, StoredComponentField},
+    ui::InspectorUi,
+};
 use iridium_ecs_macros::{Component, ComponentStorage, InspectorUi};
 use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
@@ -124,7 +127,7 @@ impl Default for Camera {
 }
 
 /// Describes how an entity should be drawn to the screen.
-#[derive(Component, InspectorUi)]
+#[derive(Component)]
 pub struct Renderable2D {
     /// The mesh used.
     ///
@@ -132,31 +135,65 @@ pub struct Renderable2D {
     pub mesh: Asset<Mesh>,
 
     /// The material used.
-    #[hidden]
     pub material: Asset<Material>,
 
     /// The buffers used by the vertex shader.
-    #[hidden]
     pub vertex_shader_buffers: Option<Vec<Arc<wgpu::Buffer>>>,
     /// The bind group of the vertex shader.
-    #[hidden]
     pub vertex_shader_bind_group: Option<wgpu::BindGroup>,
     /// The buffers used by the fragment shader.
-    #[hidden]
     pub fragment_shader_buffers: Option<Vec<Arc<wgpu::Buffer>>>,
     /// The bind group of the fragment shader.
-    #[hidden]
     pub fragment_shader_bind_group: Option<wgpu::BindGroup>,
 
     /// The vertex buffer.
-    #[hidden]
     pub vertex_buffer: Option<wgpu::Buffer>,
     /// The index buffer.
-    #[hidden]
     pub index_buffer: Option<wgpu::Buffer>,
     /// The number of vertices.
-    #[hidden]
     pub index_count: Option<u32>,
+}
+
+// We can't use the default as a change in assets
+// means live data needs to be recalculated.
+impl InspectorUi for Renderable2D {
+    fn ui(&mut self, ui: &mut egui::Ui) {
+        ui.label("mesh");
+        {
+            // Copy the id
+            let mut id = self.mesh.id().to_owned();
+
+            // Allow user to edit
+            ui.text_edit_singleline(&mut id);
+
+            // If the id has changed
+            if self.mesh.id() != id {
+                // Update it
+                self.mesh.change_id(id);
+                // Invalidate live data
+                self.delete_live_data();
+            }
+        };
+        ui.end_row();
+
+        ui.label("material");
+        {
+            // Copy the id
+            let mut id = self.material.id().to_owned();
+
+            // Allow user to edit
+            ui.text_edit_singleline(&mut id);
+
+            // If the id has changed
+            if self.material.id() != id {
+                // Update it
+                self.material.change_id(id);
+                // Invalidate live data
+                self.delete_live_data();
+            }
+        };
+        ui.end_row();
+    }
 }
 
 impl ComponentStorage for Renderable2D {
@@ -181,8 +218,8 @@ impl ComponentStorage for Renderable2D {
         StoredComponent {
             type_name: "Renderable2D".to_string(),
             fields: fast_map! {
-                "mesh" => StoredComponentField::new(self.mesh.id.clone(), true),
-                "material" => StoredComponentField::new(self.material.id.clone(), true),
+                "mesh" => StoredComponentField::new(self.mesh.id().to_owned(), true),
+                "material" => StoredComponentField::new(self.material.id().to_owned(), true),
             },
         }
     }
@@ -204,6 +241,18 @@ impl Renderable2D {
             index_buffer: None,
             index_count: None,
         }
+    }
+
+    /// Deletes all the live data.
+    /// This is useful when assets have changed.
+    pub fn delete_live_data(&mut self) {
+        self.vertex_shader_buffers = None;
+        self.vertex_shader_bind_group = None;
+        self.fragment_shader_buffers = None;
+        self.fragment_shader_bind_group = None;
+        self.vertex_buffer = None;
+        self.index_buffer = None;
+        self.index_count = None;
     }
 
     /// Creates the live data needed at runtime and in editor that isn't stored.
