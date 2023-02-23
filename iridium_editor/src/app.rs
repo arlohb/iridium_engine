@@ -149,17 +149,21 @@ impl App {
     pub fn render(&mut self, window: &Window, world: &mut World, assets: &Assets) {
         puffin::profile_function!();
 
+        dbg!(window.scale_factor());
+
         // Calculate the viewport_rect in logical and physical coordinates.
         let viewport_rect_logical = self.ui_state.viewport_rect.egui_logical(
             self.ui_state.screen_size.0,
             self.ui_state.screen_size.1,
             self.ui_state.scale_factor,
         );
+        dbg!(viewport_rect_logical);
         let viewport_rect_physical = self.ui_state.viewport_rect.egui_logical(
             self.ui_state.screen_size.0,
             self.ui_state.screen_size.1,
             1.,
         );
+        dbg!(viewport_rect_physical);
 
         let (game_events, input) = self.egui_state.input(
             window,
@@ -257,6 +261,10 @@ impl App {
                 depth_stencil_attachment: None,
             });
 
+            dbg!(self.egui_state.mouse_pos);
+
+            self.egui_state.render(&mut render_pass, &self.ui_state);
+
             // Run the rendering system for the entities in the world.
             Renderer2DSystem::run(
                 &world.entities,
@@ -275,8 +283,6 @@ impl App {
                     Some(&mut self.ui_state.camera)
                 },
             );
-
-            self.egui_state.render(&mut render_pass, &self.ui_state);
         }
 
         puffin::profile_scope!("Queue submit");

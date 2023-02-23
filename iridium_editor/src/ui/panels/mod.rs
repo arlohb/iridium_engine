@@ -9,3 +9,6 @@ pub use top_panel::*;
 
 mod bottom_panel;
 pub use bottom_panel::*;
+
+mod viewport;
+pub use viewport::*;

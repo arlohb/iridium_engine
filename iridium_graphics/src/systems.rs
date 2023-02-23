@@ -68,15 +68,18 @@ impl Renderer2DSystem {
         let viewport_rect_physical = viewport_rect_physical
             .unwrap_or_else(|| egui::Rect::from_min_max(egui::Pos2::ZERO, size_pixels.into()));
 
+        dbg!(viewport_rect_physical);
         let components = {
             puffin::profile_scope!("Setup");
 
             // Set the viewport to the viewport_rect.
             render_pass.set_viewport(
-                viewport_rect_physical.min.x,
-                viewport_rect_physical.min.y,
-                viewport_rect_physical.width(),
-                viewport_rect_physical.height(),
+                // dbg!(viewport_rect_physical.min.x + viewport_rect_physical.width() / 2.),
+                // dbg!(viewport_rect_physical.min.y + viewport_rect_physical.height() / 2.),
+                dbg!(viewport_rect_physical.min.x * 1.2),
+                dbg!(viewport_rect_physical.min.y * 1.2),
+                dbg!(viewport_rect_physical.width() * 1.2),
+                dbg!(viewport_rect_physical.height() * 1.2),
                 0.,
                 1.,
             );
