@@ -7,7 +7,7 @@ use iridium_maths::VecN;
 ///
 /// This is specific to this game,
 /// so textures are not filtered,
-/// it requires `sprite_vertex` to be loaded,
+/// it requires `default_vertex` to be loaded,
 /// and it assumes every sprite has the same material.
 ///
 /// Will create:
@@ -15,7 +15,7 @@ use iridium_maths::VecN;
 /// - `XXX_frag` - fragment shader
 /// - `XXX_mat` - material
 fn load_sprite_assets(
-    sprite_data: Vec<(&str, &str)>,
+    sprite_data: Vec<(&str, &str, bool)>,
     frag_shader_spirv: &[u32],
     camera_gpu_data: &iridium_graphics::CameraGpuData,
     device: &wgpu::Device,
@@ -23,7 +23,7 @@ fn load_sprite_assets(
     surface_format: wgpu::TextureFormat,
     assets: &mut Assets,
 ) -> Result<(), String> {
-    for (name, image_path) in sprite_data {
+    for (name, image_path, filtered) in sprite_data {
         assets.add(
             &format!("{name}_tex"),
             Texture::from_image_bytes(
@@ -31,7 +31,7 @@ fn load_sprite_assets(
                 queue,
                 &std::fs::read(format!("iridium_example_project/assets/{image_path}"))
                     .map_err(|e| e.to_string())?,
-                false,
+                filtered,
             ),
         );
 
@@ -53,12 +53,79 @@ fn load_sprite_assets(
             Material::new(
                 device,
                 surface_format,
-                assets.get::<Shader>("sprite_vertex")?,
+                assets.get::<Shader>("default_vertex")?,
                 camera_gpu_data,
                 assets.get::<Shader>(&format!("{name}_frag"))?,
             ),
         );
     }
+
+    Ok(())
+}
+
+/// Load default assets.
+///
+/// Eventually this might be added to the engine.
+///
+/// # Errors
+///
+/// If assets were loaded in the wrong order.
+/// Shouldn't happen if this function was coded correctly.
+pub fn load_default_assets(
+    camera_gpu_data: &iridium_graphics::CameraGpuData,
+    device: &wgpu::Device,
+    surface_format: wgpu::TextureFormat,
+    assets: &mut Assets,
+) -> Result<(), String> {
+    assets.add(
+        "default_vertex",
+        Shader::new(
+            device,
+            ShaderType::Vertex,
+            include_spirv!("assets/vert.hlsl", vert, hlsl, entry = "vs_main", no_debug),
+            vec![ShaderInput::Transform],
+        ),
+    );
+
+    assets.add(
+        "default_mesh",
+        Mesh {
+            vertices: vec![
+                Vertex::new(VecN::new([-1., -1., 0.]), VecN::new([1., 0.])),
+                Vertex::new(VecN::new([-1., 1., 0.]), VecN::new([1., 1.])),
+                Vertex::new(VecN::new([1., 1., 0.]), VecN::new([0., 1.])),
+                Vertex::new(VecN::new([1., -1., 0.]), VecN::new([0., 0.])),
+            ],
+            indices: vec![0, 3, 2, 0, 2, 1],
+        },
+    );
+
+    assets.add(
+        "default_frag",
+        Shader::new(
+            device,
+            ShaderType::Fragment,
+            include_spirv!(
+                "assets/uv_test.hlsl",
+                frag,
+                hlsl,
+                entry = "fs_main",
+                no_debug
+            ),
+            vec![],
+        ),
+    );
+
+    assets.add(
+        "default_mat",
+        Material::new(
+            device,
+            surface_format,
+            assets.get::<Shader>("default_vertex")?,
+            camera_gpu_data,
+            assets.get::<Shader>("default_frag")?,
+        ),
+    );
 
     Ok(())
 }
@@ -77,15 +144,7 @@ pub fn load_assets(
     surface_format: wgpu::TextureFormat,
     assets: &mut Assets,
 ) -> Result<(), String> {
-    assets.add(
-        "sprite_vertex",
-        Shader::new(
-            device,
-            ShaderType::Vertex,
-            include_spirv!("assets/vert.hlsl", vert, hlsl, entry = "vs_main", no_debug),
-            vec![ShaderInput::Transform],
-        ),
-    );
+    load_default_assets(camera_gpu_data, device, surface_format, assets)?;
 
     assets.add(
         "fish_mesh",
@@ -138,10 +197,22 @@ pub fn load_assets(
         },
     );
 
+    assets.add(
+        "bg_tex",
+        Texture::from_image_bytes(
+            device,
+            queue,
+            &std::fs::read("iridium_example_project/assets/Background.png")
+                .map_err(|e| e.to_string())?,
+            true,
+        ),
+    );
+
     load_sprite_assets(
         vec![
-            ("fish", "FoodSprites/Food/Fish.png"),
-            ("wine", "FoodSprites/Food/Wine.png"),
+            ("fish", "FoodSprites/Food/Fish.png", false),
+            ("wine", "FoodSprites/Food/Wine.png", false),
+            ("bg", "Background.png", true),
         ],
         include_spirv!(
             "assets/sprite.hlsl",

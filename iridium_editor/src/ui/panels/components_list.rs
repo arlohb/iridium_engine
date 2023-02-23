@@ -200,7 +200,7 @@ impl PanelUi for ComponentsList {
         context: &egui::Context,
         ui_state: &mut crate::ui::UiState,
         world: &mut iridium_ecs::World,
-        _assets: &Assets,
+        assets: &Assets,
     ) {
         egui::SidePanel::right("components_list").show(context, |ui| {
             egui::TopBottomPanel::bottom("system_stages")
@@ -237,7 +237,9 @@ impl PanelUi for ComponentsList {
                             for (type_name, default) in world.entities.component_defaults() {
                                 if ui.button(type_name).clicked() {
                                     ui.close_menu();
-                                    let component = default();
+                                    let Ok(component) = default(assets) else {
+                                        continue;
+                                    };
                                     world.entities.add_components(id, vec![component]);
                                 }
                             }

@@ -4,6 +4,7 @@ use iridium_assets::{Asset, Assets};
 use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     ui::InspectorUi,
+    ComponentDefault,
 };
 use iridium_ecs_macros::{Component, ComponentStorage, InspectorUi};
 use iridium_map_utils::fast_map;
@@ -152,6 +153,15 @@ pub struct Renderable2D {
     pub index_buffer: Option<wgpu::Buffer>,
     /// The number of vertices.
     pub index_count: Option<u32>,
+}
+
+impl ComponentDefault for Renderable2D {
+    fn default(assets: &Assets) -> Result<Self, String> {
+        Ok(Self::new(
+            assets.get("default_mesh")?,
+            assets.get("default_mat")?,
+        ))
+    }
 }
 
 // We can't use the default as a change in assets

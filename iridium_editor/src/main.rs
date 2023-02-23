@@ -55,7 +55,9 @@ fn main() {
     let camera_gpu_data = CameraGpuData::new(&app.device);
 
     // Register the default components.
-    world.entities.register_component::<Renderable2D>();
+    world
+        .entities
+        .register_component_with_default::<Renderable2D>();
     world.entities.register_component::<Renderer2DState>();
     world.entities.register_component::<InputState>();
     world.entities.register_component::<LogState>();

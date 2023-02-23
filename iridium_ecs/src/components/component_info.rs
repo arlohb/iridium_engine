@@ -1,6 +1,6 @@
 use iridium_assets::Assets;
 
-use crate::storage::StoredComponent;
+use crate::{storage::StoredComponent, ComponentDefault};
 
 use super::{Component, ComponentBox};
 
@@ -13,7 +13,10 @@ pub struct ComponentInfo {
     /// Creates a component from within the UI.
     ///
     /// Not all components implement this.
-    pub default: Option<fn() -> ComponentBox>,
+    ///
+    /// Errors here would be from assets failing to load.
+    #[allow(clippy::type_complexity)]
+    pub default: Option<fn(&Assets) -> Result<ComponentBox, String>>,
     /// Tries to create a component from a stored component.
     pub from_stored: fn(StoredComponent, &Assets) -> Option<ComponentBox>,
 }
@@ -33,10 +36,10 @@ impl ComponentInfo {
     ///
     /// Also adds the default fn.
     #[must_use]
-    pub fn new_with_default<T: Component + Default>() -> Self {
+    pub fn new_with_default<T: Component + ComponentDefault>() -> Self {
         Self {
             type_name: T::type_name(),
-            default: Some(|| T::default().into()),
+            default: Some(|assets| T::default(assets).map(Into::into)),
             from_stored: T::from_stored_component,
         }
     }

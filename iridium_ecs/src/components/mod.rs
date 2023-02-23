@@ -9,3 +9,6 @@ pub use component_info::*;
 
 mod component;
 pub use component::*;
+
+mod component_default;
+pub use component_default::*;

@@ -4,6 +4,8 @@ use std::{any::TypeId, sync::mpsc};
 
 use iridium_assets::Assets;
 
+use crate::ComponentDefault;
+
 use super::{Component, ComponentBox, ComponentInfo, Name, Transform};
 use std::collections::HashMap;
 
@@ -195,7 +197,7 @@ impl Entities {
     /// Registers a component type with a default implementation.
     ///
     /// Called instead of `register_component`
-    pub fn register_component_with_default<T: Component + Default>(&mut self) {
+    pub fn register_component_with_default<T: Component + ComponentDefault>(&mut self) {
         let type_id = TypeId::of::<T>();
         let component_info = ComponentInfo::new_with_default::<T>();
         self.component_info.insert(type_id, component_info);
@@ -204,7 +206,9 @@ impl Entities {
     /// Get a vec of component names and their factories.
     #[allow(clippy::type_complexity)]
     #[must_use]
-    pub fn component_defaults(&self) -> Vec<(&'static str, fn() -> ComponentBox)> {
+    pub fn component_defaults(
+        &self,
+    ) -> Vec<(&'static str, fn(&Assets) -> Result<ComponentBox, String>)> {
         self.component_info
             .iter()
             .filter_map(|(_, info)| Some((info.type_name, info.default?)))

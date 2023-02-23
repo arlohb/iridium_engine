@@ -1,42 +1,5 @@
 {
     entities: {
-        "51482402868868353372344529207483626834": {
-            Name: {
-                name: "Bird",
-            },
-            Transform: {
-                rotation: 2.52,
-                scale: [0.07, 0.07, 0.07],
-                position: [0.0, 0.0, 0.0],
-            },
-            Renderable2D: {
-                mesh: "fish_mesh",
-                material: "fish_mat",
-            },
-            Weight: {
-            },
-            Velocity: {
-                velocity: [0.0, 0.0, 0.0],
-            },
-            Death: {
-            },
-            Flight: {
-                force: 0.0017,
-            },
-        },
-        "235060944676573309344287650051410162572": {
-            Name: {
-                name: "Camera",
-            },
-            Camera: {
-                position: [0.0, 0.0],
-                rotation: 0,
-                max_depth: 1,
-                min_depth: 0,
-                name: ,
-                scale: 1,
-            },
-        },
         "37161776037477752767738717876975443530": {
             Name: {
                 name: "SystemState",
@@ -54,15 +17,66 @@
                 active_camera: "",
             },
             PipeState: {
-                max_time_gap: 2.4,
-                edge_padding: 0.2,
                 gap_max: 0.7,
+                edge_padding: 0.2,
+                max_time_gap: 2.4,
+                gap_min: 0.45,
                 min_time_gap: 1.4,
                 pipe_speed: 0.0005,
-                gap_min: 0.45,
             },
             LogState: {
                 max_entries: 100,
+            },
+        },
+        "51482402868868353372344529207483626834": {
+            Name: {
+                name: "Bird",
+            },
+            Transform: {
+                position: [0.0, 0.0, 0.0],
+                scale: [0.07, 0.07, 0.07],
+                rotation: 2.52,
+            },
+            Renderable2D: {
+                material: "fish_mat",
+                mesh: "fish_mesh",
+            },
+            Weight: {
+            },
+            Velocity: {
+                velocity: [0.0, 0.0, 0.0],
+            },
+            Death: {
+            },
+            Flight: {
+                force: 0.0017,
+            },
+        },
+        "235060944676573309344287650051410162572": {
+            Name: {
+                name: "Camera",
+            },
+            Camera: {
+                scale: 1,
+                min_depth: 0,
+                max_depth: 1,
+                rotation: 0,
+                name: ,
+                position: [0.0, 0.0],
+            },
+        },
+        "218108088380489604582039792918059693089": {
+            Name: {
+                name: "Background",
+            },
+            Transform: {
+                position: [0.0, 0.0, 0.0],
+                scale: [1.7, 1.4, 1.0],
+                rotation: 0,
+            },
+            Renderable2D: {
+                material: "bg_mat",
+                mesh: "default_mesh",
             },
         },
     },
