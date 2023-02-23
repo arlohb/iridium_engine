@@ -1,5 +1,5 @@
 use egui_winit::winit::{
-    event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
+    event::{ElementState, KeyboardInput, WindowEvent},
     event_loop::EventLoop,
     window::Window,
 };
@@ -130,7 +130,7 @@ impl App {
                         ..
                     },
                 ..
-            } => *key != VirtualKeyCode::Escape,
+            } => *key != egui_winit::winit::event::VirtualKeyCode::Escape,
             _ => false,
         }
     }
@@ -169,9 +169,9 @@ impl App {
                     modifiers: _,
                 } => {
                     if pressed {
-                        input_state.key_pressed(InputState::egui_to_winit_key(key));
+                        input_state.key_pressed(key.into());
                     } else {
-                        input_state.key_released(InputState::egui_to_winit_key(key));
+                        input_state.key_released(key.into());
                     }
                 }
                 egui::Event::PointerMoved(pos) => {
@@ -181,11 +181,9 @@ impl App {
                     button, pressed, ..
                 } => {
                     if pressed {
-                        input_state
-                            .mouse_button_pressed(InputState::egui_to_winit_mouse_button(button));
+                        input_state.mouse_button_pressed(button.into());
                     } else {
-                        input_state
-                            .mouse_button_released(InputState::egui_to_winit_mouse_button(button));
+                        input_state.mouse_button_released(button.into());
                     }
                 }
                 _ => {}

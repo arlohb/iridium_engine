@@ -220,7 +220,7 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
 }
 
 /// Derive macro generating an impl of the trait `InspectorUi`.
-#[proc_macro_derive(InspectorUi, attributes(hidden, drag_speed))]
+#[proc_macro_derive(InspectorUi, attributes(hidden, drag_speed, id))]
 pub fn derive_inspector_ui(tokens: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(tokens as syn::DeriveInput);
     let struct_name = &ast.ident;

@@ -2,18 +2,14 @@
 
 #![warn(clippy::expect_used)]
 
-mod gravity;
-pub use gravity::*;
 mod velocity;
 pub use velocity::*;
 mod death;
 pub use death::*;
-mod flight;
-pub use flight::*;
-mod flight_rotation;
-pub use flight_rotation::*;
-mod pipes;
-pub use pipes::*;
+mod collision;
+pub use collision::*;
+mod movement;
+pub use movement::*;
 
 mod assets;
 pub use assets::*;
@@ -37,36 +33,18 @@ pub fn init_system(world: &mut World, assets: &Assets) {
     let _ = assets;
 
     world.entities.register_component_with_default::<Velocity>();
-    world.entities.register_component_with_default::<Weight>();
-    world
-        .entities
-        .register_component_with_default::<GravityState>();
+    world.entities.register_component_with_default::<Wall>();
     world.entities.register_component_with_default::<Death>();
-    world.entities.register_component_with_default::<Flight>();
-    world
-        .entities
-        .register_component_with_default::<PipeState>();
-    world.entities.register_component_with_default::<Pipe>();
+    world.entities.register_component_with_default::<Movement>();
 
     world.systems.add_system(VelocitySystem);
-    world.systems.add_system(GravitySystem);
     world.systems.add_system(DeathSystem);
-    world.systems.add_system(FlightSystem);
-    world.systems.add_system(FlightRotationSystem);
-    world.systems.add_system(PipeSystem);
-    world.systems.add_system(PipeRemovalSystem);
-    world.systems.add_system(PipeCollisionSystem);
+    world.systems.add_system(MovementSystem);
+    world.systems.add_system(CollisionSystem);
 
     world.systems.stages = vec![
-        vec![
-            "GravitySystem".to_string(),
-            "PipeSystem".to_string(),
-            "PipeRemovalSystem".to_string(),
-            "PipeCollisionSystem".to_string(),
-        ],
         vec!["VelocitySystem".to_string()],
-        vec!["DeathSystem".to_string()],
-        vec!["FlightSystem".to_string()],
-        vec!["FlightRotationSystem".to_string()],
+        vec!["MovementSystem".to_string()],
+        vec!["CollisionSystem".to_string()],
     ];
 }

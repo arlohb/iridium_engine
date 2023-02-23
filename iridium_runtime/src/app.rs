@@ -111,10 +111,10 @@ impl App {
                 ..
             } => match state {
                 winit::event::ElementState::Pressed => {
-                    input_state.key_pressed(*virtual_keycode);
+                    input_state.key_pressed((*virtual_keycode).into());
                 }
                 winit::event::ElementState::Released => {
-                    input_state.key_released(*virtual_keycode);
+                    input_state.key_released((*virtual_keycode).into());
                 }
             },
             WindowEvent::ModifiersChanged(_) => {
@@ -128,8 +128,12 @@ impl App {
                 log.warning("Mouse wheel in runtime not implemented yet");
             }
             WindowEvent::MouseInput { state, button, .. } => match state {
-                winit::event::ElementState::Pressed => input_state.mouse_button_pressed(*button),
-                winit::event::ElementState::Released => input_state.mouse_button_released(*button),
+                winit::event::ElementState::Pressed => {
+                    input_state.mouse_button_pressed((*button).into());
+                }
+                winit::event::ElementState::Released => {
+                    input_state.mouse_button_released((*button).into());
+                }
             },
             _ => {}
         }

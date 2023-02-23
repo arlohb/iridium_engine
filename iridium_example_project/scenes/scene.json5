@@ -1,55 +1,64 @@
 {
     entities: {
-        "37161776037477752767738717876975443530": {
+        "150187248055933149864474152805345953338": {
             Name: {
-                name: "SystemState",
-            },
-            InputState: {
-            },
-            GravityState: {
-                acceleration: 0.000008,
-            },
-            FrameHistoryState: {
-                max_age: 5000,
-                max_frames: 500000,
-            },
-            Renderer2DState: {
-                active_camera: "",
-            },
-            PipeState: {
-                gap_max: 0.7,
-                edge_padding: 0.2,
-                max_time_gap: 2.4,
-                gap_min: 0.45,
-                min_time_gap: 1.4,
-                pipe_speed: 0.0005,
-            },
-            LogState: {
-                max_entries: 100,
-            },
-        },
-        "51482402868868353372344529207483626834": {
-            Name: {
-                name: "Bird",
+                name: "Right bat",
             },
             Transform: {
-                position: [0.0, 0.0, 0.0],
-                scale: [0.07, 0.07, 0.07],
-                rotation: 2.52,
+                scale: [0.03, 0.3, 1.0],
+                position: [1.0, 0.0, 0.0],
+                rotation: 0,
             },
             Renderable2D: {
-                material: "fish_mat",
-                mesh: "fish_mesh",
+                material: "default_mat",
+                mesh: "default_mesh",
             },
-            Weight: {
+            Movement: {
+                up: ArrowUp,
+                speed: 0.002,
+                down: ArrowDown,
             },
-            Velocity: {
-                velocity: [0.0, 0.0, 0.0],
+            Wall: {
+                vertical: true,
             },
-            Death: {
+        },
+        "127608702102299894988420379535200989898": {
+            Name: {
+                name: "Left Bat",
             },
-            Flight: {
-                force: 0.0017,
+            Transform: {
+                position: [-1.0, 0.0, 0.0],
+                scale: [0.03, 0.3, 1.0],
+                rotation: 0,
+            },
+            Renderable2D: {
+                material: "default_mat",
+                mesh: "default_mesh",
+            },
+            Movement: {
+                speed: 0.002,
+                down: S,
+                up: W,
+            },
+            Wall: {
+                vertical: true,
+            },
+        },
+        "318314541654199858334818336599549280552": {
+            Name: {
+                name: "Top Wall",
+            },
+            Transform: {
+                rotation: 0,
+                position: [0.0, 1.0, 0.0],
+                scale: [1.0, 0.05, 1.0],
+            },
+            Renderable2D: {
+                material: "default_mat",
+                mesh: "default_mesh",
+            },
+            Wall: {
+                vertical: false,
             },
         },
         "235060944676573309344287650051410162572": {
@@ -57,12 +66,12 @@
                 name: "Camera",
             },
             Camera: {
+                max_depth: 1,
+                position: [0.0, 0.0],
+                name: ,
+                rotation: 0,
                 scale: 1,
                 min_depth: 0,
-                max_depth: 1,
-                rotation: 0,
-                name: ,
-                position: [0.0, 0.0],
             },
         },
         "218108088380489604582039792918059693089": {
@@ -70,13 +79,64 @@
                 name: "Background",
             },
             Transform: {
-                position: [0.0, 0.0, 0.0],
                 scale: [1.7, 1.4, 1.0],
+                position: [0.0, 0.0, 0.0],
                 rotation: 0,
             },
             Renderable2D: {
                 material: "bg_mat",
                 mesh: "default_mesh",
+            },
+        },
+        "118787457124154076436902094162972382960": {
+            Name: {
+                name: "Bottom Wall",
+            },
+            Transform: {
+                rotation: 0,
+                position: [0.0, -1.0, 0.0],
+                scale: [1.0, 0.05, 1.0],
+            },
+            Renderable2D: {
+                mesh: "default_mesh",
+                material: "default_mat",
+            },
+            Wall: {
+                vertical: false,
+            },
+        },
+        "99977008164795114016286132825218705998": {
+            Name: {
+                name: "Ball",
+            },
+            Transform: {
+                scale: [0.08, 0.08, 1.0],
+                position: [0.0, 0.0, 0.0],
+                rotation: 0,
+            },
+            Renderable2D: {
+                mesh: "default_mesh",
+                material: "default_mat",
+            },
+            Velocity: {
+                velocity: [0.0015, 0.0011, 0.0],
+            },
+        },
+        "37161776037477752767738717876975443530": {
+            Name: {
+                name: "SystemState",
+            },
+            InputState: {
+            },
+            FrameHistoryState: {
+                max_frames: 500000,
+                max_age: 5000,
+            },
+            Renderer2DState: {
+                active_camera: "",
+            },
+            LogState: {
+                max_entries: 100,
             },
         },
     },
