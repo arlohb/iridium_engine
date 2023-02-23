@@ -1,5 +1,5 @@
 use iridium_assets::Assets;
-use iridium_ecs::{Name, World};
+use iridium_ecs::{query, EntityCommand, Name, World};
 
 use crate::ui::{PanelUi, UiState};
 
@@ -55,17 +55,11 @@ impl PanelUi for EntitiesList {
                 .show(ui, |ui| {
                     ui.add_space(10.);
 
-                    for (id, [name]) in {
-                        let mut entities = world
-                            .entities
-                            .query_by_type_id([&std::any::TypeId::of::<Name>()])
-                            .collect::<Vec<_>>();
-                        entities.sort_by_key(|(_, [name])| &name.get::<Name>().name);
+                    for (id, Name { name }) in {
+                        let mut entities = query!(world.entities, [; Name]).collect::<Vec<_>>();
+                        entities.sort_by_key(|(_, name)| &name.name);
                         entities
                     } {
-                        let name = name.get::<Name>();
-                        let name = &name.name;
-
                         if name == "SystemState" {
                             continue;
                         }
@@ -85,12 +79,22 @@ impl PanelUi for EntitiesList {
                             }
                         }
 
-                        if ui
-                            .add(egui::Label::new(rich_text).sense(egui::Sense::click()))
-                            .clicked()
-                        {
+                        let label = ui.add(egui::Label::new(rich_text).sense(egui::Sense::click()));
+
+                        if label.clicked() {
                             ui_state.selected_entity = Some(id);
                         }
+
+                        let popup = ui.make_persistent_id(format!("Entity {id} popup"));
+                        if label.secondary_clicked() {
+                            ui.memory().toggle_popup(popup);
+                        }
+                        egui::popup::popup_below_widget(ui, popup, &label, |ui| {
+                            ui.set_min_width(80.);
+                            if ui.button("delete").clicked() {
+                                world.entities.send_cmd(EntityCommand::DeleteEntity(id));
+                            }
+                        });
                     }
 
                     ui.add_space(30.);

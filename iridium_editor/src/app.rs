@@ -205,6 +205,12 @@ impl App {
             _ => {}
         }
 
+        // The UI could also have sent entity commands, so process them here.
+        // This does mean in play mode this is called twice per frame,
+        // but this does nothing if no commands were sent,
+        // so will not affect performance.
+        world.entities.process_commands();
+
         // Get the surface texture to render to.
         let output = self
             .surface
