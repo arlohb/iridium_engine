@@ -126,7 +126,8 @@ impl App {
     /// Returns true if egui handled the event,
     /// false if the event should be handled outside the app.
     pub fn input(&mut self, event: &WindowEvent) -> bool {
-        self.egui_state
+        let _ = self
+            .egui_state
             .winit
             .on_event(&self.egui_state.context, event);
         match event {
