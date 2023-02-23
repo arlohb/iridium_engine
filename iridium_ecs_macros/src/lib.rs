@@ -113,7 +113,11 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
 
     let ecs_crate = get_ecs_crate();
 
-    let (from_stored, to_stored) = if let syn::Data::Struct(data) = ast.data {
+    let syn::Data::Struct(data) = ast.data else {
+        panic!("ComponentStorage can only be derived on a struct")
+    };
+
+    let (from_stored, to_stored) = {
         match data.fields {
             syn::Fields::Unit => (
                 quote! { Some(Self) },
@@ -180,24 +184,19 @@ pub fn derive_component_storage(tokens: TokenStream) -> TokenStream {
                     },
                 )
             }
-            syn::Fields::Unnamed(fields) => {
-                if fields.unnamed.is_empty() {
-                    (
-                        quote! { Some(Self()) },
-                        quote! {
-                            #ecs_crate::storage::StoredComponent {
-                                type_name: stringify!(#struct_name).to_string(),
-                                fields: std::collections::HashMap::new(),
-                            }
-                        },
-                    )
-                } else {
-                    panic!("ComponentStorage cannot be derived on non-empty tuple struct")
-                }
+            syn::Fields::Unnamed(fields) if fields.unnamed.is_empty() => (
+                quote! { Some(Self()) },
+                quote! {
+                    #ecs_crate::storage::StoredComponent {
+                        type_name: stringify!(#struct_name).to_string(),
+                        fields: std::collections::HashMap::new(),
+                    }
+                },
+            ),
+            syn::Fields::Unnamed(_) => {
+                panic!("ComponentStorage cannot be derived on non-empty tuple struct")
             }
         }
-    } else {
-        panic!("ComponentStorage can only be derived on a struct")
     };
 
     quote! {
