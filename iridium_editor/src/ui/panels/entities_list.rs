@@ -87,7 +87,7 @@ impl PanelUi for EntitiesList {
 
                         let popup = ui.make_persistent_id(format!("Entity {id} popup"));
                         if label.secondary_clicked() {
-                            ui.memory().toggle_popup(popup);
+                            ui.memory_mut(|mem| mem.toggle_popup(popup));
                         }
                         egui::popup::popup_below_widget(ui, popup, &label, |ui| {
                             ui.set_min_width(80.);

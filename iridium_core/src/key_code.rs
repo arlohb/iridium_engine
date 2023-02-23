@@ -3,6 +3,10 @@ use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
 /// Represents a key on the keyboard.
+///
+/// This is kept close to `egui::Key`,
+/// just because I like their choice of keys.
+/// (It's not overwhelmingly long, like winit's)
 #[allow(missing_docs)]
 #[derive(Display, EnumString, EnumIter, PartialEq, Eq, Hash, Clone)]
 pub enum KeyCode {
@@ -77,6 +81,8 @@ pub enum KeyCode {
     F18,
     F19,
     F20,
+    Minus,
+    PlusEquals,
     Other(String),
 }
 
@@ -154,6 +160,8 @@ impl From<egui::Key> for KeyCode {
             egui::Key::F18 => Self::F18,
             egui::Key::F19 => Self::F19,
             egui::Key::F20 => Self::F20,
+            egui::Key::Minus => Self::Minus,
+            egui::Key::PlusEquals => Self::PlusEquals,
         }
     }
 }
@@ -287,7 +295,7 @@ impl From<winit::event::VirtualKeyCode> for KeyCode {
             winit::event::VirtualKeyCode::Colon => Self::Other("Colon".to_string()),
             winit::event::VirtualKeyCode::Comma => Self::Other("Comma".to_string()),
             winit::event::VirtualKeyCode::Convert => Self::Other("Convert".to_string()),
-            winit::event::VirtualKeyCode::Equals => Self::Other("Equals".to_string()),
+            winit::event::VirtualKeyCode::Equals => Self::PlusEquals,
             winit::event::VirtualKeyCode::Grave => Self::Other("Grave".to_string()),
             winit::event::VirtualKeyCode::Kana => Self::Other("Kana".to_string()),
             winit::event::VirtualKeyCode::Kanji => Self::Other("Kanji".to_string()),
@@ -299,7 +307,7 @@ impl From<winit::event::VirtualKeyCode> for KeyCode {
             winit::event::VirtualKeyCode::Mail => Self::Other("Mail".to_string()),
             winit::event::VirtualKeyCode::MediaSelect => Self::Other("MediaSelect".to_string()),
             winit::event::VirtualKeyCode::MediaStop => Self::Other("MediaStop".to_string()),
-            winit::event::VirtualKeyCode::Minus => Self::Other("Minus".to_string()),
+            winit::event::VirtualKeyCode::Minus => Self::Minus,
             winit::event::VirtualKeyCode::Mute => Self::Other("Mute".to_string()),
             winit::event::VirtualKeyCode::MyComputer => Self::Other("MyComputer".to_string()),
             winit::event::VirtualKeyCode::NavigateForward => {

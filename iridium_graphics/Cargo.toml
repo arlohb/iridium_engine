@@ -12,7 +12,7 @@ iridium_ecs_macros = { path = "../iridium_ecs_macros" }
 iridium_maths = { path = "../iridium_maths" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 
-egui = "0.19.0"
-wgpu = { version = "0.14", features = ["spirv"] }
+egui = "0.21"
+wgpu = { version = "0.15", features = ["spirv"] }
 image = { version = "0.24", default-features = false, features = ["png"] }
-puffin = "0.13"
+puffin = "0.14"

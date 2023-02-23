@@ -47,8 +47,15 @@ impl App {
         let backends = !wgpu::Backends::GL;
 
         // Initialize the surface.
-        let instance = wgpu::Instance::new(backends);
-        let surface = unsafe { instance.create_surface(window) };
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+            backends,
+            dx12_shader_compiler: wgpu::Dx12Compiler::Fxc,
+        });
+        let surface = unsafe {
+            instance
+                .create_surface(window)
+                .expect("Failed to create surface")
+        };
 
         // Initialize the device.
         let adapter = instance
@@ -74,13 +81,14 @@ impl App {
         // Configure the surface.
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format: surface.get_supported_formats(&adapter)[0],
+            format: surface.get_capabilities(&adapter).formats[0],
             width: screen_size.0,
             height: screen_size.1,
             // Vsync should be used in the future,
             // but I need to see fps above 60 while debugging performance.
             present_mode: wgpu::PresentMode::AutoNoVsync,
             alpha_mode: wgpu::CompositeAlphaMode::Auto,
+            view_formats: vec![],
         };
         surface.configure(&device, &surface_config);
 
@@ -167,7 +175,8 @@ impl App {
                     key,
                     pressed,
                     modifiers: _,
-                } => {
+                    repeat,
+                } if !repeat => {
                     if pressed {
                         input_state.key_pressed(key.into());
                     } else {
@@ -192,7 +201,6 @@ impl App {
 
         self.egui_state
             .draw(window, input, &mut self.ui_state, world, assets);
-        self.egui_state.upload_ui(&self.device, &self.queue);
 
         // Drawing the UI could've changed an Asset id,
         // so these need to be updated here.
@@ -224,6 +232,9 @@ impl App {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("Render Encoder"),
             });
+
+        self.egui_state
+            .upload_ui(&self.device, &self.queue, &mut encoder);
 
         {
             // Create the render pass.

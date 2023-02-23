@@ -13,7 +13,10 @@ fn load_texture(context: &egui::Context, path: &str) -> ((usize, usize), egui::T
     let texture = context.load_texture(
         path.split('/').last().unwrap_or(path),
         egui::ColorImage::from_rgba_unmultiplied([size.0 as usize, size.1 as usize], &image_rgba),
-        egui::TextureFilter::Nearest,
+        egui::TextureOptions {
+            magnification: egui::TextureFilter::Nearest,
+            minification: egui::TextureFilter::Nearest,
+        },
     );
 
     ((size.0 as usize, size.1 as usize), texture)

@@ -13,11 +13,11 @@ iridium_assets = { path = "../iridium_assets" }
 iridium_graphics = { path = "../iridium_graphics" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 
-winit = "0.27"
-egui = "0.19"
+winit = "0.28"
+egui = "0.21"
 chrono = "0.4"
 dlopen = "0.1"
 dlopen_derive = "0.1"
-wgpu = "0.14"
+wgpu = "0.15"
 strum = "0.24"
 strum_macros = "0.24"

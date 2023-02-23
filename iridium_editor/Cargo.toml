@@ -14,14 +14,13 @@ iridium_graphics = { path = "../iridium_graphics" }
 iridium_maths = { path = "../iridium_maths" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 
-egui = "0.19.0"
-egui-latest_wgpu_backend = "0.19.0"
-# egui-latest_wgpu_backend = { path = "../../egui-latest_wgpu_backend" }
-egui-winit = "0.19.0"
+egui = "0.21"
+egui-wgpu = "0.21"
+egui-winit = { version = "0.21", features = ["puffin"] }
 
-env_logger = "0.9"
-wgpu = { version = "0.14", features = ["spirv"] }
-pollster = "0.2"
+env_logger = "0.10"
+wgpu = { version = "0.15", features = ["spirv"] }
+pollster = "0.3"
 image = "0.24"
-puffin = "0.13"
-puffin_egui = "0.17"
+puffin = "0.14"
+puffin_egui = "0.20"

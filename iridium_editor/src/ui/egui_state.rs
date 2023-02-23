@@ -8,7 +8,7 @@ use super::{PanelUi, UiState};
 /// Stores data about the UI while it is being rendered.
 pub struct FrameData {
     pub paint_jobs: Option<Vec<egui::ClippedPrimitive>>,
-    pub screen_descriptor: Option<egui_latest_wgpu_backend::ScreenDescriptor>,
+    pub screen_descriptor: Option<egui_wgpu::renderer::ScreenDescriptor>,
     pub textures_delta: Option<egui::TexturesDelta>,
 }
 
@@ -17,7 +17,7 @@ pub struct EguiState {
     /// The egui context.
     pub context: egui::Context,
     /// The egui backend state.
-    pub rpass: egui_latest_wgpu_backend::RenderPass,
+    pub renderer: egui_wgpu::Renderer,
     /// The egui winit state.
     pub winit: egui_winit::State,
     /// The UI panels.
@@ -38,7 +38,7 @@ impl EguiState {
         let context = egui::Context::default();
 
         // Create the egui backend state.
-        let rpass = egui_latest_wgpu_backend::RenderPass::new(device, format, 1);
+        let rpass = egui_wgpu::Renderer::new(device, format, None, 1);
 
         // Create the winit state.
         let winit = egui_winit::State::new(event_loop);
@@ -53,7 +53,7 @@ impl EguiState {
 
         Self {
             context,
-            rpass,
+            renderer: rpass,
             winit,
             panels,
             frame_data: FrameData {
@@ -200,12 +200,14 @@ impl EguiState {
                     key,
                     pressed,
                     modifiers,
-                } => {
+                    repeat,
+                } if !repeat => {
                     if viewport_rect_logical.contains(self.mouse_pos) {
                         game_events.push(egui::Event::Key {
                             key,
                             pressed,
                             modifiers,
+                            repeat,
                         });
                         return None;
                     }
@@ -214,6 +216,7 @@ impl EguiState {
                         key,
                         pressed,
                         modifiers,
+                        repeat,
                     })
                 }
                 event => Some(event),
@@ -253,10 +256,9 @@ impl EguiState {
         let paint_jobs = self.context.tessellate(full_output.shapes);
 
         // Create the screen descriptor.
-        let screen_descriptor = egui_latest_wgpu_backend::ScreenDescriptor {
-            physical_width: ui_state.screen_size.0,
-            physical_height: ui_state.screen_size.1,
-            scale_factor: window.scale_factor() as f32 * ui_state.scale_factor,
+        let screen_descriptor = egui_wgpu::renderer::ScreenDescriptor {
+            size_in_pixels: [ui_state.screen_size.0, ui_state.screen_size.1],
+            pixels_per_point: window.scale_factor() as f32 * ui_state.scale_factor,
         };
 
         self.frame_data = FrameData {
@@ -267,30 +269,38 @@ impl EguiState {
     }
 
     /// Uploads the resources to the GPU.
-    pub fn upload_ui(&mut self, device: &wgpu::Device, queue: &wgpu::Queue) {
+    pub fn upload_ui(
+        &mut self,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        encoder: &mut wgpu::CommandEncoder,
+    ) {
         puffin::profile_function!();
 
-        self.rpass
-            .add_textures(
-                device,
-                queue,
-                self.frame_data
-                    .textures_delta
-                    .as_ref()
-                    .expect("Textures delta has not been created yet"),
-            )
-            .expect("Failed to add texture to egui");
-        self.rpass
-            .remove_textures(
-                self.frame_data
-                    .textures_delta
-                    .take()
-                    .expect("Textures delta has not been created yet"),
-            )
-            .expect("Failed to remove texture from egui");
-        self.rpass.update_buffers(
+        for (id, delta) in &self
+            .frame_data
+            .textures_delta
+            .as_ref()
+            .expect("Textures delta not yet created")
+            .set
+        {
+            self.renderer.update_texture(device, queue, *id, delta);
+        }
+
+        for id in &self
+            .frame_data
+            .textures_delta
+            .as_ref()
+            .expect("Textures delta not yet created")
+            .free
+        {
+            self.renderer.free_texture(id);
+        }
+
+        self.renderer.update_buffers(
             device,
             queue,
+            encoder,
             self.frame_data
                 .paint_jobs
                 .as_ref()
@@ -317,18 +327,16 @@ impl EguiState {
         );
 
         // Render the UI.
-        self.rpass
-            .execute_with_renderpass(
-                render_pass,
-                self.frame_data
-                    .paint_jobs
-                    .as_ref()
-                    .expect("Paint jobs have not been created yet"),
-                self.frame_data
-                    .screen_descriptor
-                    .as_ref()
-                    .expect("Screen descriptor has not been created yet"),
-            )
-            .expect("Failed to execute egui render pass");
+        self.renderer.render(
+            render_pass,
+            self.frame_data
+                .paint_jobs
+                .as_ref()
+                .expect("Paint jobs have not been created yet"),
+            self.frame_data
+                .screen_descriptor
+                .as_ref()
+                .expect("Screen descriptor has not been created yet"),
+        );
     }
 }
