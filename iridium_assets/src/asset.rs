@@ -1,5 +1,5 @@
 use std::{
-    any::Any,
+    any::{Any, TypeId},
     ops::Deref,
     sync::{Arc, RwLock},
 };
@@ -7,7 +7,7 @@ use std::{
 use crate::Assets;
 
 /// An asset.
-pub struct Asset<T: Send + Sync + 'static> {
+pub struct Asset<T: Any + Send + Sync> {
     /// The ID of the asset.
     id: String,
     /// If the ID has changed but the asset hasn't.
@@ -17,10 +17,10 @@ pub struct Asset<T: Send + Sync + 'static> {
     phantom: std::marker::PhantomData<*const T>,
 }
 
-unsafe impl<T: Send + Sync + 'static> Send for Asset<T> {}
-unsafe impl<T: Send + Sync + 'static> Sync for Asset<T> {}
+unsafe impl<T: Any + Send + Sync> Send for Asset<T> {}
+unsafe impl<T: Any + Send + Sync> Sync for Asset<T> {}
 
-impl<T: Send + Sync + 'static> Clone for Asset<T> {
+impl<T: Any + Send + Sync> Clone for Asset<T> {
     fn clone(&self) -> Self {
         Self {
             id: self.id.clone(),
@@ -31,24 +31,62 @@ impl<T: Send + Sync + 'static> Clone for Asset<T> {
     }
 }
 
-impl<T: Send + Sync + 'static> Deref for Asset<T> {
+impl<T: Any + Send + Sync> Deref for Asset<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.get()
+        match self.get() {
+            Ok(t) => t,
+            // I'm fine with panicking here,
+            // because if `Asset` is used properly, `Asset::get` shouldn't fail,
+            // and `Asset` not being used properly should be a serious error,
+            // and not something to be fixed at runtime.
+            Err(err) => panic!("Asset deref failed with error: {err}"),
+        }
     }
 }
 
-impl<T: Send + Sync + 'static> Asset<T> {
+impl<T: Any + Send + Sync> Asset<T> {
     /// Creates a new asset.
-    #[must_use]
-    pub fn from_inner(id: String, asset: Arc<RwLock<dyn Any + Send + Sync>>) -> Self {
-        Self {
+    ///
+    /// # Errors
+    ///
+    /// If the asset is not the correct type.
+    pub fn from_inner(
+        id: String,
+        asset: Arc<RwLock<dyn Any + Send + Sync>>,
+    ) -> Result<Self, String> {
+        if TypeId::of::<T>() != Self::type_id_from_inner(&asset) {
+            return Err("Asset was not of type `T`".into());
+        }
+
+        Ok(Self {
             id,
             asset,
             invalid: false,
             phantom: std::marker::PhantomData,
-        }
+        })
+    }
+
+    /// Get the type id of an inner asset.
+    #[must_use]
+    pub fn type_id_from_inner(inner: &Arc<RwLock<dyn Any + Send + Sync>>) -> TypeId {
+        let any = inner.read().expect("Asset RwLock poisoned");
+        (*any).type_id()
+    }
+
+    /// Get the type id of the asset.
+    ///
+    /// If `Asset` is used properly this should always correspond with T.
+    #[must_use]
+    pub fn type_id(&self) -> TypeId {
+        Self::type_id_from_inner(&self.asset)
+    }
+
+    /// Checks whether the asset has the given type id.
+    #[must_use]
+    pub fn is_type(&self, other: TypeId) -> bool {
+        self.type_id() == other
     }
 
     /// Gets the id.
@@ -71,33 +109,45 @@ impl<T: Send + Sync + 'static> Asset<T> {
 
     /// Gets the asset.
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// Panics if the asset is not of the expected type,
+    /// If the asset is not of the expected type,
     /// or the inner `RwLock` has been poisoned.
-    #[must_use]
-    pub fn get(&self) -> &T {
-        let dyn_guard = self.asset.read().expect("Asset RwLock poisoned");
-        let local_ref = dyn_guard.downcast_ref::<T>().expect("Asset type mismatch");
+    pub fn get(&self) -> Result<&T, String> {
+        let dyn_guard = self
+            .asset
+            .read()
+            .map_err(|_| "Asset RwLock poisoned".to_string())?;
+
+        let local_ref = dyn_guard
+            .downcast_ref::<T>()
+            .ok_or_else(|| "Asset type mismatch".to_string())?;
+
         unsafe {
-            std::mem::transmute::<&T, & /*'self*/ T>(local_ref)
+            Ok(std::mem::transmute::<&T, & /*'self*/ T>(local_ref))
         }
     }
 
     /// Mutably gets the asset.
     /// This will block the current thread until the asset is available.
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// Panics if the asset is not of the expected type,
+    /// If the asset is not of the expected type,
     /// or the inner `RwLock` has been poisoned.
     #[allow(clippy::mut_from_ref)]
-    #[must_use]
-    pub fn get_mut(&self) -> &mut T {
-        let mut dyn_guard = self.asset.write().expect("Asset RwLock poisoned");
-        let local_mut = dyn_guard.downcast_mut::<T>().expect("Asset type mismatch");
+    pub fn get_mut(&self) -> Result<&mut T, String> {
+        let mut dyn_guard = self
+            .asset
+            .write()
+            .map_err(|_| "Asset RwLock poisoned".to_string())?;
+
+        let local_mut = dyn_guard
+            .downcast_mut::<T>()
+            .ok_or_else(|| "Asset type mismatch".to_string())?;
+
         unsafe {
-            std::mem::transmute::<&mut T, & /*'self*/ mut T>(local_mut)
+            Ok(std::mem::transmute::<&mut T, & /*'self*/ mut T>(local_mut))
         }
     }
 
@@ -118,14 +168,19 @@ impl<T: Send + Sync + 'static> Asset<T> {
     ///
     /// # Errors
     ///
-    /// If the asset isn't found.
+    /// If the asset isn't found or the new asset type is wrong
     pub fn update_asset(&mut self, assets: &Assets) -> Result<bool, String> {
         if !self.invalid {
             return Ok(false);
         }
 
-        *self = assets.get::<T>(&self.id)?;
+        let new_asset = assets.get::<T>(&self.id)?;
 
-        Ok(true)
+        if self.is_type(new_asset.type_id()) {
+            *self = new_asset;
+            Ok(true)
+        } else {
+            Err(format!("New asset '{}' has wrong type", self.id))
+        }
     }
 }

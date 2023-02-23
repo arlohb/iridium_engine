@@ -31,10 +31,12 @@ impl Assets {
     ///
     /// Returns an error if the asset id is not found.
     pub fn get<T: Any + Send + Sync + 'static>(&self, id: &str) -> Result<Asset<T>, String> {
-        self.assets
+        let inner = self
+            .assets
             .get(id)
-            .map(|asset| Asset::<T>::from_inner(id.to_string(), asset.clone()))
-            .ok_or(format!("Asset {id} is not found"))
+            .ok_or(format!("Asset {id} is not found"))?;
+
+        Asset::<T>::from_inner(id.to_string(), inner.clone())
     }
 
     /// Gets all assets.

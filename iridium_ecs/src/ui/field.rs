@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use iridium_assets::Asset;
 
 use super::InspectorUiFieldAttributes;
@@ -64,7 +66,7 @@ impl<const N: usize> InspectorUiField for iridium_maths::VecN<N> {
 // as most things that use assets need to regenerate
 // some data when an asset changes, so will need to
 // impl `InspectorUi` themselves anyway.
-impl<T: Send + Sync> InspectorUiField for Asset<T> {
+impl<T: Any + Send + Sync> InspectorUiField for Asset<T> {
     fn ui(&mut self, ui: &mut egui::Ui, _attributes: InspectorUiFieldAttributes) {
         // Copy the id
         let mut id = self.id().to_owned();

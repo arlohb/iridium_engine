@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used)]
+
 use iridium_assets::Assets;
 
 fn test_assets() -> Assets {
@@ -48,7 +50,7 @@ fn get() {
     let a = assets.get::<i32>("a").expect("Asset not found");
 
     assert_eq!(a.id(), "a");
-    assert_eq!(*a.get(), 1);
+    assert_eq!(*a.get().unwrap(), 1);
 }
 
 #[test]
@@ -58,7 +60,7 @@ fn get_mut() {
     let a = assets.get::<i32>("a").expect("Asset not found");
 
     assert_eq!(a.id(), "a");
-    assert_eq!(*a.get_mut(), 1);
+    assert_eq!(*a.get_mut().unwrap(), 1);
 }
 
 #[test]
