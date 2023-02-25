@@ -20,7 +20,7 @@ impl Assets {
     }
 
     /// Adds an asset.
-    pub fn add<T: Any + Send + Sync + 'static>(&mut self, id: &str, asset: T) {
+    pub fn add<T: Any + Send + Sync>(&mut self, id: &str, asset: T) {
         self.assets
             .insert(id.to_string(), Arc::new(RwLock::new(asset)));
     }
@@ -30,7 +30,7 @@ impl Assets {
     /// # Errors
     ///
     /// Returns an error if the asset id is not found.
-    pub fn get<T: Any + Send + Sync + 'static>(&self, id: &str) -> Result<Asset<T>, String> {
+    pub fn get<T: Any + Send + Sync>(&self, id: &str) -> Result<Asset<T>, String> {
         let inner = self
             .assets
             .get(id)
