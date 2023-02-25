@@ -27,7 +27,7 @@ pub enum ButtonState {
 /// It is stored under the name "`SystemState`" in the world.
 #[derive(Component, InspectorUi, ComponentStorage)]
 pub struct InputState {
-    /// The current mouse position.
+    /// The current mouse position in logical pixels.
     #[temporary(VecN::zero())]
     pub mouse_position: VecN<2>,
     /// A map of the mouse buttons.

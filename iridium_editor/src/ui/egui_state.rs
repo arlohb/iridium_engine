@@ -103,7 +103,7 @@ impl EguiState {
             .into_iter()
             .filter_map(|event| match event {
                 egui::Event::PointerMoved(position) => {
-                    self.mouse_pos = (position.to_vec2() * 1.2).to_pos2();
+                    self.mouse_pos = position;
 
                     if let Some(pan_start) = &mut ui_state.pan_start {
                         let mut movement = position - *pan_start;
@@ -123,6 +123,7 @@ impl EguiState {
                     if viewport_rect_logical.distance_to_pos(position) < 5.
                         && !self.context.wants_pointer_input()
                     {
+                        game_events.push(egui::Event::PointerMoved(position));
                         return Some(egui::Event::PointerGone);
                     }
 

@@ -22,12 +22,12 @@ impl ScreenRect {
     pub fn egui_logical(&self, width: u32, height: u32, scale_factor: f32) -> egui::Rect {
         egui::Rect {
             min: egui::emath::pos2(
-                self.min_x * (width as f32) * scale_factor,
-                self.min_y * (height as f32) * scale_factor,
+                self.min_x * (width as f32) / scale_factor,
+                self.min_y * (height as f32) / scale_factor,
             ),
             max: egui::emath::pos2(
-                self.max_x * (width as f32) * scale_factor,
-                self.max_y * (height as f32) * scale_factor,
+                self.max_x * (width as f32) / scale_factor,
+                self.max_y * (height as f32) / scale_factor,
             ),
         }
     }
