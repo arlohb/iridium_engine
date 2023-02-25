@@ -71,7 +71,7 @@ impl Renderer2DSystem {
         let components = {
             puffin::profile_scope!("Setup");
 
-            // Set the viewport to the viewport_rect.
+            // Set the viewport to the physical viewport_rect.
             render_pass.set_viewport(
                 viewport_rect_physical.min.x,
                 viewport_rect_physical.min.y,

@@ -59,10 +59,10 @@ impl PanelUi for BottomPanel {
             .default_height(ui_state.screen_size.1 as f32 * ui_state.scale_factor * 0.3)
             .resizable(true)
             .show(context, |ui| {
-                let min_y_logical = ui.max_rect().min.y;
-                let min_y_physical = min_y_logical * ui_state.scale_factor;
-                let min_y_screen = min_y_physical / ui_state.screen_size.1 as f32;
-                ui_state.viewport_rect.max_y = min_y_screen;
+                // let min_y_logical = ui.max_rect().min.y;
+                // let min_y_physical = min_y_logical * ui_state.scale_factor;
+                // let min_y_screen = min_y_physical / ui_state.screen_size.1 as f32;
+                // ui_state.viewport_rect.max_y = min_y_screen;
 
                 ui.horizontal(|ui| {
                     ui.selectable_value(&mut self.current_tab, CurrentTab::Assets, "Assets");

@@ -23,8 +23,10 @@ pub struct EguiState {
     /// The UI panels.
     pub panels: Vec<Box<dyn PanelUi>>,
 
+    /// Mouse position in logical pixels.
+    pub mouse_pos: egui::Pos2,
+
     frame_data: FrameData,
-    mouse_pos: egui::Pos2,
 }
 
 impl EguiState {
@@ -49,6 +51,7 @@ impl EguiState {
             Box::new(super::panels::EntitiesList::new()),
             Box::new(super::panels::ComponentsList),
             Box::new(super::panels::BottomPanel::new()),
+            Box::new(super::panels::ViewportPanel),
         ];
 
         Self {
@@ -89,7 +92,8 @@ impl EguiState {
         puffin::profile_function!();
 
         let mut input = self.winit.take_egui_input(window);
-        input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
+        // input.pixels_per_point = Some(window.scale_factor() as f32 * scale_factor);
+        input.pixels_per_point = Some(scale_factor);
 
         // The events that the game should handle.
         let mut game_events = Vec::new();
@@ -119,6 +123,7 @@ impl EguiState {
                     if viewport_rect_logical.distance_to_pos(position) < 5.
                         && !self.context.wants_pointer_input()
                     {
+                        game_events.push(egui::Event::PointerMoved(position));
                         return Some(egui::Event::PointerGone);
                     }
 
@@ -258,7 +263,7 @@ impl EguiState {
         // Create the screen descriptor.
         let screen_descriptor = egui_wgpu::renderer::ScreenDescriptor {
             size_in_pixels: [ui_state.screen_size.0, ui_state.screen_size.1],
-            pixels_per_point: window.scale_factor() as f32 * ui_state.scale_factor,
+            pixels_per_point: ui_state.scale_factor,
         };
 
         self.frame_data = FrameData {

@@ -94,7 +94,8 @@ impl App {
 
         // Initialize the UI state.
         let egui_state = EguiState::new(&device, surface_config.format, event_loop);
-        let ui_state = UiState::new(ScreenRect::new(1. / 3., 0., 2. / 3., 0.6), screen_size, 1.2);
+        // NOTE: With a scale > 1, there will be LESS logical pixels than physical pixels
+        let ui_state = UiState::new(ScreenRect::new(1. / 3., 0., 2. / 3., 0.6), screen_size, 1.5);
 
         Self {
             surface,
@@ -257,6 +258,8 @@ impl App {
                 depth_stencil_attachment: None,
             });
 
+            self.egui_state.render(&mut render_pass, &self.ui_state);
+
             // Run the rendering system for the entities in the world.
             Renderer2DSystem::run(
                 &world.entities,
@@ -275,8 +278,6 @@ impl App {
                     Some(&mut self.ui_state.camera)
                 },
             );
-
-            self.egui_state.render(&mut render_pass, &self.ui_state);
         }
 
         puffin::profile_scope!("Queue submit");

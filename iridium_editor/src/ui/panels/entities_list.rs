@@ -28,10 +28,10 @@ impl PanelUi for EntitiesList {
         _assets: &Assets,
     ) {
         egui::SidePanel::left("entities_list").show(context, |ui| {
-            let max_x_logical = ui.max_rect().max.x + ui.spacing().item_spacing.x;
-            let max_x_physical = max_x_logical * ui_state.scale_factor;
-            let max_x_screen = max_x_physical / ui_state.screen_size.0 as f32;
-            ui_state.viewport_rect.min_x = max_x_screen;
+            // let max_x_logical = ui.max_rect().max.x + ui.spacing().item_spacing.x;
+            // let max_x_physical = max_x_logical * ui_state.scale_factor;
+            // let max_x_screen = max_x_physical / ui_state.screen_size.0 as f32;
+            // ui_state.viewport_rect.min_x = max_x_screen;
 
             ui.add_space(6.);
 
