@@ -6,6 +6,9 @@ use std::{
 
 use crate::Assets;
 
+/// How an asset is stored internally.
+pub type RawAsset = Arc<RwLock<dyn Any + Send + Sync>>;
+
 /// An asset.
 pub struct Asset<T: Any + Send + Sync> {
     /// The ID of the asset.
@@ -13,7 +16,7 @@ pub struct Asset<T: Any + Send + Sync> {
     /// If the ID has changed but the asset hasn't.
     invalid: bool,
 
-    asset: Arc<RwLock<dyn Any + Send + Sync>>,
+    asset: RawAsset,
     phantom: std::marker::PhantomData<*const T>,
 }
 
@@ -52,10 +55,7 @@ impl<T: Any + Send + Sync> Asset<T> {
     /// # Errors
     ///
     /// If the asset is not the correct type.
-    pub fn from_inner(
-        id: String,
-        asset: Arc<RwLock<dyn Any + Send + Sync>>,
-    ) -> Result<Self, String> {
+    pub fn from_inner(id: String, asset: RawAsset) -> Result<Self, String> {
         if TypeId::of::<T>() != Self::type_id_from_inner(&asset) {
             return Err("Asset was not of type `T`".into());
         }
@@ -70,7 +70,7 @@ impl<T: Any + Send + Sync> Asset<T> {
 
     /// Get the type id of an inner asset.
     #[must_use]
-    pub fn type_id_from_inner(inner: &Arc<RwLock<dyn Any + Send + Sync>>) -> TypeId {
+    pub fn type_id_from_inner(inner: &RawAsset) -> TypeId {
         let any = inner.read().expect("Asset RwLock poisoned");
         (*any).type_id()
     }

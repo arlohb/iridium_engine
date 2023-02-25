@@ -4,12 +4,12 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use crate::Asset;
+use crate::{Asset, RawAsset};
 
 /// The asset manager to store all assets such as textures, shaders, etc.
 #[derive(Default)]
 pub struct Assets {
-    assets: HashMap<String, Arc<RwLock<dyn Any + Send + Sync>>>,
+    assets: HashMap<String, RawAsset>,
 }
 
 impl Assets {
@@ -41,7 +41,7 @@ impl Assets {
 
     /// Gets all assets.
     #[must_use]
-    pub fn get_all(&self) -> Vec<(String, Arc<RwLock<dyn Any + Send + Sync>>)> {
+    pub fn get_all(&self) -> Vec<(String, RawAsset)> {
         self.assets
             .iter()
             .map(|(id, asset)| (id.clone(), asset.clone()))
