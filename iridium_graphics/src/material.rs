@@ -1,25 +1,29 @@
-use iridium_assets::Asset;
+use iridium_assets::{Asset, AssetBox};
+use iridium_ecs_macros::HasStableTypeId;
 
 use crate::{CameraGpuData, Shader, Vertex};
 
 /// Describes how an entity should be drawn to the screen.
+#[derive(HasStableTypeId)]
 pub struct Material {
     /// The vertex shader.
-    pub vertex_shader: Asset<Shader>,
+    pub vertex_shader: AssetBox<Shader>,
     /// The fragment shader.
-    pub fragment_shader: Asset<Shader>,
+    pub fragment_shader: AssetBox<Shader>,
     /// The render pipeline to use.
     pub render_pipeline: wgpu::RenderPipeline,
 }
+
+impl Asset for Material {}
 
 impl Material {
     /// Creates a new material.
     pub fn new(
         device: &wgpu::Device,
         surface_format: wgpu::TextureFormat,
-        vertex_shader: Asset<Shader>,
+        vertex_shader: AssetBox<Shader>,
         camera_gpu_data: &CameraGpuData,
-        fragment_shader: Asset<Shader>,
+        fragment_shader: AssetBox<Shader>,
     ) -> Self {
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,

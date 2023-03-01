@@ -1,3 +1,5 @@
+use iridium_assets::Asset;
+use iridium_ecs_macros::HasStableTypeId;
 use iridium_maths::VecN;
 
 /// Stores data about a vertex.
@@ -32,9 +34,12 @@ impl Vertex {
 }
 
 /// Stores data about a mesh.
+#[derive(HasStableTypeId)]
 pub struct Mesh {
     /// The vertices.
     pub vertices: Vec<Vertex>,
     /// The indices.
     pub indices: Vec<u32>,
 }
+
+impl Asset for Mesh {}

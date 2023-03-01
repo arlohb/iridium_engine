@@ -10,8 +10,16 @@ iridium_assets = { path = "../iridium_assets" }
 iridium_ecs_macros = { path = "../iridium_ecs_macros" }
 iridium_map_utils = { path = "../iridium_map_utils" }
 iridium_maths = { path = "../iridium_maths" }
+iridium_reflect = { path = "../iridium_reflect" }
 
 egui = "0.21"
 uuid = { version = "1.3", features = ["fast-rng", "v4"] }
 rayon = "1.6"
 puffin = "0.14"
+
+[dev-dependencies]
+criterion = "0.4"
+
+[[bench]]
+name = "hash_speed"
+harness = false

@@ -1,16 +1,18 @@
+use std::cell::UnsafeCell;
 use std::collections::HashMap;
-use std::{
-    any::Any,
-    sync::{Arc, RwLock},
-};
+use std::sync::Arc;
 
-use crate::{Asset, RawAsset};
+use crate::{Asset, AssetBox, RawAsset};
 
 /// The asset manager to store all assets such as textures, shaders, etc.
 #[derive(Default)]
 pub struct Assets {
     assets: HashMap<String, RawAsset>,
 }
+
+#[allow(clippy::non_send_fields_in_send_ty)]
+unsafe impl Send for Assets {}
+unsafe impl Sync for Assets {}
 
 impl Assets {
     /// Creates a new asset manager.
@@ -20,9 +22,9 @@ impl Assets {
     }
 
     /// Adds an asset.
-    pub fn add<T: Any + Send + Sync>(&mut self, id: &str, asset: T) {
+    pub fn add<T: Asset>(&mut self, id: &str, asset: T) {
         self.assets
-            .insert(id.to_string(), Arc::new(RwLock::new(asset)));
+            .insert(id.to_string(), Arc::new(UnsafeCell::new(asset)));
     }
 
     /// Gets an asset.
@@ -30,13 +32,13 @@ impl Assets {
     /// # Errors
     ///
     /// Returns an error if the asset id is not found.
-    pub fn get<T: Any + Send + Sync>(&self, id: &str) -> Result<Asset<T>, String> {
+    pub fn get<T: Asset>(&self, id: &str) -> Result<AssetBox<T>, String> {
         let inner = self
             .assets
             .get(id)
             .ok_or(format!("Asset {id} is not found"))?;
 
-        Asset::<T>::from_inner(id.to_string(), inner.clone())
+        AssetBox::<T>::from_inner(id.to_string(), inner.clone())
     }
 
     /// Gets all assets.

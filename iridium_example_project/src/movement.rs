@@ -1,9 +1,11 @@
 use iridium_core::{ButtonState, InputState, KeyCode};
 use iridium_ecs::Transform;
-use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
+use iridium_ecs_macros::{
+    system_helper, Component, ComponentStorage, HasStableTypeId, InspectorUi,
+};
 
 /// Can be moved up and down by keyboard inputs.
-#[derive(Component, InspectorUi, ComponentStorage)]
+#[derive(Component, InspectorUi, ComponentStorage, HasStableTypeId)]
 pub struct Movement {
     /// The key to move up.
     #[id(0)]

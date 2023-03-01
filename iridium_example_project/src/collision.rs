@@ -1,13 +1,15 @@
 use iridium_assets::Assets;
 use iridium_collision::Rect;
 use iridium_ecs::{query, Transform};
-use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
+use iridium_ecs_macros::{
+    system_helper, Component, ComponentStorage, HasStableTypeId, InspectorUi,
+};
 use iridium_graphics::Renderable2D;
 
 use crate::Velocity;
 
 /// Will make the ball bounce off it.
-#[derive(Component, ComponentStorage, InspectorUi, Default)]
+#[derive(Component, ComponentStorage, InspectorUi, Default, HasStableTypeId)]
 pub struct Wall {
     /// Whether the wall it horizonal or vertical.
     vertical: bool,

@@ -1,11 +1,10 @@
-use std::any::TypeId;
-
 use iridium_assets::Assets;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 use super::System;
 use crate::{ComponentBox, Entities};
+use iridium_reflect::{HasStableTypeId, StableTypeId};
 
 /// Stores the systems in the world.
 #[derive(Default)]
@@ -113,10 +112,10 @@ impl Systems {
                 // Get the type id of the system state.
                 let state_type_id = system.state_type_id();
                 // Get the system state component.
-                let state = if state_type_id == std::any::TypeId::of::<()>() {
+                let state = if state_type_id == <()>::stable_type_id() {
                     None
                 } else {
-                    Some(entities.get_by_type_id(&state_type_id))
+                    Some(entities.get_by_type_id(state_type_id))
                 };
 
                 // Run the system.
@@ -135,7 +134,7 @@ impl Systems {
     /// so it can be tested separately.
     /// Use `find_errors` instead.
     #[must_use]
-    pub fn find_errors_in_stage(inputs: Vec<[Vec<TypeId>; 2]>) -> HashSet<TypeId> {
+    pub fn find_errors_in_stage(inputs: Vec<[Vec<StableTypeId>; 2]>) -> HashSet<StableTypeId> {
         puffin::profile_function!();
 
         // Split the inputs into mutable and immutable.
@@ -181,7 +180,7 @@ impl Systems {
     /// Find errors in all the stages.
     /// This will check mutability rules are followed.
     #[must_use]
-    pub fn find_errors(&self) -> Vec<HashSet<TypeId>> {
+    pub fn find_errors(&self) -> Vec<HashSet<StableTypeId>> {
         puffin::profile_function!();
 
         // Get the inputs of each system.
@@ -204,8 +203,24 @@ impl Systems {
 
 #[cfg(test)]
 mod tests {
+    use iridium_ecs_macros::HasStableTypeId;
+
     use super::*;
-    use std::any::TypeId;
+
+    #[derive(HasStableTypeId)]
+    struct Test1;
+
+    #[derive(HasStableTypeId)]
+    struct Test2;
+
+    #[derive(HasStableTypeId)]
+    struct Test3;
+
+    #[derive(HasStableTypeId)]
+    struct Test4;
+
+    #[derive(HasStableTypeId)]
+    struct Test5;
 
     #[test]
     fn empty() {
@@ -216,8 +231,8 @@ mod tests {
     fn no_errors() {
         assert_eq!(
             Systems::find_errors_in_stage(vec![
-                [vec![TypeId::of::<u32>()], vec![TypeId::of::<u64>()]],
-                [vec![TypeId::of::<u16>()], vec![TypeId::of::<u8>()]],
+                [vec![Test3::stable_type_id()], vec![Test4::stable_type_id()]],
+                [vec![Test2::stable_type_id()], vec![Test1::stable_type_id()]],
             ])
             .len(),
             0
@@ -228,9 +243,9 @@ mod tests {
     fn multiple_immut() {
         assert_eq!(
             Systems::find_errors_in_stage(vec![
-                [vec![TypeId::of::<u64>()], vec![TypeId::of::<u128>()]],
-                [vec![TypeId::of::<u32>()], vec![TypeId::of::<u8>()]],
-                [vec![TypeId::of::<u16>()], vec![TypeId::of::<u8>()]],
+                [vec![Test4::stable_type_id()], vec![Test5::stable_type_id()]],
+                [vec![Test3::stable_type_id()], vec![Test1::stable_type_id()]],
+                [vec![Test2::stable_type_id()], vec![Test1::stable_type_id()]],
             ])
             .len(),
             0
@@ -241,9 +256,9 @@ mod tests {
     fn multiple_mut() {
         assert_eq!(
             Systems::find_errors_in_stage(vec![
-                [vec![TypeId::of::<u64>()], vec![TypeId::of::<u128>()]],
-                [vec![TypeId::of::<u32>()], vec![TypeId::of::<u8>()]],
-                [vec![TypeId::of::<u32>()], vec![TypeId::of::<u8>()]],
+                [vec![Test4::stable_type_id()], vec![Test5::stable_type_id()]],
+                [vec![Test2::stable_type_id()], vec![Test1::stable_type_id()]],
+                [vec![Test2::stable_type_id()], vec![Test1::stable_type_id()]],
             ])
             .len(),
             1
@@ -254,9 +269,9 @@ mod tests {
     fn mut_and_immut() {
         assert_eq!(
             Systems::find_errors_in_stage(vec![
-                [vec![TypeId::of::<u64>()], vec![TypeId::of::<u32>()]],
-                [vec![TypeId::of::<u32>()], vec![TypeId::of::<u8>()]],
-                [vec![TypeId::of::<u16>()], vec![TypeId::of::<u8>()]],
+                [vec![Test4::stable_type_id()], vec![Test3::stable_type_id()]],
+                [vec![Test3::stable_type_id()], vec![Test1::stable_type_id()]],
+                [vec![Test2::stable_type_id()], vec![Test1::stable_type_id()]],
             ])
             .len(),
             1
@@ -267,10 +282,10 @@ mod tests {
     fn multiple_errosr() {
         assert_eq!(
             Systems::find_errors_in_stage(vec![
-                [vec![TypeId::of::<u64>()], vec![TypeId::of::<u16>()]],
-                [vec![TypeId::of::<u32>()], vec![TypeId::of::<u8>()]],
-                [vec![TypeId::of::<u32>()], vec![TypeId::of::<u8>()]],
-                [vec![TypeId::of::<u16>()], vec![TypeId::of::<u8>()]],
+                [vec![Test4::stable_type_id()], vec![Test2::stable_type_id()]],
+                [vec![Test3::stable_type_id()], vec![Test1::stable_type_id()]],
+                [vec![Test3::stable_type_id()], vec![Test1::stable_type_id()]],
+                [vec![Test2::stable_type_id()], vec![Test1::stable_type_id()]],
             ])
             .len(),
             2

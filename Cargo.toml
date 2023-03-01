@@ -11,10 +11,11 @@ members = [
     "iridium_ecs",
     "iridium_ecs_macros",
     "iridium_editor",
-    "iridium_graphics",
-    "iridium_maths",
-    "iridium_map_utils",
     "iridium_example_project",
+    "iridium_graphics",
+    "iridium_map_utils",
+    "iridium_maths",
+    "iridium_reflect",
     "iridium_runtime"
 ]
 

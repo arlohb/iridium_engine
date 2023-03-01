@@ -1,9 +1,9 @@
-use iridium_ecs_macros::{Component, ComponentStorage, InspectorUi};
+use iridium_ecs_macros::{Component, ComponentStorage, HasStableTypeId, InspectorUi};
 
 /// The name of an entity.
 ///
 /// Added by default to all entities on creation.
-#[derive(Component, InspectorUi, ComponentStorage)]
+#[derive(Component, InspectorUi, ComponentStorage, HasStableTypeId)]
 pub struct Name {
     /// The name of the entity.
     #[string]
@@ -11,7 +11,7 @@ pub struct Name {
 }
 
 /// The position, scale and rotation of an entity.
-#[derive(Component, InspectorUi, ComponentStorage)]
+#[derive(Component, InspectorUi, ComponentStorage, HasStableTypeId)]
 pub struct Transform {
     /// The position.
     #[drag_speed(0.05)]

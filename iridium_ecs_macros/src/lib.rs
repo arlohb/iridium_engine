@@ -2,6 +2,8 @@
 
 mod system_helper;
 
+use std::hash::Hasher;
+
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::parse_macro_input;
@@ -26,6 +28,33 @@ pub fn system_helper(attr: TokenStream, item: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(item as syn::ItemImpl);
 
     system_helper::system_helper(input, ast)
+}
+
+/// Derive macro generating an impl of the trait `HasStableTypeId`.
+#[proc_macro_derive(HasStableTypeId)]
+pub fn derive_has_stable_type_id(tokens: TokenStream) -> TokenStream {
+    let ast = parse_macro_input!(tokens as syn::DeriveInput);
+    let struct_name = &ast.ident;
+
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    hasher.write(struct_name.to_string().as_bytes());
+    hasher.write_u8(0xFF);
+    let stable_type_id = hasher.finish();
+
+    quote! {
+        impl iridium_reflect::HasStableTypeId for #struct_name {
+            fn stable_type_id() -> iridium_reflect::StableTypeId {
+                #stable_type_id
+            }
+
+            fn dyn_stable_type_id(&self) -> iridium_reflect::StableTypeId {
+                #stable_type_id
+            }
+        }
+    }
+    .to_string()
+    .parse()
+    .expect("Failed to parse derive macro output")
 }
 
 /// Derive macro generating an impl of the trait `Component`.
@@ -61,7 +90,7 @@ pub fn derive_component(tokens: TokenStream) -> TokenStream {
                 .path
                 .segments
                 .into_iter()
-                .any(|segment| segment.ident == "Asset")
+                .any(|segment| segment.ident == "AssetBox")
             {
                 return None;
             }

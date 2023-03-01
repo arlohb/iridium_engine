@@ -1,6 +1,5 @@
-use std::any::Any;
-
-use iridium_assets::Asset;
+use egui::Widget;
+use iridium_assets::{Asset, AssetBox};
 
 use super::InspectorUiFieldAttributes;
 
@@ -66,13 +65,15 @@ impl<const N: usize> InspectorUiField for iridium_maths::VecN<N> {
 // as most things that use assets need to regenerate
 // some data when an asset changes, so will need to
 // impl `InspectorUi` themselves anyway.
-impl<T: Any + Send + Sync> InspectorUiField for Asset<T> {
+impl<T: Asset> InspectorUiField for AssetBox<T> {
     fn ui(&mut self, ui: &mut egui::Ui, _attributes: InspectorUiFieldAttributes) {
         // Copy the id
         let mut id = self.id().to_owned();
 
         // Allow user to edit
-        ui.text_edit_singleline(&mut id);
+        egui::TextEdit::singleline(&mut id)
+            .desired_width(f32::INFINITY)
+            .ui(ui);
 
         // If the id has changed
         if self.id() != id {

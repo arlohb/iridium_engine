@@ -1,7 +1,6 @@
-use std::any::TypeId;
-
 use iridium_assets::Assets;
 use iridium_ecs::{ComponentBox, Name};
+use iridium_reflect::StableTypeId;
 use std::collections::HashSet;
 
 use crate::ui::PanelUi;
@@ -79,12 +78,12 @@ pub fn system_stages_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
                                     });
 
                                     let zip_with_names =
-                                        |type_id: TypeId| -> (TypeId, &'static str) {
+                                        |type_id: StableTypeId| -> (StableTypeId, &'static str) {
                                             (
                                                 type_id,
                                                 world
                                                     .entities
-                                                    .component_info_from_type_id(&type_id)
+                                                    .component_info_from_type_id(type_id)
                                                     .expect("System input component not found")
                                                     .type_name,
                                             )
@@ -169,7 +168,7 @@ pub fn system_states_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
                 let states = world.systems.default_component_states();
 
                 // Get the type ids of the states already in the world.
-                let already_added: HashSet<TypeId> = world
+                let already_added: HashSet<StableTypeId> = world
                     .entities
                     .get_entity_component_types(system_state_id)
                     .expect("SystemState not found")
@@ -181,7 +180,7 @@ pub fn system_states_widget(ui: &mut egui::Ui, world: &mut iridium_ecs::World) {
                     system_state_id,
                     states
                         .into_iter()
-                        .filter(|state| !already_added.contains(&state.type_id()))
+                        .filter(|state| !already_added.contains(&state.stable_type_id()))
                         .collect(),
                 );
             }
@@ -259,7 +258,7 @@ impl PanelUi for ComponentsList {
                                 return std::cmp::Ordering::Greater;
                             }
 
-                            a.type_id().cmp(&b.type_id())
+                            a.stable_type_id().cmp(&b.stable_type_id())
                         });
 
                         // Get the name of the entity.

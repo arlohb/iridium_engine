@@ -1,4 +1,4 @@
-use iridium_ecs_macros::{Component, ComponentStorage, InspectorUi};
+use iridium_ecs_macros::{Component, ComponentStorage, HasStableTypeId, InspectorUi};
 use iridium_maths::VecN;
 use std::collections::HashMap;
 
@@ -25,7 +25,7 @@ pub enum ButtonState {
 /// as there'd be nothing for the system to do.
 ///
 /// It is stored under the name "`SystemState`" in the world.
-#[derive(Component, InspectorUi, ComponentStorage)]
+#[derive(Component, InspectorUi, ComponentStorage, HasStableTypeId)]
 pub struct InputState {
     /// The current mouse position in logical pixels.
     #[temporary(VecN::zero())]

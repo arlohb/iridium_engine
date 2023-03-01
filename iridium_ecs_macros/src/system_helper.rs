@@ -246,8 +246,6 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 assets: &iridium_assets::Assets,
                 delta_time: f64,
             ) {
-                use std::any::TypeId;
-
                 // Get the state as its real type.
                 // The system can mutate this.
                 #let_state_expr
@@ -319,23 +317,21 @@ pub fn system_helper(Input { state, mode }: Input, ast: syn::ItemImpl) -> proc_m
                 stringify!(#self_type)
             }
 
-            fn state_type_id(&self) -> std::any::TypeId {
-                std::any::TypeId::of::<#state>()
+            fn state_type_id(&self) -> iridium_reflect::StableTypeId {
+                <#state as iridium_reflect::HasStableTypeId>::stable_type_id()
             }
 
             fn default_state(&self) -> Option<iridium_ecs::ComponentBox> {
                 #default_state_expr
             }
 
-            fn required_components(&self) -> [Vec<std::any::TypeId>; 2] {
-                use std::any::TypeId;
-
+            fn required_components(&self) -> [Vec<iridium_reflect::StableTypeId>; 2] {
                 [
                     vec![#(
-                        TypeId::of::<#mutable_inputs_types>(),
+                        <#mutable_inputs_types as iridium_reflect::HasStableTypeId>::stable_type_id(),
                     )*],
                     vec![#(
-                        TypeId::of::<#immutable_inputs_types>(),
+                        <#immutable_inputs_types as iridium_reflect::HasStableTypeId>::stable_type_id(),
                     )*],
                 ]
             }

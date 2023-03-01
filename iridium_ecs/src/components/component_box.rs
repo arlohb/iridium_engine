@@ -1,6 +1,8 @@
 #![allow(clippy::mut_from_ref)]
 
-use std::{any::TypeId, cell::UnsafeCell};
+use std::cell::UnsafeCell;
+
+use iridium_reflect::StableTypeId;
 
 use super::Component;
 
@@ -63,16 +65,16 @@ impl ComponentBox {
         unsafe { &mut *self.data.get() }
     }
 
-    /// Gets the type id of the underlying component.
+    /// Gets the stable type id of the underlying component.
     #[must_use]
-    pub fn type_id(&self) -> TypeId {
-        self.get_trait().type_id()
+    pub fn stable_type_id(&self) -> StableTypeId {
+        self.get_trait().dyn_stable_type_id()
     }
 
     /// Checks if the component is of the given type.
     #[must_use]
     pub fn is_type<T: Component>(&self) -> bool {
-        self.type_id() == TypeId::of::<T>()
+        self.stable_type_id() == T::stable_type_id()
     }
 
     /// Gets the type name of the underlying component.

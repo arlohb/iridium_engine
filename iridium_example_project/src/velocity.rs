@@ -1,9 +1,11 @@
 use iridium_assets::Assets;
 use iridium_ecs::{Entities, Transform};
-use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
+use iridium_ecs_macros::{
+    system_helper, Component, ComponentStorage, HasStableTypeId, InspectorUi,
+};
 
 /// The velocity of an entity.
-#[derive(Component, InspectorUi, ComponentStorage)]
+#[derive(Component, InspectorUi, ComponentStorage, HasStableTypeId)]
 pub struct Velocity {
     #[drag_speed(0.0001)]
     /// The velocity.
