@@ -115,7 +115,7 @@
                 rotation: 0,
             },
             Renderable2D: {
-                mesh: "default_mesh",
+                mesh: "ball_mesh",
                 material: "default_mat",
             },
             Velocity: {

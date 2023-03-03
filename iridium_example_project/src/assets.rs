@@ -130,6 +130,40 @@ pub fn load_default_assets(
     Ok(())
 }
 
+fn create_sphere(points: i32) -> Mesh {
+    Mesh {
+        vertices: {
+            let radius_points = (0..points).into_iter().map(|i| {
+                let theta = 2. * std::f32::consts::PI * (i as f32 / points as f32);
+
+                let x = theta.cos();
+                let y = theta.sin();
+
+                Vertex::new(
+                    VecN::new([x, y, 0.]),
+                    VecN::new([x / 2. + 0.5, y / 2. + 0.5]),
+                )
+            });
+
+            let mut points = vec![Vertex::new(VecN::zero(), VecN::new([0.5, 0.5]))];
+            points.extend(radius_points);
+            points
+        },
+        indices: {
+            let mut indices = (0..points)
+                .into_iter()
+                .flat_map(|i| [0, i as u32 + 1, i as u32 + 2])
+                .collect::<Vec<u32>>();
+
+            indices.push(0);
+            indices.push(points as u32);
+            indices.push(1);
+
+            indices
+        },
+    }
+}
+
 /// Load the assets needed for the game.
 ///
 /// # Errors
@@ -158,6 +192,8 @@ pub fn load_assets(
             indices: vec![0, 3, 2, 0, 2, 1],
         },
     );
+
+    assets.add("ball_mesh", create_sphere(16));
 
     assets.add(
         "quad_offset",
