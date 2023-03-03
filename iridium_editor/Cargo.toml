@@ -13,6 +13,7 @@ iridium_ecs_macros = { path = "../iridium_ecs_macros" }
 iridium_graphics = { path = "../iridium_graphics" }
 iridium_maths = { path = "../iridium_maths" }
 iridium_map_utils = { path = "../iridium_map_utils" }
+iridium_reflect = { path = "../iridium_reflect" }
 
 egui = "0.21"
 egui-wgpu = "0.21"

@@ -4,7 +4,7 @@ use iridium_ecs::{
     storage::{ComponentStorage, StoredComponentField},
     ui::InspectorUi,
 };
-use iridium_ecs_macros::Component;
+use iridium_ecs_macros::{Component, HasStableTypeId};
 use iridium_map_utils::fast_map;
 
 /// The type of log message.
@@ -42,7 +42,7 @@ impl LogEntry {
 }
 
 /// Stores the log.
-#[derive(Component)]
+#[derive(Component, HasStableTypeId)]
 pub struct LogState {
     /// The log entries.
     entries: VecDeque<LogEntry>,

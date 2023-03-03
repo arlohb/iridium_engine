@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
-use iridium_assets::{Asset, Assets};
+use egui::Widget;
+use iridium_assets::{AssetBox, Assets};
 use iridium_ecs::{
     storage::{ComponentStorage, StoredComponent, StoredComponentField},
     ui::InspectorUi,
     ComponentDefault,
 };
-use iridium_ecs_macros::{Component, ComponentStorage, InspectorUi};
+use iridium_ecs_macros::{Component, ComponentStorage, HasStableTypeId, InspectorUi};
 use iridium_map_utils::fast_map;
 use iridium_maths::VecN;
 use wgpu::util::DeviceExt;
@@ -68,7 +69,7 @@ impl CameraGpuData {
 /// Describes the camera used to render the scene.
 ///
 /// This is just a simple orthographic camera.
-#[derive(Component, InspectorUi, ComponentStorage)]
+#[derive(Component, InspectorUi, ComponentStorage, HasStableTypeId)]
 pub struct Camera {
     /// The name.
     pub name: String,
@@ -128,15 +129,15 @@ impl Default for Camera {
 }
 
 /// Describes how an entity should be drawn to the screen.
-#[derive(Component)]
+#[derive(Component, HasStableTypeId)]
 pub struct Renderable2D {
     /// The mesh used.
     ///
     /// Most of the time this will just be a quad.
-    pub mesh: Asset<Mesh>,
+    pub mesh: AssetBox<Mesh>,
 
     /// The material used.
-    pub material: Asset<Material>,
+    pub material: AssetBox<Material>,
 
     /// The buffers used by the vertex shader.
     pub vertex_shader_buffers: Option<Vec<Arc<wgpu::Buffer>>>,
@@ -174,12 +175,15 @@ impl InspectorUi for Renderable2D {
             let mut id = self.mesh.id().to_owned();
 
             // Allow user to edit
-            ui.text_edit_singleline(&mut id);
+            // ui.text_edit_singleline(&mut id);
+            egui::TextEdit::singleline(&mut id)
+                .desired_width(f32::INFINITY)
+                .ui(ui);
 
             // If the id has changed
             if self.mesh.id() != id {
                 // Update it
-                self.mesh.change_id(id);
+                // self.mesh.change_id(id);
                 // Invalidate live data
                 self.delete_live_data();
             }
@@ -192,7 +196,10 @@ impl InspectorUi for Renderable2D {
             let mut id = self.material.id().to_owned();
 
             // Allow user to edit
-            ui.text_edit_singleline(&mut id);
+            // ui.text_edit_singleline(&mut id);
+            egui::TextEdit::singleline(&mut id)
+                .desired_width(f32::INFINITY)
+                .ui(ui);
 
             // If the id has changed
             if self.material.id() != id {
@@ -239,7 +246,7 @@ impl Renderable2D {
     /// Creates a new renderable.
     #[must_use]
     #[allow(clippy::missing_const_for_fn)]
-    pub fn new(mesh: Asset<Mesh>, material: Asset<Material>) -> Self {
+    pub fn new(mesh: AssetBox<Mesh>, material: AssetBox<Material>) -> Self {
         Self {
             mesh,
             material,

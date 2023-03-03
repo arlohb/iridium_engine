@@ -12,6 +12,7 @@ iridium_ecs_macros = { path = "../iridium_ecs_macros" }
 iridium_assets = { path = "../iridium_assets" }
 iridium_graphics = { path = "../iridium_graphics" }
 iridium_map_utils = { path = "../iridium_map_utils" }
+iridium_reflect = { path = "../iridium_reflect" }
 
 winit = "0.28"
 egui = "0.21"

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use iridium_assets::Asset;
+use iridium_assets::{Asset, AssetBox};
+use iridium_ecs_macros::HasStableTypeId;
 use wgpu::util::DeviceExt;
 
 use crate::Texture;
@@ -28,6 +29,7 @@ impl From<ShaderType> for wgpu::ShaderStages {
 }
 
 /// A shader.
+#[derive(HasStableTypeId)]
 pub struct Shader {
     /// The inputs to the shader.
     pub inputs: Vec<ShaderInput>,
@@ -36,6 +38,8 @@ pub struct Shader {
     /// The wgpu shader module.
     pub shader: wgpu::ShaderModule,
 }
+
+impl Asset for Shader {}
 
 impl Shader {
     /// Creates a new shader from the spirv bytes.
@@ -142,7 +146,7 @@ pub enum ShaderInput {
     /// Transform data about an object.
     Transform,
     /// A texture.
-    Texture(Asset<Texture>),
+    Texture(AssetBox<Texture>),
     /// A texture sampler.
-    Sampler(Asset<Texture>),
+    Sampler(AssetBox<Texture>),
 }

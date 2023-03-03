@@ -1,13 +1,15 @@
 use iridium_assets::Assets;
 use iridium_core::LogState;
 use iridium_ecs::{Entities, EntityCommand, Name, Transform};
-use iridium_ecs_macros::{system_helper, Component, ComponentStorage, InspectorUi};
+use iridium_ecs_macros::{
+    system_helper, Component, ComponentStorage, HasStableTypeId, InspectorUi,
+};
 use iridium_maths::VecN;
 
 use crate::Velocity;
 
 /// A thing that can die.
-#[derive(Component, InspectorUi, ComponentStorage, Default)]
+#[derive(Component, InspectorUi, ComponentStorage, Default, HasStableTypeId)]
 pub struct Death;
 
 /// When an entity with a `Death` component hits the bottom of the screen,

@@ -1,16 +1,17 @@
-use std::{
-    any::{Any, TypeId},
-    ops::Deref,
-    sync::{Arc, RwLock},
-};
+use std::{any::Any, cell::UnsafeCell, ops::Deref, sync::Arc};
+
+use iridium_reflect::{HasStableTypeId, StableTypeId};
 
 use crate::Assets;
 
+/// Indicates a type can be stored and referenced as an asset.
+pub trait Asset: Any + Send + Sync + HasStableTypeId {}
+
 /// How an asset is stored internally.
-pub type RawAsset = Arc<RwLock<dyn Any + Send + Sync>>;
+pub type RawAsset = Arc<UnsafeCell<dyn Asset>>;
 
 /// An asset.
-pub struct Asset<T: Any + Send + Sync> {
+pub struct AssetBox<T: Asset> {
     /// The ID of the asset.
     id: String,
     /// If the ID has changed but the asset hasn't.
@@ -20,10 +21,11 @@ pub struct Asset<T: Any + Send + Sync> {
     phantom: std::marker::PhantomData<*const T>,
 }
 
-unsafe impl<T: Any + Send + Sync> Send for Asset<T> {}
-unsafe impl<T: Any + Send + Sync> Sync for Asset<T> {}
+#[allow(clippy::non_send_fields_in_send_ty)]
+unsafe impl<T: Asset> Send for AssetBox<T> {}
+unsafe impl<T: Asset> Sync for AssetBox<T> {}
 
-impl<T: Any + Send + Sync> Clone for Asset<T> {
+impl<T: Asset> Clone for AssetBox<T> {
     fn clone(&self) -> Self {
         Self {
             id: self.id.clone(),
@@ -34,7 +36,7 @@ impl<T: Any + Send + Sync> Clone for Asset<T> {
     }
 }
 
-impl<T: Any + Send + Sync> Deref for Asset<T> {
+impl<T: Asset> Deref for AssetBox<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -49,14 +51,14 @@ impl<T: Any + Send + Sync> Deref for Asset<T> {
     }
 }
 
-impl<T: Any + Send + Sync> Asset<T> {
+impl<T: Asset> AssetBox<T> {
     /// Creates a new asset.
     ///
     /// # Errors
     ///
     /// If the asset is not the correct type.
     pub fn from_inner(id: String, asset: RawAsset) -> Result<Self, String> {
-        if TypeId::of::<T>() != Self::type_id_from_inner(&asset) {
+        if T::stable_type_id() != Self::stable_type_id_from_inner(&asset) {
             return Err("Asset was not of type `T`".into());
         }
 
@@ -70,23 +72,22 @@ impl<T: Any + Send + Sync> Asset<T> {
 
     /// Get the type id of an inner asset.
     #[must_use]
-    pub fn type_id_from_inner(inner: &RawAsset) -> TypeId {
-        let any = inner.read().expect("Asset RwLock poisoned");
-        (*any).type_id()
+    pub fn stable_type_id_from_inner(inner: &RawAsset) -> StableTypeId {
+        unsafe { &*inner.get() }.dyn_stable_type_id()
     }
 
     /// Get the type id of the asset.
     ///
     /// If `Asset` is used properly this should always correspond with T.
     #[must_use]
-    pub fn type_id(&self) -> TypeId {
-        Self::type_id_from_inner(&self.asset)
+    pub fn stable_type_id(&self) -> StableTypeId {
+        Self::stable_type_id_from_inner(&self.asset)
     }
 
     /// Checks whether the asset has the given type id.
     #[must_use]
-    pub fn is_type(&self, other: TypeId) -> bool {
-        self.type_id() == other
+    pub fn is_type(&self, other: StableTypeId) -> bool {
+        self.stable_type_id() == other
     }
 
     /// Gets the id.
@@ -114,18 +115,12 @@ impl<T: Any + Send + Sync> Asset<T> {
     /// If the asset is not of the expected type,
     /// or the inner `RwLock` has been poisoned.
     pub fn get(&self) -> Result<&T, String> {
-        let dyn_guard = self
-            .asset
-            .read()
-            .map_err(|_| "Asset RwLock poisoned".to_string())?;
+        let ptr = self.asset.get();
 
-        let local_ref = dyn_guard
-            .downcast_ref::<T>()
-            .ok_or_else(|| "Asset type mismatch".to_string())?;
-
-        unsafe {
-            Ok(std::mem::transmute::<&T, & /*'self*/ T>(local_ref))
-        }
+        #[allow(clippy::ptr_as_ptr)]
+        self.is_type(T::stable_type_id())
+            .then(|| unsafe { &*(ptr as *const _ as *const T) })
+            .ok_or_else(|| "Asset type mismatch".to_string())
     }
 
     /// Mutably gets the asset.
@@ -137,18 +132,12 @@ impl<T: Any + Send + Sync> Asset<T> {
     /// or the inner `RwLock` has been poisoned.
     #[allow(clippy::mut_from_ref)]
     pub fn get_mut(&self) -> Result<&mut T, String> {
-        let mut dyn_guard = self
-            .asset
-            .write()
-            .map_err(|_| "Asset RwLock poisoned".to_string())?;
+        let ptr = self.asset.get();
 
-        let local_mut = dyn_guard
-            .downcast_mut::<T>()
-            .ok_or_else(|| "Asset type mismatch".to_string())?;
-
-        unsafe {
-            Ok(std::mem::transmute::<&mut T, & /*'self*/ mut T>(local_mut))
-        }
+        #[allow(clippy::ptr_as_ptr)]
+        self.is_type(T::stable_type_id())
+            .then(|| unsafe { &mut *(ptr as *mut _ as *mut T) })
+            .ok_or_else(|| "Asset type mismatch".to_string())
     }
 
     /// Replace the id of the asset.
@@ -156,6 +145,7 @@ impl<T: Any + Send + Sync> Asset<T> {
     /// only when `Self::update_asset` is called,
     /// which should be done automatically by the engine.
     pub fn change_id(&mut self, new_id: String) {
+        println!("Asset id changed to {new_id}");
         self.id = new_id;
         self.invalid = true;
     }
@@ -174,9 +164,11 @@ impl<T: Any + Send + Sync> Asset<T> {
             return Ok(false);
         }
 
+        println!("Asset with id '{id}' updating", id = self.id);
+
         let new_asset = assets.get::<T>(&self.id)?;
 
-        if self.is_type(new_asset.type_id()) {
+        if self.is_type(new_asset.stable_type_id()) {
             *self = new_asset;
             Ok(true)
         } else {

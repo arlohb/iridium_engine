@@ -1,8 +1,12 @@
+use iridium_assets::Asset;
+use iridium_ecs_macros::HasStableTypeId;
+
 /// Stores wgpu texture and sampler data.
 ///
 /// While wgpu separates textures and samplers, it makes sense for them to be one in iridium.
 ///
 /// Also stores the binding types for ease of use.
+#[derive(HasStableTypeId)]
 pub struct Texture {
     /// The binding type of the texture.
     pub texture_binding_type: wgpu::BindingType,
@@ -15,6 +19,8 @@ pub struct Texture {
     /// The sampler.
     pub sampler: wgpu::Sampler,
 }
+
+impl Asset for Texture {}
 
 impl Texture {
     /// Creates a new texture from the rgba bytes.
