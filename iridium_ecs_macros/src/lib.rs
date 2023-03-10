@@ -2,7 +2,7 @@
 
 mod system_helper;
 
-use std::hash::Hasher;
+use std::hash::{Hash, Hasher};
 
 use proc_macro::TokenStream;
 use quote::quote;
@@ -37,8 +37,9 @@ pub fn derive_has_stable_type_id(tokens: TokenStream) -> TokenStream {
     let struct_name = &ast.ident;
 
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
-    hasher.write(struct_name.to_string().as_bytes());
-    hasher.write_u8(0xFF);
+    struct_name.to_string().hash(&mut hasher);
+    // hasher.write(struct_name.to_string().as_bytes());
+    // hasher.write_u8(0xFF);
     let stable_type_id = hasher.finish();
 
     quote! {
