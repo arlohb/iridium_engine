@@ -343,7 +343,7 @@ impl Entities {
                 .into_iter()
         } else {
             // Find all the entities that have each component.
-            let entities_with_each_component = {
+            let mut entities_with_each_component: Vec<Vec<u128>> = {
                 puffin::profile_scope!("entities_with_each_component");
 
                 component_types
@@ -364,6 +364,7 @@ impl Entities {
                                     .collect::<Vec<u128>>()
                             })
                     })
+                    .collect()
             };
 
             // Find the intersection of the previous.
@@ -371,18 +372,16 @@ impl Entities {
             let entities_with_all_components = {
                 puffin::profile_scope!("entities_with_all_components");
 
-                let mut entities_with_each_component =
-                    entities_with_each_component.collect::<Vec<_>>();
-
                 let mut ids = vec![];
 
-                for id in entities_with_each_component.remove(0) {
+                for id in entities_with_each_component
+                    .pop()
+                    .expect("This shouldn't happen, as length was checked before")
+                {
                     let mut in_all = true;
 
                     for other_ids in &mut entities_with_each_component {
-                        let index_option = other_ids.iter().position(|x| *x == id);
-
-                        if let Some(index) = index_option {
+                        if let Some(index) = other_ids.iter().position(|x| *x == id) {
                             other_ids.remove(index);
                         } else {
                             in_all = false;
