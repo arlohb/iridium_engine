@@ -333,102 +333,102 @@ impl Entities {
                 .get(&component_types[0])
                 .expect("Component type not registered.");
             // Return the iterator.
-            entities_to_components
+            return entities_to_components
                 .iter()
                 .map(|(&entity_id, component)| {
                     // Return the entity id and the component.
                     (entity_id, [component; N])
                 })
                 .collect::<Vec<_>>()
+                .into_iter();
+        }
+
+        // Find all the entities that have each component.
+        let mut entities_with_each_component: Vec<Vec<u128>> = {
+            puffin::profile_scope!("entities_with_each_component");
+
+            component_types
                 .into_iter()
-        } else {
-            // Find all the entities that have each component.
-            let mut entities_with_each_component: Vec<Vec<u128>> = {
-                puffin::profile_scope!("entities_with_each_component");
+                // Get all the entities that have each component.
+                .map(|component_type| {
+                    self.components
+                        // Get entities => components for this component type.
+                        .get(&component_type)
+                        // Do this if previous is Some.
+                        .map_or_else(Vec::new, |map| {
+                            map
+                                // Only get the entity id.
+                                .keys()
+                                // From &u128 -> u128
+                                .copied()
+                                // Into a vector.
+                                .collect::<Vec<u128>>()
+                        })
+                })
+                .collect()
+        };
 
-                component_types
-                    .into_iter()
-                    // Get all the entities that have each component.
-                    .map(|component_type| {
-                        self.components
-                            // Get entities => components for this component type.
-                            .get(&component_type)
-                            // Do this if previous is Some.
-                            .map_or_else(Vec::new, |map| {
-                                map
-                                    // Only get the entity id.
-                                    .keys()
-                                    // From &u128 -> u128
-                                    .copied()
-                                    // Into a vector.
-                                    .collect::<Vec<u128>>()
-                            })
-                    })
-                    .collect()
-            };
+        // Find the intersection of the previous.
+        // This is the set of entities that have all the components.
+        let entities_with_all_components = {
+            puffin::profile_scope!("entities_with_all_components");
 
-            // Find the intersection of the previous.
-            // This is the set of entities that have all the components.
-            let entities_with_all_components = {
-                puffin::profile_scope!("entities_with_all_components");
+            let mut ids = vec![];
 
-                let mut ids = vec![];
+            for id in entities_with_each_component
+                .pop()
+                .expect("This shouldn't happen, as length was checked before")
+            {
+                let mut in_all = true;
 
-                for id in entities_with_each_component
-                    .pop()
-                    .expect("This shouldn't happen, as length was checked before")
-                {
-                    let mut in_all = true;
-
-                    for other_ids in &mut entities_with_each_component {
-                        if let Some(index) = other_ids.iter().position(|x| *x == id) {
-                            other_ids.remove(index);
-                        } else {
-                            in_all = false;
-                            break;
-                        };
-                    }
-
-                    if in_all {
-                        ids.push(id);
-                    }
+                for other_ids in &mut entities_with_each_component {
+                    if let Some(index) = other_ids.iter().position(|x| *x == id) {
+                        other_ids.remove(index);
+                    } else {
+                        in_all = false;
+                        break;
+                    };
                 }
 
-                ids
-            };
+                if in_all {
+                    ids.push(id);
+                }
+            }
 
-            puffin::profile_scope!("components_from_ids");
+            ids
+        };
 
-            // Create the final return value for each entity previously found.
-            entities_with_all_components
-                .into_iter()
-                // For each entity id.
-                .map(|id| {
-                    // Get the given components for the entity.
-                    let components_vec = component_types
-                        .into_iter()
-                        // For each component type.
-                        .map(|component_type| {
-                            // Get the map of entities => components.
-                            let entities_to_components = &self.components[&component_type];
-                            // Return the component.
-                            &entities_to_components[&id]
-                        })
-                        // Into a vector.
-                        .collect::<Vec<_>>();
+        puffin::profile_scope!("components_from_ids");
 
-                    // This converts a vector to a sized array.
-                    let components_array: [&ComponentBox; N] =
-                        components_vec.try_into().unwrap_or_else(|_| panic!());
+        // Create the final return value for each entity previously found.
+        entities_with_all_components
+            .into_iter()
+            // For each entity id.
+            .map(|id| {
+                // Get the given components for the entity.
+                let components_vec = component_types
+                    .into_iter()
+                    // For each component type.
+                    .map(|component_type| {
+                        // Get the map of entities => components.
+                        let entities_to_components = &self.components[&component_type];
+                        // Return the component.
+                        &entities_to_components[&id]
+                    })
+                    // Into a vector.
+                    .collect::<Vec<_>>();
 
-                    // Join with the id in a tuple.
-                    (id, components_array)
-                })
-                // Into a vector to evaluate everything.
-                .collect::<Vec<(u128, [_; N])>>()
-                // Into an iterator for ease of use in a system.
-                .into_iter()
-        }
+                // This converts a vector to a sized array.
+                let components_array: [&ComponentBox; N] =
+                    components_vec.try_into().unwrap_or_else(|_| panic!());
+
+                // Join with the id in a tuple.
+                (id, components_array)
+            })
+            // Into a vector to evaluate everything.
+            .collect::<Vec<(u128, [_; N])>>()
+            // Into an iterator for ease of use in a system.
+            .into_iter()
     }
 
     /// Get a single component of a given type.
