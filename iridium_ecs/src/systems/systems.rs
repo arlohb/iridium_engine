@@ -35,7 +35,7 @@ impl Systems {
     }
 
     /// Add a system, this doesn't place it in a stage.
-    pub fn add_system<S: System>(&mut self, system: S) {
+    pub fn add_system(&mut self, system: impl System) {
         self.systems
             .insert(system.name().to_string(), Box::new(system));
     }
@@ -48,56 +48,62 @@ impl Systems {
 
     /// Moves a system up a stage.
     ///
-    /// # Errors
-    ///
-    /// Returns `None` if the system is already at the top,
+    /// Returns false if the system is already at the top,
     /// or if the system doesn't exist.
-    pub fn move_system_up(&mut self, name: &str) -> Option<()> {
+    pub fn move_system_up(&mut self, name: &str) -> bool {
         // Find the system in the stages.
-        let stage_index = self
+        let Some(stage_index) = self
             .stages
             .iter()
-            .position(|stage| stage.contains(&name.to_string()))?;
+            .position(|stage| stage.contains(&name.to_string())) else { return false; };
 
         // Add the system to the stage above.
-        self.stages
-            .get_mut(stage_index.checked_sub(1)?)?
-            .push(name.to_string());
+        let Some(stage_index) = stage_index.checked_sub(1) else {
+            return false;
+        };
+        if let Some(stage) = self.stages.get_mut(stage_index) {
+            stage.push(name.to_string());
+        }
 
         // Remove the system from the stage.
-        let system_in_stage_index = self.stages[stage_index]
+        let Some(system_in_stage_index) = self.stages[stage_index]
             .iter()
-            .position(|system_name| system_name == name)?;
+            .position(|system_name| system_name == name) else {
+                return false;
+            };
         self.stages[stage_index].remove(system_in_stage_index);
 
-        Some(())
+        true
     }
 
     /// Moves a system down a stage.
     ///
     /// # Errors
     ///
-    /// Returns `None` if the system is already at the bottom,
+    /// Returns false if the system is already at the bottom,
     /// or if the system doesn't exist.
-    pub fn move_system_down(&mut self, name: &str) -> Option<()> {
+    pub fn move_system_down(&mut self, name: &str) -> bool {
         // Find the system in the stages.
-        let stage_index = self
+        let Some(stage_index) = self
             .stages
             .iter()
-            .position(|stage| stage.contains(&name.to_string()))?;
+            .position(|stage| stage.contains(&name.to_string())) else { return false; };
 
         // Add the system to the stage above.
-        self.stages
-            .get_mut(stage_index.checked_add(1)?)?
-            .push(name.to_string());
+        let Some(stage_index) = stage_index.checked_add(1) else {
+            return false;
+        };
+        if let Some(stage) = self.stages.get_mut(stage_index) {
+            stage.push(name.to_string());
+        }
 
         // Remove the system from the stage.
-        let system_in_stage_index = self.stages[stage_index]
+        let Some(system_in_stage_index) = self.stages[stage_index]
             .iter()
-            .position(|system_name| system_name == name)?;
+            .position(|system_name| system_name == name) else { return false; };
         self.stages[stage_index].remove(system_in_stage_index);
 
-        Some(())
+        true
     }
 
     /// Executes the systems.
