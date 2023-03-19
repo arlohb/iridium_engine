@@ -71,9 +71,10 @@ impl Systems {
         // Remove the system from the stage.
         let Some(system_in_stage_index) = self.stages[stage_index]
             .iter()
-            .position(|system_name| system_name == name) else {
-                return false;
-            };
+            .position(|system_name| system_name == name)
+        else {
+            return false;
+        };
         self.stages[stage_index].remove(system_in_stage_index);
 
         true
@@ -109,7 +110,10 @@ impl Systems {
         // Remove the system from the stage.
         let Some(system_in_stage_index) = self.stages[stage_index]
             .iter()
-            .position(|system_name| system_name == name) else { return false; };
+            .position(|system_name| system_name == name)
+        else {
+            return false;
+        };
         self.stages[stage_index].remove(system_in_stage_index);
 
         true
