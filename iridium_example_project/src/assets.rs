@@ -133,7 +133,7 @@ pub fn load_default_assets(
 fn create_sphere(points: i32) -> Mesh {
     Mesh {
         vertices: {
-            let radius_points = (0..points).into_iter().map(|i| {
+            let radius_points = (0..points).map(|i| {
                 let theta = 2. * std::f32::consts::PI * (i as f32 / points as f32);
 
                 let x = theta.cos();
@@ -151,7 +151,6 @@ fn create_sphere(points: i32) -> Mesh {
         },
         indices: {
             let mut indices = (0..points)
-                .into_iter()
                 .flat_map(|i| [0, i as u32 + 1, i as u32 + 2])
                 .collect::<Vec<u32>>();
 
