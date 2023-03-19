@@ -24,7 +24,7 @@ unsafe impl Sync for ComponentBox {}
 impl ComponentBox {
     /// Creates a new component from a type that implements `Component`.
     #[must_use]
-    pub fn new<T: Component + 'static>(component: T) -> Self {
+    pub fn new(component: impl Component + 'static) -> Self {
         Self {
             data: Box::new(UnsafeCell::new(component)),
         }
