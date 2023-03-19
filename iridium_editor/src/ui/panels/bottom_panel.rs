@@ -69,20 +69,17 @@ impl PanelUi for BottomPanel {
 
                 match self.current_tab {
                     CurrentTab::Assets => {
-                        let icon_size = 40.;
+                        let icon_width = 40.;
+                        let icon_height = 40. * 4. / 3.;
 
                         let icons_in_row =
-                            (ui.available_width() / (icon_size + 3.5)).trunc() as usize - 1;
+                            (ui.available_width() / (icon_width + 3.5)).trunc() as usize - 1;
 
                         let all_assets = assets.get_all();
 
-                        let texture = &*self.texture.get_or_insert_with(|| {
-                            load_texture(
-                                ui.ctx(),
-                                "iridium_example_project/assets/FoodSprites/Food.png",
-                            )
-                            .1
-                        });
+                        let texture = &*self
+                            .texture
+                            .get_or_insert_with(|| load_texture(ui.ctx(), "FileIcon.png").1);
 
                         egui::ScrollArea::new([false, true])
                             .auto_shrink([false, false])
@@ -97,7 +94,7 @@ impl PanelUi for BottomPanel {
                                         }
 
                                         ui.vertical(|ui| {
-                                            ui.image(texture, (icon_size, icon_size));
+                                            ui.image(texture, (icon_width, icon_height));
                                             ui.label(id);
                                         });
                                     }
