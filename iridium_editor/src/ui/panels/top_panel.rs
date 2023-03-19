@@ -52,21 +52,20 @@ impl PanelUi for TopPanel {
 
                                 if ui
                                     .add_enabled(
-                                        matches!(
-                                            ui_state.play_state(),
-                                            PlayState::Stop | PlayState::Pause
-                                        ),
+                                        ui_state.play_state() != PlayState::Play,
                                         egui::Button::new("▶").frame(false),
                                     )
                                     .clicked()
                                 {
-                                    world.save("temp.json5");
+                                    if ui_state.play_state() == PlayState::Stop {
+                                        world.save("temp.json5");
+                                    }
                                     ui_state.play();
                                 }
 
                                 if ui
                                     .add_enabled(
-                                        matches!(ui_state.play_state(), PlayState::Play),
+                                        ui_state.play_state() == PlayState::Play,
                                         egui::Button::new("⏸").frame(false),
                                     )
                                     .clicked()
@@ -76,10 +75,7 @@ impl PanelUi for TopPanel {
 
                                 if ui
                                     .add_enabled(
-                                        matches!(
-                                            ui_state.play_state(),
-                                            PlayState::Play | PlayState::Pause
-                                        ),
+                                        ui_state.play_state() != PlayState::Stop,
                                         egui::Button::new("■").frame(false),
                                     )
                                     .clicked()
