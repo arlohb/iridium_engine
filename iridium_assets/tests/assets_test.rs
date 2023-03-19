@@ -67,7 +67,7 @@ fn wrong_type() {
 
     let a = assets.get::<Test2>("a").expect("Asset not found");
 
-    let _ = a.get();
+    let _t = a.get();
 }
 
 #[test]
