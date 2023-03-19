@@ -19,6 +19,14 @@ pub enum ButtonState {
     Released,
 }
 
+impl ButtonState {
+    /// Returns true if the button is `Self::Pressed` or `Self::Held`
+    #[must_use]
+    pub fn down(&self) -> bool {
+        (*self == Self::Pressed) | (*self == Self::Held)
+    }
+}
+
 /// Stores the state of the input.
 ///
 /// Despite its name, this is not the state of a system,

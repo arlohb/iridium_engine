@@ -1,4 +1,4 @@
-use iridium_core::{ButtonState, InputState, KeyCode};
+use iridium_core::{InputState, KeyCode};
 use iridium_ecs::Transform;
 use iridium_ecs_macros::{
     system_helper, Component, ComponentStorage, HasStableTypeId, InspectorUi,
@@ -41,16 +41,10 @@ impl MovementSystem {
     ) -> Result<(), String> {
         let input_state = entities.get::<InputState>();
 
-        if matches!(
-            input_state.key(&movement.up),
-            ButtonState::Pressed | ButtonState::Held
-        ) {
+        if input_state.key(&movement.up).down() {
             *transform.position.y_mut() += movement.speed * delta_time as f32;
         }
-        if matches!(
-            input_state.key(&movement.down),
-            ButtonState::Pressed | ButtonState::Held
-        ) {
+        if input_state.key(&movement.down).down() {
             *transform.position.y_mut() -= movement.speed * delta_time as f32;
         }
 
