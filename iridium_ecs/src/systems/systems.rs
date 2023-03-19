@@ -55,13 +55,16 @@ impl Systems {
         let Some(stage_index) = self
             .stages
             .iter()
-            .position(|stage| stage.contains(&name.to_string())) else { return false; };
-
-        // Add the system to the stage above.
-        let Some(stage_index) = stage_index.checked_sub(1) else {
+            .position(|stage| stage.contains(&name.to_string()))
+        else {
             return false;
         };
-        if let Some(stage) = self.stages.get_mut(stage_index) {
+
+        // Add the system to the stage above.
+        let Some(next_index) = stage_index.checked_sub(1) else {
+            return false;
+        };
+        if let Some(stage) = self.stages.get_mut(next_index) {
             stage.push(name.to_string());
         }
 
@@ -87,13 +90,19 @@ impl Systems {
         let Some(stage_index) = self
             .stages
             .iter()
-            .position(|stage| stage.contains(&name.to_string())) else { return false; };
-
-        // Add the system to the stage above.
-        let Some(stage_index) = stage_index.checked_add(1) else {
+            .position(|stage| stage.contains(&name.to_string()))
+        else {
             return false;
         };
-        if let Some(stage) = self.stages.get_mut(stage_index) {
+
+        // Add the system to the stage above.
+        let Some(next_index) = stage_index.checked_add(1) else {
+            return false;
+        };
+        if next_index >= self.stages.len() {
+            return false;
+        }
+        if let Some(stage) = self.stages.get_mut(next_index) {
             stage.push(name.to_string());
         }
 
