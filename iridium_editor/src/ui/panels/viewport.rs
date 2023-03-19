@@ -14,7 +14,16 @@ impl PanelUi for ViewportPanel {
         _world: &mut iridium_ecs::World,
         _assets: &iridium_assets::Assets,
     ) {
-        let physical_rect = context.available_rect();
+        let mut physical_rect = context.available_rect();
+
+        // Prevents panics from wpgu when trying to create a viewport
+        // with a width <= 0
+        //
+        // The bug that originally caused this is fixed,
+        // but the user could still resize the UI to cause this.
+        if physical_rect.width() <= 0. {
+            physical_rect.set_width(10.);
+        }
 
         let screen_space_rect = egui::Rect {
             min: egui::pos2(

@@ -52,13 +52,9 @@ pub struct LogState {
 
 impl InspectorUi for LogState {
     fn ui(&mut self, ui: &mut egui::Ui) {
-        for entry in &self.entries {
-            ui.label(format!(
-                "{}: {}",
-                entry.timestamp.elapsed().as_secs_f32(),
-                entry.message,
-            ));
-        }
+        ui.label(format!("There are {} logs", self.entries().count()));
+        ui.end_row();
+        ui.label("See log panel for more");
     }
 }
 
