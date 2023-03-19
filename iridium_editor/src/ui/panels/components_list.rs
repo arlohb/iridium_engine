@@ -220,11 +220,6 @@ impl PanelUi for ComponentsList {
                     system_states_widget(ui, world);
                 });
 
-            // let min_x_logical = ui.max_rect().min.x - ui.spacing().item_spacing.x;
-            // let min_x_physical = min_x_logical * ui_state.scale_factor;
-            // let min_x_screen = min_x_physical / ui_state.screen_size.0 as f32;
-            // ui_state.viewport_rect.max_x = min_x_screen;
-
             egui::ScrollArea::new([false, true])
                 .always_show_scroll(true)
                 .auto_shrink([false, false])

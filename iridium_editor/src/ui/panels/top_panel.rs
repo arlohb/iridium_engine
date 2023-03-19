@@ -17,11 +17,6 @@ impl PanelUi for TopPanel {
         assets: &Assets,
     ) {
         egui::TopBottomPanel::top("top_panel").show(context, |ui| {
-            // let max_y_logical = ui.max_rect().max.y + ui.spacing().item_spacing.y;
-            // let max_y_physical = max_y_logical * ui_state.scale_factor;
-            // let max_y_screen = max_y_physical / ui_state.screen_size.1 as f32;
-            // ui_state.viewport_rect.min_y = max_y_screen;
-
             ui.add_space(1.);
             ui.columns(3, |columns| {
                 if let [menus, buttons, stats] = columns {
