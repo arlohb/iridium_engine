@@ -4,8 +4,6 @@
 
 mod velocity;
 pub use velocity::*;
-mod death;
-pub use death::*;
 mod collision;
 pub use collision::*;
 mod movement;
@@ -34,11 +32,9 @@ pub fn init_system(world: &mut World, assets: &Assets) {
 
     world.entities.register_component_with_default::<Velocity>();
     world.entities.register_component_with_default::<Wall>();
-    world.entities.register_component_with_default::<Death>();
     world.entities.register_component_with_default::<Movement>();
 
     world.systems.add_system(VelocitySystem);
-    world.systems.add_system(DeathSystem);
     world.systems.add_system(MovementSystem);
     world.systems.add_system(CollisionSystem);
 
