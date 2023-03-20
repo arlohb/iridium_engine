@@ -298,7 +298,7 @@ mod tests {
     }
 
     #[test]
-    fn multiple_errosr() {
+    fn multiple_errors() {
         assert_eq!(
             Systems::find_errors_in_stage(vec![
                 [vec![Test4::stable_type_id()], vec![Test2::stable_type_id()]],
