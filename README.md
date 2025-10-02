@@ -4,6 +4,8 @@
 
 This was a 2D game engine written in Rust for my A Level Computer Science project.
 
+![Demo](./Screenshot.png)
+
 # Features
 
 - A complete data-driven Entity Component System
